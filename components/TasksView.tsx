@@ -43,6 +43,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [showInfo, setShowInfo] = useState(false);
+  const [addStatus, setAddStatus] = useState<TaskStatus | null>(null);
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
   const colRefs = useRef<Partial<Record<TaskStatus, HTMLDivElement | null>>>({});
@@ -93,14 +94,29 @@ export const TasksView: React.FC<TasksViewProps> = ({
   };
 
   const handleSave = (data: Omit<Task, 'id'>, id?: string) => {
-    if (id) onUpdateTask({ ...data, id });
-    else onAddTask(data);
+    if (id) {
+      onUpdateTask({ ...data, id });
+    } else if (addStatus) {
+      const done = addStatus === 'done';
+      onAddTask({ ...data, status: addStatus, completed: done, completedAt: done ? new Date().toISOString() : undefined });
+    } else {
+      onAddTask(data);
+    }
     setIsFormOpen(false);
     setEditingTask(null);
+    setAddStatus(null);
   };
 
   const openEdit = (task: Task) => {
     setEditingTask(task);
+    setAddStatus(null);
+    setIsFormOpen(true);
+  };
+
+  // Abre o formulário já mirando uma coluna do Quadro (A fazer / Fazendo / Concluído)
+  const openAdd = (status: TaskStatus) => {
+    setEditingTask(null);
+    setAddStatus(status);
     setIsFormOpen(true);
   };
 
@@ -161,7 +177,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
           </p>
         </div>
         <button
-          onClick={() => { setEditingTask(null); setIsFormOpen(true); }}
+          onClick={() => { setEditingTask(null); setAddStatus(null); setIsFormOpen(true); }}
           className="hidden md:flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition-all shadow-md shadow-indigo-200 active:scale-95"
         >
           <Plus size={18} />
@@ -347,9 +363,12 @@ export const TasksView: React.FC<TasksViewProps> = ({
                       canMoveNext={colIndex < KANBAN_COLUMNS.length - 1}
                     />
                   ))}
-                  {sorted.length === 0 && (
-                    <p className="text-xs text-slate-300 text-center py-6">Vazio</p>
-                  )}
+                  <button
+                    onClick={() => openAdd(col.id)}
+                    className="w-full flex items-center justify-center gap-1.5 py-2 rounded-xl border border-dashed border-slate-200 text-slate-400 text-sm font-medium hover:border-indigo-300 hover:text-indigo-600 transition-colors"
+                  >
+                    <Plus size={16} /> Adicionar
+                  </button>
                 </div>
               </div>
             );
@@ -381,7 +400,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
           initialTask={editingTask}
           projects={projects}
           onSave={handleSave}
-          onClose={() => { setIsFormOpen(false); setEditingTask(null); }}
+          onClose={() => { setIsFormOpen(false); setEditingTask(null); setAddStatus(null); }}
         />
       )}
       {showInfo && <EisenhowerInfo onClose={() => setShowInfo(false)} />}
