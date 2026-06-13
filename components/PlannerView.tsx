@@ -1,10 +1,10 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Plus, ChevronLeft, ChevronRight, Trash2, CalendarPlus, CircleCheck, Calendar, Columns3, CalendarDays, type LucideIcon } from 'lucide-react';
+import { Plus, ChevronLeft, ChevronRight, Trash2, CalendarPlus, CircleCheck, Calendar, Columns3, CalendarDays, CalendarRange, type LucideIcon } from 'lucide-react';
 import { Task, TimeBlock, GoogleEvent, GOOGLE_EVENT_COLOR, PLANNER_START_HOUR, PLANNER_END_HOUR, PLANNER_HOUR_HEIGHT, WEEKDAY_SHORT } from '../types';
 import { todayISO, addDaysISO, parseISODate, toISODate, timeToMinutes, formatLongDate, formatShortDate } from '../utils';
 import { TimeBlockForm } from './TimeBlockForm';
 
-type ViewMode = 'day' | '3days' | 'month';
+type ViewMode = 'day' | '3days' | 'week' | 'month';
 
 interface PlannerViewProps {
   blocks: TimeBlock[];
@@ -27,6 +27,12 @@ const GRID_HEIGHT = HOURS.length * PLANNER_HOUR_HEIGHT;
 const addMonthsISO = (iso: string, months: number): string => {
   const d = parseISODate(iso);
   d.setMonth(d.getMonth() + months);
+  return toISODate(d);
+};
+
+const weekStartISO = (iso: string): string => {
+  const d = parseISODate(iso);
+  d.setDate(d.getDate() - d.getDay()); // volta para o domingo daquela semana
   return toISODate(d);
 };
 
@@ -229,6 +235,7 @@ export const PlannerView: React.FC<PlannerViewProps> = ({
   const visibleDays = useMemo(() => {
     if (viewMode === 'day') return [anchor];
     if (viewMode === '3days') return [0, 1, 2].map(i => addDaysISO(anchor, i));
+    if (viewMode === 'week') { const s = weekStartISO(anchor); return [0, 1, 2, 3, 4, 5, 6].map(i => addDaysISO(s, i)); }
     return [];
   }, [viewMode, anchor]);
 
@@ -246,12 +253,14 @@ export const PlannerView: React.FC<PlannerViewProps> = ({
   const step = (dir: -1 | 1) => {
     if (viewMode === 'day') setAnchor(addDaysISO(anchor, dir));
     else if (viewMode === '3days') setAnchor(addDaysISO(anchor, dir * 3));
+    else if (viewMode === 'week') setAnchor(addDaysISO(anchor, dir * 7));
     else setAnchor(addMonthsISO(anchor, dir));
   };
 
   const navLabel = () => {
     if (viewMode === 'day') return anchor === todayISO() ? 'Hoje' : formatLongDate(parseISODate(anchor));
     if (viewMode === '3days') return `${formatShortDate(anchor)} – ${formatShortDate(addDaysISO(anchor, 2))}`;
+    if (viewMode === 'week') { const s = weekStartISO(anchor); return `${formatShortDate(s)} – ${formatShortDate(addDaysISO(s, 6))}`; }
     return new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'numeric' }).format(parseISODate(anchor));
   };
 
@@ -270,9 +279,10 @@ export const PlannerView: React.FC<PlannerViewProps> = ({
 
   const allDayEvents = viewMode === 'month' ? [] : visibleDays.flatMap(d => eventsForDay(d).filter(ev => ev.allDay));
 
-  const modes: { id: ViewMode; label: string; Icon: LucideIcon }[] = [
+  const modes: { id: ViewMode; label: string; Icon: LucideIcon; desktopOnly?: boolean }[] = [
     { id: 'day', label: 'Dia', Icon: Calendar },
     { id: '3days', label: '3 dias', Icon: Columns3 },
+    { id: 'week', label: '7 dias', Icon: CalendarRange, desktopOnly: true },
     { id: 'month', label: 'Mês', Icon: CalendarDays },
   ];
 
@@ -293,11 +303,11 @@ export const PlannerView: React.FC<PlannerViewProps> = ({
 
       {/* Alternância de visão */}
       <div className="flex bg-slate-100 rounded-xl p-1 w-fit">
-        {modes.map(({ id, label, Icon }) => (
+        {modes.map(({ id, label, Icon, desktopOnly }) => (
           <button
             key={id}
             onClick={() => setViewMode(id)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${viewMode === id ? 'bg-white shadow-sm text-indigo-700' : 'text-slate-500'}`}
+            className={`${desktopOnly ? 'hidden md:flex' : 'flex'} items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${viewMode === id ? 'bg-white shadow-sm text-indigo-700' : 'text-slate-500'}`}
           >
             <Icon size={16} /> {label}
           </button>
@@ -340,7 +350,7 @@ export const PlannerView: React.FC<PlannerViewProps> = ({
         <MonthGrid anchor={anchor} blocks={blocks} onPickDay={(d) => { setAnchor(d); setViewMode('day'); }} />
       ) : (
         <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-2 md:p-3 overflow-hidden">
-          {viewMode === '3days' && (
+          {(viewMode === '3days' || viewMode === 'week') && (
             <div className="flex">
               <div className="w-10 md:w-12 shrink-0" />
               {visibleDays.map(d => {
@@ -379,7 +389,7 @@ export const PlannerView: React.FC<PlannerViewProps> = ({
                 now={now}
                 googleActive={googleActive}
                 taskById={taskById}
-                dense={viewMode === '3days'}
+                dense={viewMode === '3days' || viewMode === 'week'}
                 onCreateAt={openCreate}
                 onEditBlock={(b) => { setEditingBlock(b); setIsFormOpen(true); }}
                 onSendBlockToGoogle={onSendBlockToGoogle}
