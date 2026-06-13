@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { X, Save, Zap, Star, Plus, Check } from 'lucide-react';
+import { X, Save, Zap, Star, Plus, Check, Calendar } from 'lucide-react';
 import { Task, Subtask, Project, RecurrenceFreq, QUADRANT_INFO, getQuadrant, DEFAULT_TASK_CATEGORIES, RECURRENCE_OPTIONS } from '../types';
 import { uid } from '../utils';
+import { googleAllDayUrl } from '../services/googleCalendar';
 
 interface TaskFormProps {
   initialTask?: Task | null;
@@ -226,6 +227,16 @@ export const TaskForm: React.FC<TaskFormProps> = ({ initialTask, projects, defau
           <button type="submit" className="w-full py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 flex items-center justify-center gap-2 mt-2 active:scale-[0.98] transition-transform">
             <Save size={18} /> Salvar Tarefa
           </button>
+          {dueDate && title.trim() && (
+            <a
+              href={googleAllDayUrl(title, dueDate)}
+              target="_blank"
+              rel="noreferrer"
+              className="w-full py-2.5 rounded-xl border border-slate-200 text-slate-600 font-medium hover:border-[#4285F4] hover:text-[#4285F4] flex items-center justify-center gap-2 text-sm transition-colors"
+            >
+              <Calendar size={16} /> Adicionar prazo ao Google Agenda
+            </a>
+          )}
         </form>
       </div>
     </div>

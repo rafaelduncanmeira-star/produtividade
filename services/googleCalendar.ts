@@ -1,5 +1,5 @@
 import { GoogleEvent, TimeBlock } from '../types';
-import { parseISODate } from '../utils';
+import { parseISODate, toISODate } from '../utils';
 
 // Integração client-side com o Google Calendar via Google Identity Services
 // (token OAuth de curta duração, renovado automaticamente quando expira)
@@ -174,4 +174,13 @@ export const googleCalendarUrl = (e: { title: string; date: string; start: strin
   const day = e.date.replace(/-/g, '');
   const dates = `${day}T${e.start.replace(':', '')}00/${day}T${e.end.replace(':', '')}00`;
   return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(e.title || 'Bloco')}&dates=${dates}`;
+};
+
+// Link mágico para um prazo de tarefa: evento de DIA INTEIRO (fim exclusivo = dia seguinte)
+export const googleAllDayUrl = (title: string, dateISO: string): string => {
+  const start = dateISO.replace(/-/g, '');
+  const next = parseISODate(dateISO);
+  next.setDate(next.getDate() + 1);
+  const end = toISODate(next).replace(/-/g, '');
+  return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title || 'Tarefa')}&dates=${start}/${end}`;
 };
