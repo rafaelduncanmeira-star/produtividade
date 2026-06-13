@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useRef } from 'react';
 import { Plus, List, LayoutGrid, CheckSquare, Columns3, Search, X } from 'lucide-react';
 import { Task, TaskStatus, QUADRANTS, QUADRANT_INFO, getQuadrant, getTaskStatus, KANBAN_COLUMNS, DEFAULT_TASK_CATEGORIES } from '../types';
 import { todayISO, getWeekDays } from '../utils';
@@ -42,6 +42,8 @@ export const TasksView: React.FC<TasksViewProps> = ({
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
+  const colRefs = useRef<Partial<Record<TaskStatus, HTMLDivElement | null>>>({});
+  const [drag, setDrag] = useState<{ id: string; title: string; x: number; y: number; over: TaskStatus | null } | null>(null);
 
   const today = todayISO();
   const weekEnd = getWeekDays()[6];
@@ -105,6 +107,37 @@ export const TasksView: React.FC<TasksViewProps> = ({
     const next = STATUS_ORDER[Math.min(2, Math.max(0, STATUS_ORDER.indexOf(cur) + dir))];
     if (next === cur) return;
     onSetStatus(task.id, next);
+  };
+
+  // Kanban: arrastar (dedo ou mouse) via Pointer Events
+  const colAt = (x: number, y: number): TaskStatus | null => {
+    for (const col of KANBAN_COLUMNS) {
+      const el = colRefs.current[col.id];
+      if (!el) continue;
+      const r = el.getBoundingClientRect();
+      if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) return col.id;
+    }
+    return null;
+  };
+
+  const startDrag = (e: React.PointerEvent, task: Task) => {
+    e.preventDefault();
+    const id = task.id;
+    const from = getTaskStatus(task);
+    document.body.style.userSelect = 'none';
+    setDrag({ id, title: task.title, x: e.clientX, y: e.clientY, over: from });
+    const move = (ev: PointerEvent) =>
+      setDrag(d => (d ? { ...d, x: ev.clientX, y: ev.clientY, over: colAt(ev.clientX, ev.clientY) } : d));
+    const up = (ev: PointerEvent) => {
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+      document.body.style.userSelect = '';
+      const over = colAt(ev.clientX, ev.clientY);
+      setDrag(null);
+      if (over && over !== from) onSetStatus(id, over);
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
   };
 
   return (
@@ -273,7 +306,11 @@ export const TasksView: React.FC<TasksViewProps> = ({
               ? [...colTasks].sort((a, b) => (b.completedAt ?? '').localeCompare(a.completedAt ?? ''))
               : sortByQuadrant(colTasks);
             return (
-              <div key={col.id} className={`rounded-2xl border-2 ${col.ringClass} bg-white/60 p-3`}>
+              <div
+                key={col.id}
+                ref={el => { colRefs.current[col.id] = el; }}
+                className={`rounded-2xl border-2 p-3 transition-colors ${drag && drag.over === col.id ? 'border-indigo-400 bg-indigo-50/60' : `${col.ringClass} bg-white/60`}`}
+              >
                 <div className="flex items-center justify-between mb-3 px-1">
                   <div className="flex items-center gap-2">
                     <span className={`w-2.5 h-2.5 rounded-full ${col.dotClass}`} />
@@ -291,6 +328,8 @@ export const TasksView: React.FC<TasksViewProps> = ({
                       onEdit={openEdit}
                       onFocus={onStartFocusTask}
                       onMove={(_id, dir) => moveTask(task, dir)}
+                      onDragStart={startDrag}
+                      dragging={drag?.id === task.id}
                       canMovePrev={colIndex > 0}
                       canMoveNext={colIndex < KANBAN_COLUMNS.length - 1}
                     />
@@ -302,6 +341,16 @@ export const TasksView: React.FC<TasksViewProps> = ({
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* Fantasma seguindo o cursor durante o arraste */}
+      {drag && (
+        <div
+          className="fixed z-[60] pointer-events-none -translate-x-1/2 -translate-y-1/2 px-3 py-2 rounded-xl bg-white shadow-xl border border-indigo-200 text-sm font-medium text-slate-700 max-w-[220px] truncate opacity-90"
+          style={{ left: drag.x, top: drag.y }}
+        >
+          {drag.title}
         </div>
       )}
 

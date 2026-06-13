@@ -1,5 +1,5 @@
 import React from 'react';
-import { Check, Play, Edit2, Trash2, Calendar, Timer, ChevronLeft, ChevronRight, Repeat, ListChecks } from 'lucide-react';
+import { Check, Play, Edit2, Trash2, Calendar, Timer, ChevronLeft, ChevronRight, Repeat, ListChecks, GripVertical } from 'lucide-react';
 import { Task, QUADRANT_INFO, getQuadrant } from '../types';
 import { todayISO, formatShortDate } from '../utils';
 
@@ -10,6 +10,8 @@ interface KanbanCardProps {
   onEdit: (task: Task) => void;
   onFocus: (id: string) => void;
   onMove: (id: string, dir: -1 | 1) => void;
+  onDragStart: (e: React.PointerEvent, task: Task) => void;
+  dragging?: boolean;
   canMovePrev: boolean;
   canMoveNext: boolean;
 }
@@ -17,13 +19,13 @@ interface KanbanCardProps {
 // Card vertical para o modo Quadro (Kanban): título em destaque (quebra linha,
 // não trunca), metadados abaixo e controles num rodapé — legível em coluna estreita.
 export const KanbanCard: React.FC<KanbanCardProps> = ({
-  task, onToggle, onDelete, onEdit, onFocus, onMove, canMovePrev, canMoveNext,
+  task, onToggle, onDelete, onEdit, onFocus, onMove, onDragStart, dragging, canMovePrev, canMoveNext,
 }) => {
   const quadrant = QUADRANT_INFO[getQuadrant(task)];
   const overdue = !task.completed && !!task.dueDate && task.dueDate < todayISO();
 
   return (
-    <div className="bg-white rounded-xl border border-slate-100 p-3 shadow-sm">
+    <div className={`bg-white rounded-xl border border-slate-100 p-3 shadow-sm select-none ${dragging ? 'opacity-40' : ''}`}>
       <div className="flex items-start gap-2.5">
         <button
           onClick={() => onToggle(task.id)}
@@ -37,6 +39,15 @@ export const KanbanCard: React.FC<KanbanCardProps> = ({
         <p className={`flex-1 min-w-0 text-sm font-medium leading-snug break-words ${task.completed ? 'text-slate-400 line-through' : 'text-slate-700'}`}>
           {task.title}
         </p>
+        <button
+          type="button"
+          onPointerDown={e => onDragStart(e, task)}
+          aria-label="Arrastar para mover"
+          title="Arraste para mover de coluna"
+          className="shrink-0 -mr-1 -mt-0.5 p-1 text-slate-300 hover:text-slate-500 cursor-grab active:cursor-grabbing touch-none"
+        >
+          <GripVertical size={16} />
+        </button>
       </div>
 
       <div className="flex items-center gap-2 flex-wrap mt-2 pl-[30px]">
