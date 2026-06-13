@@ -79,13 +79,14 @@ const DayColumn: React.FC<DayColumnProps> = ({
         const startMin = Math.max(timeToMinutes(ev.start), GRID_START_MIN);
         const endMin = Math.min(timeToMinutes(ev.end || ev.start), PLANNER_END_HOUR * 60);
         const height = Math.max((endMin - startMin) * PX_PER_MIN, 22);
+        const evColor = ev.color ?? GOOGLE_EVENT_COLOR;
         return (
           <div
             key={ev.id}
             className="absolute left-1 right-1 rounded-lg px-2 py-1 border border-dashed overflow-hidden pointer-events-none"
-            style={{ top: (startMin - GRID_START_MIN) * PX_PER_MIN, height, borderColor: `${GOOGLE_EVENT_COLOR}88`, backgroundColor: `${GOOGLE_EVENT_COLOR}0d` }}
+            style={{ top: (startMin - GRID_START_MIN) * PX_PER_MIN, height, borderColor: `${evColor}88`, backgroundColor: `${evColor}0d` }}
           >
-            <p className="text-[11px] font-bold truncate flex items-center gap-1" style={{ color: GOOGLE_EVENT_COLOR }}>
+            <p className="text-[11px] font-bold truncate flex items-center gap-1" style={{ color: evColor }}>
               <Calendar size={10} className="shrink-0" /> {ev.title}
             </p>
             {!dense && <p className="text-[10px] text-slate-500">{ev.start} – {ev.end}</p>}
@@ -341,7 +342,7 @@ export const PlannerView: React.FC<PlannerViewProps> = ({
             <span
               key={ev.id}
               className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full border"
-              style={{ borderColor: `${GOOGLE_EVENT_COLOR}55`, color: GOOGLE_EVENT_COLOR, backgroundColor: `${GOOGLE_EVENT_COLOR}10` }}
+              style={{ borderColor: `${ev.color ?? GOOGLE_EVENT_COLOR}55`, color: ev.color ?? GOOGLE_EVENT_COLOR, backgroundColor: `${ev.color ?? GOOGLE_EVENT_COLOR}10` }}
             >
               <Calendar size={12} /> {ev.title} · dia inteiro
             </span>

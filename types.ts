@@ -181,6 +181,7 @@ export interface GoogleEvent {
   start: string;               // 'HH:mm' ('' para evento de dia inteiro)
   end: string;
   allDay: boolean;
+  color?: string;              // cor da agenda de origem (hex)
 }
 
 export const GOOGLE_EVENT_COLOR = '#4285F4';

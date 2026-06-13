@@ -56,7 +56,7 @@ export const TodayView: React.FC<TodayViewProps> = ({
       .map(b => ({ key: `b-${b.id}`, title: b.title, start: b.start, end: b.end, color: b.color, fromGoogle: false }));
     const eventItems = googleEvents
       .filter(ev => !ev.allDay && !syncedIds.has(ev.id))
-      .map(ev => ({ key: `g-${ev.id}`, title: ev.title, start: ev.start, end: ev.end, color: GOOGLE_EVENT_COLOR, fromGoogle: true }));
+      .map(ev => ({ key: `g-${ev.id}`, title: ev.title, start: ev.start, end: ev.end, color: ev.color ?? GOOGLE_EVENT_COLOR, fromGoogle: true }));
     return [...blockItems, ...eventItems].sort((a, b) => a.start.localeCompare(b.start));
   }, [blocks, googleEvents, today]);
 
@@ -177,7 +177,7 @@ export const TodayView: React.FC<TodayViewProps> = ({
                   <span
                     key={ev.id}
                     className="inline-flex items-center gap-1 text-[11px] font-medium px-2.5 py-1 rounded-full border"
-                    style={{ borderColor: `${GOOGLE_EVENT_COLOR}55`, color: GOOGLE_EVENT_COLOR, backgroundColor: `${GOOGLE_EVENT_COLOR}10` }}
+                    style={{ borderColor: `${ev.color ?? GOOGLE_EVENT_COLOR}55`, color: ev.color ?? GOOGLE_EVENT_COLOR, backgroundColor: `${ev.color ?? GOOGLE_EVENT_COLOR}10` }}
                   >
                     <Calendar size={10} /> {ev.title}
                   </span>

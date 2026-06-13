@@ -4,9 +4,14 @@ import { parseISODate, toISODate } from '../utils';
 // Integração client-side com o Google Calendar via Google Identity Services
 // (token OAuth de curta duração, renovado automaticamente quando expira)
 
-const SCOPE = 'https://www.googleapis.com/auth/calendar.events';
+const SCOPE = 'https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/calendar.readonly';
 const TOKEN_KEY = 'tempo_google_token';
 const API_BASE = 'https://www.googleapis.com/calendar/v3/calendars/primary/events';
+const CAL_LIST_URL = 'https://www.googleapis.com/calendar/v3/users/me/calendarList';
+const calEventsUrl = (calId: string) => `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calId)}/events`;
+
+// cache da lista de agendas do usuário (por sessão)
+let calListCache: { id: string; color?: string }[] | null = null;
 
 declare global {
   interface Window { google?: any }
@@ -76,6 +81,7 @@ export const requestToken = async (clientId: string): Promise<string> => {
 };
 
 export const disconnectGoogle = () => {
+  calListCache = null;
   const token = getValidToken();
   if (token && window.google?.accounts?.oauth2) {
     try { window.google.accounts.oauth2.revoke(token, () => {}); } catch { /* melhor esforço */ }
@@ -94,37 +100,63 @@ const handleApiError = (status: number): never => {
   throw new Error(`Erro do Google Agenda (código ${status}).`);
 };
 
+const mapEvent = (ev: any, dateISO: string, color?: string): GoogleEvent => {
+  const allDay = !!ev.start?.date && !ev.start?.dateTime;
+  const start = ev.start?.dateTime ? new Date(ev.start.dateTime) : null;
+  const end = ev.end?.dateTime ? new Date(ev.end.dateTime) : null;
+  return {
+    id: ev.id,
+    title: ev.summary || '(sem título)',
+    date: dateISO,
+    allDay,
+    start: start ? toHHmm(start) : '',
+    end: end ? toHHmm(end) : '',
+    color,
+  };
+};
+
+// Lista as agendas que o usuário pode ler, com a cor de cada uma (cacheado por sessão).
+const fetchCalendarList = async (token: string): Promise<{ id: string; color?: string }[]> => {
+  if (calListCache) return calListCache;
+  const params = new URLSearchParams({ minAccessRole: 'reader', fields: 'items(id,backgroundColor,deleted)' });
+  const res = await fetch(`${CAL_LIST_URL}?${params}`, { headers: { Authorization: `Bearer ${token}` } });
+  if (!res.ok) {
+    if (res.status === 401) handleApiError(401);
+    return [{ id: 'primary' }];   // sem permissão de listar → usa só a agenda principal
+  }
+  const data = await res.json();
+  const items = (data.items ?? [])
+    .filter((c: any) => !c.deleted)
+    .map((c: any) => ({ id: c.id as string, color: c.backgroundColor as string | undefined }));
+  calListCache = items.length ? items : [{ id: 'primary' }];
+  return calListCache;
+};
+
+// Eventos do dia somando TODAS as agendas do usuário (cada uma com sua cor).
 export const fetchDayEvents = async (dateISO: string, token: string): Promise<GoogleEvent[]> => {
   const dayStart = parseISODate(dateISO);
   const dayEnd = new Date(dayStart);
   dayEnd.setDate(dayEnd.getDate() + 1);
-  const params = new URLSearchParams({
+  const base = {
     timeMin: dayStart.toISOString(),
     timeMax: dayEnd.toISOString(),
     singleEvents: 'true',
     orderBy: 'startTime',
     maxResults: '50',
-  });
-  const res = await fetch(`${API_BASE}?${params}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  if (!res.ok) handleApiError(res.status);
-  const data = await res.json();
-  return (data.items ?? [])
-    .filter((ev: any) => ev.status !== 'cancelled')
-    .map((ev: any): GoogleEvent => {
-      const allDay = !!ev.start?.date && !ev.start?.dateTime;
-      const start = ev.start?.dateTime ? new Date(ev.start.dateTime) : null;
-      const end = ev.end?.dateTime ? new Date(ev.end.dateTime) : null;
-      return {
-        id: ev.id,
-        title: ev.summary || '(sem título)',
-        date: dateISO,
-        allDay,
-        start: start ? toHHmm(start) : '',
-        end: end ? toHHmm(end) : '',
-      };
+  };
+  const cals = await fetchCalendarList(token);
+  const perCalendar = await Promise.all(cals.map(async (cal) => {
+    const res = await fetch(`${calEventsUrl(cal.id)}?${new URLSearchParams(base)}`, {
+      headers: { Authorization: `Bearer ${token}` },
     });
+    if (res.status === 401) handleApiError(401);
+    if (!res.ok) return [] as GoogleEvent[];   // ex.: 403 numa agenda específica → ignora
+    const data = await res.json();
+    return (data.items ?? [])
+      .filter((ev: any) => ev.status !== 'cancelled')
+      .map((ev: any) => mapEvent(ev, dateISO, cal.color));
+  }));
+  return perCalendar.flat().sort((a, b) => a.start.localeCompare(b.start));
 };
 
 export const createEventFromBlock = async (block: TimeBlock, token: string): Promise<string> => {
