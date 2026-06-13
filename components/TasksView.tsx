@@ -12,6 +12,7 @@ interface TasksViewProps {
   onUpdateTask: (task: Task) => void;
   onDeleteTask: (id: string) => void;
   onToggleTask: (id: string) => void;
+  onSetStatus: (id: string, status: TaskStatus) => void;
   onStartFocusTask: (id: string) => void;
 }
 
@@ -29,7 +30,7 @@ const QUADRANT_ORDER: Record<string, number> = { q1: 0, q2: 1, q3: 2, q4: 3 };
 const STATUS_ORDER: TaskStatus[] = ['todo', 'doing', 'done'];
 
 export const TasksView: React.FC<TasksViewProps> = ({
-  tasks, onAddTask, onUpdateTask, onDeleteTask, onToggleTask, onStartFocusTask,
+  tasks, onAddTask, onUpdateTask, onDeleteTask, onToggleTask, onSetStatus, onStartFocusTask,
 }) => {
   const [mode, setMode] = useState<Mode>('list');
   const [filter, setFilter] = useState<Filter>('todas');
@@ -89,12 +90,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
     const cur = getTaskStatus(task);
     const next = STATUS_ORDER[Math.min(2, Math.max(0, STATUS_ORDER.indexOf(cur) + dir))];
     if (next === cur) return;
-    onUpdateTask({
-      ...task,
-      status: next,
-      completed: next === 'done',
-      completedAt: next === 'done' ? (task.completedAt ?? new Date().toISOString()) : undefined,
-    });
+    onSetStatus(task.id, next);
   };
 
   return (

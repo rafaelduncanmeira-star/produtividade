@@ -1,19 +1,24 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { X, Mic, MicOff, Send, Sparkles, LoaderCircle, CheckSquare, CalendarClock, Repeat, Check } from 'lucide-react';
+import { X, Mic, MicOff, Send, Sparkles, LoaderCircle, CheckSquare, CalendarClock, Repeat, Check, CircleCheck, ArrowRightLeft, type LucideIcon } from 'lucide-react';
 import { askAssistant, AIResult, AIAction } from '../services/aiAssistant';
-import { Task, TimeBlock, Habit } from '../types';
+import { Task, TimeBlock, Habit, TaskStatus } from '../types';
 
 interface AIAssistantProps {
+  tasks: Task[];
+  blocks: TimeBlock[];
   onCreateTask: (data: Omit<Task, 'id'>) => void;
   onCreateBlock: (data: Omit<TimeBlock, 'id'>) => void;
   onCreateHabit: (data: Omit<Habit, 'id'>) => void;
+  onSetTaskStatus: (id: string, status: TaskStatus) => void;
   onClose: () => void;
 }
 
-const ACTION_ICONS = {
+const ACTION_ICONS: Record<AIAction['type'], LucideIcon> = {
   create_task: CheckSquare,
   create_block: CalendarClock,
   create_habit: Repeat,
+  complete_task: CircleCheck,
+  set_task_status: ArrowRightLeft,
 };
 
 const SUGGESTIONS = [
@@ -27,7 +32,7 @@ const getSpeechRecognition = (): any => {
   return w.SpeechRecognition || w.webkitSpeechRecognition || null;
 };
 
-export const AIAssistant: React.FC<AIAssistantProps> = ({ onCreateTask, onCreateBlock, onCreateHabit, onClose }) => {
+export const AIAssistant: React.FC<AIAssistantProps> = ({ tasks, blocks, onCreateTask, onCreateBlock, onCreateHabit, onSetTaskStatus, onClose }) => {
   const [input, setInput] = useState('');
   const [listening, setListening] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -83,7 +88,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ onCreateTask, onCreate
     setResult(null);
     setApplied(false);
     try {
-      setResult(await askAssistant(command));
+      setResult(await askAssistant(command, { tasks, blocks }));
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -97,6 +102,8 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ onCreateTask, onCreate
       if (action.type === 'create_task') onCreateTask(action.data);
       else if (action.type === 'create_block') onCreateBlock(action.data);
       else if (action.type === 'create_habit') onCreateHabit(action.data);
+      else if (action.type === 'complete_task') onSetTaskStatus(action.taskId, 'done');
+      else if (action.type === 'set_task_status') onSetTaskStatus(action.taskId, action.status);
     });
     setApplied(true);
     setInput('');

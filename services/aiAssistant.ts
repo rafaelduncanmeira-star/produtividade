@@ -1,6 +1,6 @@
 import { supabase } from './supabaseClient';
 import {
-  Task, TimeBlock, Habit, DEFAULT_TASK_CATEGORIES, HABIT_COLORS, HABIT_EMOJIS, BLOCK_COLORS,
+  Task, TimeBlock, Habit, TaskStatus, DEFAULT_TASK_CATEGORIES, HABIT_COLORS, HABIT_EMOJIS, BLOCK_COLORS, getTaskStatus,
 } from '../types';
 import { todayISO } from '../utils';
 
@@ -14,12 +14,15 @@ export interface AIResult {
 export type AIAction =
   | { type: 'create_task'; data: Omit<Task, 'id'>; label: string }
   | { type: 'create_block'; data: Omit<TimeBlock, 'id'>; label: string }
-  | { type: 'create_habit'; data: Omit<Habit, 'id'>; label: string };
+  | { type: 'create_habit'; data: Omit<Habit, 'id'>; label: string }
+  | { type: 'complete_task'; taskId: string; label: string }
+  | { type: 'set_task_status'; taskId: string; status: TaskStatus; label: string };
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const TIME_RE = /^\d{2}:\d{2}$/;
+const STATUS_LABELS: Record<TaskStatus, string> = { todo: 'A fazer', doing: 'Fazendo', done: 'Concluído' };
 
-const coerceAction = (raw: any, index: number): AIAction | null => {
+const coerceAction = (raw: any, index: number, taskMap: Map<string, Task>): AIAction | null => {
   if (!raw || typeof raw !== 'object') return null;
   const now = new Date().toISOString();
 
@@ -69,12 +72,46 @@ const coerceAction = (raw: any, index: number): AIAction | null => {
     return { type: 'create_habit', data, label: `Hábito: ${data.emoji} ${data.name}` };
   }
 
+  // Concluir uma tarefa existente (id precisa estar na lista enviada à IA)
+  if (raw.type === 'complete_task' && typeof raw.taskId === 'string') {
+    const t = taskMap.get(raw.taskId);
+    if (!t || t.completed) return null;
+    return { type: 'complete_task', taskId: t.id, label: `Concluir: ${t.title}` };
+  }
+
+  // Mover uma tarefa existente no quadro
+  if (raw.type === 'set_task_status' && typeof raw.taskId === 'string'
+    && (raw.status === 'todo' || raw.status === 'doing' || raw.status === 'done')) {
+    const t = taskMap.get(raw.taskId);
+    if (!t || getTaskStatus(t) === raw.status) return null;
+    return { type: 'set_task_status', taskId: t.id, status: raw.status, label: `Mover "${t.title}" → ${STATUS_LABELS[raw.status as TaskStatus]}` };
+  }
+
   return null;
 };
 
-export const askAssistant = async (command: string): Promise<AIResult> => {
+// Contexto enviado à IA: data/hora + tarefas pendentes (com id) + blocos de hoje
+const buildContext = (tasks: Task[], blocks: TimeBlock[]): string => {
   const now = new Date();
-  const context = `Data atual: ${todayISO()} (${new Intl.DateTimeFormat('pt-BR', { weekday: 'long' }).format(now)}), horário atual: ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}.`;
+  const today = todayISO();
+  const dateLine = `Data atual: ${today} (${new Intl.DateTimeFormat('pt-BR', { weekday: 'long' }).format(now)}), horário atual: ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}.`;
+  const pending = tasks.filter(t => !t.completed).slice(0, 40);
+  const tasksLine = pending.length
+    ? `\n\nTAREFAS EXISTENTES (use o id EXATO ao concluir/mover):\n${pending.map(t => `- [${t.id}] ${t.title} (${STATUS_LABELS[getTaskStatus(t)]})`).join('\n')}`
+    : '';
+  const todayBlocks = blocks.filter(b => b.date === today).sort((a, b) => a.start.localeCompare(b.start));
+  const blocksLine = todayBlocks.length
+    ? `\n\nBLOCOS DE HOJE (evite conflitar):\n${todayBlocks.map(b => `- ${b.start}–${b.end} ${b.title}`).join('\n')}`
+    : '';
+  return dateLine + tasksLine + blocksLine;
+};
+
+export const askAssistant = async (
+  command: string,
+  ctx?: { tasks: Task[]; blocks: TimeBlock[] },
+): Promise<AIResult> => {
+  const context = buildContext(ctx?.tasks ?? [], ctx?.blocks ?? []);
+  const taskMap = new Map((ctx?.tasks ?? []).map(t => [t.id, t]));
 
   const { data, error } = await supabase.functions.invoke('tempo-ai', {
     body: { command, context },
@@ -93,7 +130,7 @@ export const askAssistant = async (command: string): Promise<AIResult> => {
   if (data?.error) throw new Error(data.error);
 
   const actions = (Array.isArray(data?.actions) ? data.actions : [])
-    .map((raw: any, i: number) => coerceAction(raw, i))
+    .map((raw: any, i: number) => coerceAction(raw, i, taskMap))
     .filter((a: AIAction | null): a is AIAction => a !== null);
 
   return { reply: typeof data?.reply === 'string' ? data.reply : 'Feito!', actions };

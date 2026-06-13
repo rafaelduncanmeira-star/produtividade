@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { LayoutDashboard, CheckSquare, Timer, Repeat, CalendarClock, BarChart3, MoreHorizontal, X, Calendar, LogOut, Sparkles, Bell, BellRing, BellOff } from 'lucide-react';
 import {
-  Task, Habit, TimeBlock, FocusSession, PomodoroSettings, TimerState, TimerPhase,
+  Task, TaskStatus, Habit, TimeBlock, FocusSession, PomodoroSettings, TimerState, TimerPhase,
   GoogleSettings, GoogleEvent, DEFAULT_POMODORO_SETTINGS, DEFAULT_TIMER_STATE, DEFAULT_GOOGLE_SETTINGS,
 } from './types';
 import { uid, toISODate, todayISO, formatTimerMs, playBeep, nextRecurrenceISO, timeToMinutes } from './utils';
@@ -375,6 +375,26 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
     return next;
   });
 
+  // Define o estágio de uma tarefa (Kanban e IA); concluir gera a próxima ocorrência recorrente
+  const setTaskStatusById = (id: string, status: TaskStatus) => setTasks(prev => {
+    const target = prev.find(t => t.id === id);
+    if (!target) return prev;
+    const done = status === 'done';
+    const ts = new Date().toISOString();
+    let next = prev.map(t => t.id === id
+      ? { ...t, status, completed: done, completedAt: done ? (t.completedAt ?? ts) : undefined }
+      : t);
+    if (done && target.recurrence && !target.recurrenceSpawned) {
+      next = next.map(t => (t.id === id ? { ...t, recurrenceSpawned: true } : t));
+      const nextDue = nextRecurrenceISO(target.recurrence, target.dueDate ?? todayISO());
+      next = [{
+        ...target, id: uid(), completed: false, completedAt: undefined, completedPomodoros: 0,
+        status: 'todo', recurrenceSpawned: false, dueDate: nextDue, createdAt: ts,
+      }, ...next];
+    }
+    return next;
+  });
+
   const quickAddTask = (title: string, dueDate?: string) => addTask({
     title, urgent: false, important: true, dueDate, category: 'Outros',
     estimatedPomodoros: 1, completedPomodoros: 0, completed: false, createdAt: new Date().toISOString(),
@@ -558,6 +578,7 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
               onUpdateTask={updateTask}
               onDeleteTask={deleteTask}
               onToggleTask={toggleTask}
+              onSetStatus={setTaskStatusById}
               onStartFocusTask={startFocusOnTask}
             />
           )}
@@ -697,9 +718,12 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
 
       {isAIOpen && (
         <AIAssistant
+          tasks={tasks}
+          blocks={blocks}
           onCreateTask={addTask}
           onCreateBlock={addBlock}
           onCreateHabit={addHabit}
+          onSetTaskStatus={setTaskStatusById}
           onClose={() => setIsAIOpen(false)}
         />
       )}
