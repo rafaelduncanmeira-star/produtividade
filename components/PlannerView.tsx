@@ -3,6 +3,7 @@ import { Plus, ChevronLeft, ChevronRight, Trash2, CalendarPlus, CircleCheck, Cal
 import { Task, TimeBlock, GoogleEvent, GOOGLE_EVENT_COLOR, PLANNER_START_HOUR, PLANNER_END_HOUR, PLANNER_HOUR_HEIGHT, WEEKDAY_SHORT } from '../types';
 import { todayISO, addDaysISO, parseISODate, toISODate, timeToMinutes, formatLongDate, formatShortDate } from '../utils';
 import { TimeBlockForm } from './TimeBlockForm';
+import { googleCalendarUrl } from '../services/googleCalendar';
 
 type ViewMode = 'day' | '3days' | 'week' | 'month';
 
@@ -116,7 +117,7 @@ const DayColumn: React.FC<DayColumnProps> = ({
               </div>
               {!dense && (
                 <div className="flex items-center gap-0.5 shrink-0">
-                  {googleActive && (block.googleEventId ? (
+                  {googleActive ? (block.googleEventId ? (
                     <span title="Já está no Google Agenda" className="p-1" style={{ color: GOOGLE_EVENT_COLOR }}><CircleCheck size={13} /></span>
                   ) : (
                     <button
@@ -124,7 +125,16 @@ const DayColumn: React.FC<DayColumnProps> = ({
                       title="Enviar para o Google Agenda" aria-label="Enviar para o Google Agenda"
                       className="p-1 text-slate-400 hover:text-[#4285F4]"
                     ><CalendarPlus size={13} /></button>
-                  ))}
+                  )) : (
+                    <a
+                      href={googleCalendarUrl(block)}
+                      target="_blank"
+                      rel="noreferrer"
+                      onClick={e => e.stopPropagation()}
+                      title="Adicionar ao Google Agenda" aria-label="Adicionar ao Google Agenda"
+                      className="p-1 text-slate-400 hover:text-[#4285F4]"
+                    ><CalendarPlus size={13} /></a>
+                  )}
                   <button
                     onClick={e => { e.stopPropagation(); onDeleteBlock(block.id); }}
                     aria-label="Excluir bloco"

@@ -45,6 +45,9 @@ export const GoogleSettingsModal: React.FC<GoogleSettingsModalProps> = ({
         </div>
 
         <div className="p-6 space-y-4 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
+          <div className="bg-indigo-50 border border-indigo-100 rounded-xl px-4 py-3 text-xs text-indigo-700">
+            💡 Para só <strong>adicionar</strong> um bloco ao Google, use o botão <strong>"Adicionar ao Google Agenda"</strong> no próprio bloco — sem precisar conectar nada. A conexão abaixo é <strong>avançada</strong> e serve para <strong>ver</strong> seus eventos do Google aqui dentro.
+          </div>
           {connected ? (
             <div className="flex items-center gap-3 bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3">
               <CircleCheck size={20} className="text-emerald-600 shrink-0" />
@@ -55,14 +58,13 @@ export const GoogleSettingsModal: React.FC<GoogleSettingsModalProps> = ({
             </div>
           ) : (
             <p className="text-sm text-slate-500">
-              Conecte sua conta Google para ver seus eventos dentro do Tempo AI e enviar
-              blocos de tempo para a sua agenda.
+              Conexão avançada: veja os eventos da sua agenda Google aqui dentro (na tela Hoje e no Planejamento). Requer um ID de cliente OAuth próprio.
             </p>
           )}
 
           <div>
             <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">
-              ID do cliente (OAuth)
+              ID do cliente (OAuth) · avançado
             </label>
             <input
               type="text"

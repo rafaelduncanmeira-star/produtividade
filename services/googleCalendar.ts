@@ -167,3 +167,11 @@ const blockToEventBody = (block: TimeBlock) => {
     end: { dateTime: new Date(y, m - 1, d, eh, em).toISOString() },
   };
 };
+
+// "Link mágico": URL do Google Agenda com o evento pré-preenchido — sem login
+// nem configuração. Funciona para qualquer usuário (mão única, 1 clique).
+export const googleCalendarUrl = (e: { title: string; date: string; start: string; end: string }): string => {
+  const day = e.date.replace(/-/g, '');
+  const dates = `${day}T${e.start.replace(':', '')}00/${day}T${e.end.replace(':', '')}00`;
+  return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(e.title || 'Bloco')}&dates=${dates}`;
+};

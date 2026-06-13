@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { X, Save } from 'lucide-react';
+import { X, Save, Calendar } from 'lucide-react';
 import { Task, TimeBlock, BLOCK_COLORS } from '../types';
 import { timeToMinutes } from '../utils';
+import { googleCalendarUrl } from '../services/googleCalendar';
 
 interface TimeBlockFormProps {
   initialBlock?: TimeBlock | null;
@@ -133,6 +134,16 @@ export const TimeBlockForm: React.FC<TimeBlockFormProps> = ({
           <button type="submit" className="w-full py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 flex items-center justify-center gap-2 mt-2">
             <Save size={18} /> Salvar Bloco
           </button>
+          {title.trim() && !invalidRange && (
+            <a
+              href={googleCalendarUrl({ title, date, start, end })}
+              target="_blank"
+              rel="noreferrer"
+              className="w-full py-2.5 rounded-xl border border-slate-200 text-slate-600 font-medium hover:border-[#4285F4] hover:text-[#4285F4] flex items-center justify-center gap-2 text-sm transition-colors"
+            >
+              <Calendar size={16} /> Adicionar ao Google Agenda
+            </a>
+          )}
         </form>
       </div>
     </div>
