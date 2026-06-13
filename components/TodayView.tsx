@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Timer, Play, CalendarClock, ChevronRight, Check, Plus, Calendar } from 'lucide-react';
-import { Task, Habit, TimeBlock, FocusSession, GoogleEvent, GOOGLE_EVENT_COLOR } from '../types';
+import { Task, Habit, TimeBlock, FocusSession, GoogleEvent, DailyReview, GOOGLE_EVENT_COLOR, REVIEW_MOODS } from '../types';
 import { todayISO, getGreeting, formatLongDate, formatMinutes, focusMinutesOn } from '../utils';
 import { TaskItem } from './TaskItem';
 
@@ -18,13 +18,20 @@ interface TodayViewProps {
   onToggleHabitDay: (habitId: string, isoDate: string) => void;
   onStartFocusTask: (id: string) => void;
   onNavigate: (view: string) => void;
+  review?: DailyReview | null;
+  onSaveReview: (mood: number, note: string) => void;
 }
 
 export const TodayView: React.FC<TodayViewProps> = ({
   tasks, habits, blocks, sessions, googleActive, googleEvents, onLoadGoogleEvents,
   onToggleTask, onDeleteTask, onQuickAddTask, onToggleHabitDay, onStartFocusTask, onNavigate,
+  review, onSaveReview,
 }) => {
   const [quickTitle, setQuickTitle] = useState('');
+  const [mood, setMood] = useState(review?.mood ?? 0);
+  const [note, setNote] = useState(review?.note ?? '');
+  const pickMood = (m: number) => { setMood(m); onSaveReview(m, note); };
+  const saveNote = () => { if (mood > 0 || note.trim()) onSaveReview(mood, note); };
   const today = todayISO();
   const weekday = new Date().getDay();
 
@@ -240,6 +247,38 @@ export const TodayView: React.FC<TodayViewProps> = ({
             )}
           </div>
         </div>
+      </div>
+
+      {/* Revisão do dia */}
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4">
+        <h3 className="font-bold text-slate-800 text-sm mb-1">Revisão do dia</h3>
+        <p className="text-[11px] text-slate-400 mb-3">
+          Hoje: {doneToday} {doneToday === 1 ? 'tarefa' : 'tarefas'} · {formatMinutes(focusToday)} de foco · {habitsDone}/{todayHabits.length} hábitos
+        </p>
+        <div className="flex items-center justify-between gap-2">
+          {REVIEW_MOODS.map((emoji, i) => {
+            const val = i + 1;
+            return (
+              <button
+                key={val}
+                onClick={() => pickMood(val)}
+                aria-label={`Humor ${val} de 5`}
+                className={`flex-1 h-11 rounded-xl text-xl transition-all ${mood === val ? 'bg-indigo-50 ring-2 ring-indigo-300 scale-105' : 'bg-slate-50 hover:bg-slate-100'}`}
+              >
+                {emoji}
+              </button>
+            );
+          })}
+        </div>
+        <textarea
+          value={note}
+          onChange={e => setNote(e.target.value)}
+          onBlur={saveNote}
+          rows={2}
+          placeholder="Como foi seu dia? (opcional)"
+          className="w-full mt-3 px-3 py-2 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-200 outline-none text-sm resize-none"
+        />
+        {mood > 0 && <p className="text-[11px] text-emerald-600 mt-1.5">Revisão salva ✓</p>}
       </div>
     </div>
   );

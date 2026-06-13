@@ -142,6 +142,15 @@ export interface Project {
   createdAt: string;           // ISO datetime
 }
 
+// Revisão diária (humor + nota do dia)
+export interface DailyReview {
+  date: string;                // 'YYYY-MM-DD'
+  mood: number;                // 1..5
+  note?: string;
+}
+
+export const REVIEW_MOODS = ['😞', '😐', '🙂', '😀', '🤩'];
+
 export interface TimeBlock {
   id: string;
   date: string;                // 'YYYY-MM-DD'

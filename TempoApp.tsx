@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { LayoutDashboard, CheckSquare, Timer, Repeat, CalendarClock, BarChart3, MoreHorizontal, X, Calendar, LogOut, Sparkles, Bell, BellRing, BellOff, Sun, Moon, Target } from 'lucide-react';
 import {
-  Task, TaskStatus, Habit, Project, TimeBlock, FocusSession, PomodoroSettings, TimerState, TimerPhase,
+  Task, TaskStatus, Habit, Project, DailyReview, TimeBlock, FocusSession, PomodoroSettings, TimerState, TimerPhase,
   GoogleSettings, GoogleEvent, DEFAULT_POMODORO_SETTINGS, DEFAULT_TIMER_STATE, DEFAULT_GOOGLE_SETTINGS,
 } from './types';
 import { uid, toISODate, todayISO, formatTimerMs, playBeep, nextRecurrenceISO, timeToMinutes } from './utils';
@@ -91,6 +91,7 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
   const [sessions, setSessions] = useState<FocusSession[]>(() => initial.sessions ?? []);
   const [habits, setHabits] = useState<Habit[]>(() => initial.habits ?? INITIAL_HABITS);
   const [projects, setProjects] = useState<Project[]>(() => initial.projects ?? []);
+  const [reviews, setReviews] = useState<DailyReview[]>(() => initial.reviews ?? []);
   const [blocks, setBlocks] = useState<TimeBlock[]>(() => initial.blocks ?? INITIAL_BLOCKS);
   const [settings, setSettings] = useState<PomodoroSettings>(() => ({ ...DEFAULT_POMODORO_SETTINGS, ...initial.pomodoroSettings }));
   const [timer, setTimer] = useState<TimerState>(() => ({ ...DEFAULT_TIMER_STATE, ...initial.timer }));
@@ -98,8 +99,8 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
 
   // Notifica o App pai a cada mudança; ele salva na nuvem (com debounce)
   const snapshot = useMemo<AppSnapshot>(() => ({
-    tasks, sessions, habits, blocks, projects, pomodoroSettings: settings, timer, googleSettings,
-  }), [tasks, sessions, habits, blocks, projects, settings, timer, googleSettings]);
+    tasks, sessions, habits, blocks, projects, reviews, pomodoroSettings: settings, timer, googleSettings,
+  }), [tasks, sessions, habits, blocks, projects, reviews, settings, timer, googleSettings]);
   useEffect(() => { onSnapshotChange(snapshot); }, [snapshot, onSnapshotChange]);
 
   // --- Google Agenda ---
@@ -432,6 +433,12 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
     if (taskList.length) setTasks(prev => [...taskList.map(t => ({ ...t, id: uid(), projectId })), ...prev]);
   };
 
+  // Revisão diária: 1 registro por data (humor + nota)
+  const saveDailyReview = (date: string, mood: number, note: string) => setReviews(prev => {
+    const others = prev.filter(r => r.date !== date);
+    return [...others, { date, mood, note: note.trim() || undefined }];
+  });
+
   // Sincronização automática com o Google Agenda (silenciosa; o botão
   // manual no Planejamento continua disponível para blocos antigos)
   const autoSyncNewBlock = async (block: TimeBlock) => {
@@ -602,6 +609,8 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
               onToggleHabitDay={toggleHabitDay}
               onStartFocusTask={startFocusOnTask}
               onNavigate={(v) => navigate(v as View)}
+              review={reviews.find(r => r.date === todayISO()) ?? null}
+              onSaveReview={(mood, note) => saveDailyReview(todayISO(), mood, note)}
             />
           )}
           {currentView === 'tasks' && (
