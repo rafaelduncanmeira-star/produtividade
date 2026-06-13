@@ -1,0 +1,14 @@
+# Dependências
+node_modules/
+
+# Saída de build
+dist/
+
+# Logs e temporários
+*.log
+.DS_Store
+
+# Variáveis de ambiente locais (o app não usa env em produção, mas por segurança)
+.env
+.env.*
+!.env.example
