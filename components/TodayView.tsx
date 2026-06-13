@@ -168,7 +168,7 @@ export const TodayView: React.FC<TodayViewProps> = ({
             <div className="flex items-center justify-between mb-3">
               <h3 className="font-bold text-slate-800 text-sm">Agenda de hoje</h3>
               <button onClick={() => onNavigate('planner')} className="text-xs text-indigo-600 font-medium flex items-center gap-0.5 hover:underline">
-                Planejar dia <ChevronRight size={12} />
+                Abrir agenda <ChevronRight size={12} />
               </button>
             </div>
             {allDayEvents.length > 0 && (

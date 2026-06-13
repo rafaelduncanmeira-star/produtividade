@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Plus, ChevronLeft, ChevronRight, Trash2, CalendarPlus, CircleCheck, Calendar, Columns3, CalendarDays, CalendarRange, type LucideIcon } from 'lucide-react';
 import { Task, TimeBlock, GoogleEvent, GOOGLE_EVENT_COLOR, PLANNER_START_HOUR, PLANNER_END_HOUR, PLANNER_HOUR_HEIGHT, WEEKDAY_SHORT } from '../types';
 import { todayISO, addDaysISO, parseISODate, toISODate, timeToMinutes, formatLongDate, formatShortDate } from '../utils';
@@ -47,14 +47,16 @@ interface DayColumnProps {
   taskById: Map<string, Task>;
   dense?: boolean;
   onCreateAt: (date: string, hour: number) => void;
-  onEditBlock: (b: TimeBlock) => void;
+  onBlockPointerDown: (e: React.PointerEvent, b: TimeBlock) => void;
   onSendBlockToGoogle: (b: TimeBlock) => void;
   onDeleteBlock: (id: string) => void;
+  colRef?: (el: HTMLDivElement | null) => void;
+  draggingId?: string | null;
 }
 
 const DayColumn: React.FC<DayColumnProps> = ({
   date, blocks, googleEvents, now, googleActive, taskById, dense,
-  onCreateAt, onEditBlock, onSendBlockToGoogle, onDeleteBlock,
+  onCreateAt, onBlockPointerDown, onSendBlockToGoogle, onDeleteBlock, colRef, draggingId,
 }) => {
   const isToday = date === todayISO();
   const dayBlocks = useMemo(
@@ -65,7 +67,7 @@ const DayColumn: React.FC<DayColumnProps> = ({
   const showNowLine = isToday && nowMinutes >= GRID_START_MIN && nowMinutes <= PLANNER_END_HOUR * 60;
 
   return (
-    <div className="relative flex-1 min-w-0 border-l border-slate-100 first:border-l-0" style={{ height: GRID_HEIGHT }}>
+    <div ref={colRef} className="relative flex-1 min-w-0 border-l border-slate-100 first:border-l-0" style={{ height: GRID_HEIGHT }}>
       {HOURS.map((hour, i) => (
         <div
           key={hour}
@@ -102,8 +104,8 @@ const DayColumn: React.FC<DayColumnProps> = ({
         return (
           <div
             key={block.id}
-            onClick={() => onEditBlock(block)}
-            className="group absolute left-1 right-1 rounded-lg px-2 py-1 cursor-pointer border-l-4 overflow-hidden hover:brightness-95 transition-all"
+            onPointerDown={e => onBlockPointerDown(e, block)}
+            className={`group absolute left-1 right-1 rounded-lg px-2 py-1 cursor-grab active:cursor-grabbing touch-none border-l-4 overflow-hidden hover:brightness-95 transition-all ${block.id === draggingId ? 'opacity-80 ring-2 ring-indigo-400 z-20 shadow-lg' : ''}`}
             style={{ top: (startMin - GRID_START_MIN) * PX_PER_MIN, height, backgroundColor: `${block.color}26`, borderLeftColor: block.color }}
           >
             <div className="flex items-start justify-between gap-1">
@@ -240,6 +242,8 @@ export const PlannerView: React.FC<PlannerViewProps> = ({
   const [createDate, setCreateDate] = useState(todayISO());
   const [prefillStart, setPrefillStart] = useState<string | null>(null);
   const [now, setNow] = useState(new Date());
+  const colRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const [blockDrag, setBlockDrag] = useState<{ blockId: string; dur: number; overDate: string; startMin: number } | null>(null);
 
   useEffect(() => {
     const iv = setInterval(() => setNow(new Date()), 60000);
@@ -290,6 +294,69 @@ export const PlannerView: React.FC<PlannerViewProps> = ({
     setIsFormOpen(false);
     setEditingBlock(null);
   };
+
+  const minToHHmm = (min: number) => `${String(Math.floor(min / 60)).padStart(2, '0')}:${String(min % 60).padStart(2, '0')}`;
+  const openBlockEdit = (b: TimeBlock) => { setEditingBlock(b); setIsFormOpen(true); };
+
+  const dateAt = (x: number): string | null => {
+    for (const d of visibleDays) {
+      const el = colRefs.current[d];
+      if (!el) continue;
+      const r = el.getBoundingClientRect();
+      if (x >= r.left && x <= r.right) return d;
+    }
+    return null;
+  };
+
+  // Arrastar um bloco para remarcar: eixo Y muda o horário (snap 15min); colunas mudam o dia
+  const startBlockDrag = (e: React.PointerEvent, block: TimeBlock) => {
+    if ((e.target as HTMLElement).closest('button, a')) return;  // botões internos do bloco
+    e.preventDefault();
+    const startX = e.clientX, startY = e.clientY;
+    const dur = timeToMinutes(block.end) - timeToMinutes(block.start);
+    const col0 = colRefs.current[block.date];
+    const grabMin = col0 ? (startY - col0.getBoundingClientRect().top) / PX_PER_MIN + GRID_START_MIN : timeToMinutes(block.start);
+    const offset = grabMin - timeToMinutes(block.start);
+    let moved = false;
+
+    const compute = (x: number, y: number) => {
+      const overDate = dateAt(x) ?? block.date;
+      const c = colRefs.current[overDate] ?? col0;
+      const top = c ? c.getBoundingClientRect().top : 0;
+      let startMin = (y - top) / PX_PER_MIN + GRID_START_MIN - offset;
+      startMin = Math.round(startMin / 15) * 15;
+      startMin = Math.max(GRID_START_MIN, Math.min(startMin, PLANNER_END_HOUR * 60 - dur));
+      return { overDate, startMin };
+    };
+
+    const move = (ev: PointerEvent) => {
+      if (!moved && Math.abs(ev.clientX - startX) < 5 && Math.abs(ev.clientY - startY) < 5) return;
+      moved = true;
+      const { overDate, startMin } = compute(ev.clientX, ev.clientY);
+      setBlockDrag({ blockId: block.id, dur, overDate, startMin });
+    };
+    const up = (ev: PointerEvent) => {
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+      if (!moved) { openBlockEdit(block); return; }
+      const { overDate, startMin } = compute(ev.clientX, ev.clientY);
+      setBlockDrag(null);
+      const start = minToHHmm(startMin);
+      if (overDate !== block.date || start !== block.start) {
+        onUpdateBlock({ ...block, date: overDate, start, end: minToHHmm(startMin + dur) });
+      }
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+  };
+
+  const previewBlocks = useMemo(() => {
+    if (!blockDrag) return blocks;
+    const start = minToHHmm(blockDrag.startMin);
+    const end = minToHHmm(blockDrag.startMin + blockDrag.dur);
+    return blocks.map(b => (b.id === blockDrag.blockId ? { ...b, date: blockDrag.overDate, start, end } : b));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [blocks, blockDrag]);
 
   const allDayEvents = viewMode === 'month' ? [] : visibleDays.flatMap(d => eventsForDay(d).filter(ev => ev.allDay));
 
@@ -398,14 +465,16 @@ export const PlannerView: React.FC<PlannerViewProps> = ({
               <DayColumn
                 key={d}
                 date={d}
-                blocks={blocks}
+                blocks={previewBlocks}
                 googleEvents={eventsForDay(d).filter(ev => !ev.allDay)}
                 now={now}
                 googleActive={googleActive}
                 taskById={taskById}
                 dense={viewMode === '3days' || viewMode === 'week'}
+                colRef={(el) => { colRefs.current[d] = el; }}
+                draggingId={blockDrag?.blockId ?? null}
                 onCreateAt={openCreate}
-                onEditBlock={(b) => { setEditingBlock(b); setIsFormOpen(true); }}
+                onBlockPointerDown={startBlockDrag}
                 onSendBlockToGoogle={onSendBlockToGoogle}
                 onDeleteBlock={onDeleteBlock}
               />
@@ -415,7 +484,7 @@ export const PlannerView: React.FC<PlannerViewProps> = ({
       )}
 
       {viewMode !== 'month' && (
-        <p className="text-center text-sm text-slate-400 -mt-2">Toque em um horário para criar um bloco.</p>
+        <p className="text-center text-sm text-slate-400 -mt-2">Toque num horário para criar · arraste um bloco para remarcar.</p>
       )}
 
       {/* FAB (mobile) */}

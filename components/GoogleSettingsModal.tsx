@@ -55,7 +55,7 @@ export const GoogleSettingsModal: React.FC<GoogleSettingsModalProps> = ({
             </div>
           ) : (
             <p className="text-sm text-slate-500">
-              Conecte sua conta Google <strong>uma vez</strong>: seus eventos passam a aparecer no Planejamento e na tela Hoje, e você envia blocos para a sua agenda direto daqui.
+              Conecte sua conta Google <strong>uma vez</strong>: seus eventos passam a aparecer na Agenda e na tela Hoje, e você envia blocos para a sua agenda direto daqui.
             </p>
           )}
 

@@ -53,7 +53,7 @@ const NAV_ITEMS: { id: View; label: string; icon: React.ElementType }[] = [
   { id: 'metas', label: 'Metas', icon: Target },
   { id: 'focus', label: 'Foco', icon: Timer },
   { id: 'habits', label: 'Hábitos', icon: Repeat },
-  { id: 'planner', label: 'Planejamento', icon: CalendarClock },
+  { id: 'planner', label: 'Agenda', icon: CalendarClock },
   { id: 'reports', label: 'Relatórios', icon: BarChart3 },
 ];
 
