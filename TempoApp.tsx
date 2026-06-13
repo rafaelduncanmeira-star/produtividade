@@ -310,6 +310,10 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
       };
     });
     setCurrentView('focus');
+    // Kanban: focar numa tarefa também a move para "Fazendo"
+    setTasks(prev => prev.map(task =>
+      task.id === taskId && !task.completed ? { ...task, status: 'doing' } : task
+    ));
   };
 
   // --- Handlers de entidades ---

@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import { Plus, List, LayoutGrid, CheckSquare } from 'lucide-react';
-import { Task, QUADRANTS, QUADRANT_INFO, getQuadrant } from '../types';
+import { Plus, List, LayoutGrid, CheckSquare, Columns3 } from 'lucide-react';
+import { Task, TaskStatus, QUADRANTS, QUADRANT_INFO, getQuadrant, getTaskStatus, KANBAN_COLUMNS } from '../types';
 import { todayISO, getWeekDays } from '../utils';
 import { TaskItem } from './TaskItem';
 import { TaskForm } from './TaskForm';
@@ -14,7 +14,7 @@ interface TasksViewProps {
   onStartFocusTask: (id: string) => void;
 }
 
-type Mode = 'list' | 'matrix';
+type Mode = 'list' | 'matrix' | 'board';
 type Filter = 'hoje' | 'semana' | 'todas' | 'concluidas';
 
 const FILTERS: { id: Filter; label: string }[] = [
@@ -25,6 +25,7 @@ const FILTERS: { id: Filter; label: string }[] = [
 ];
 
 const QUADRANT_ORDER: Record<string, number> = { q1: 0, q2: 1, q3: 2, q4: 3 };
+const STATUS_ORDER: TaskStatus[] = ['todo', 'doing', 'done'];
 
 export const TasksView: React.FC<TasksViewProps> = ({
   tasks, onAddTask, onUpdateTask, onDeleteTask, onToggleTask, onStartFocusTask,
@@ -82,6 +83,19 @@ export const TasksView: React.FC<TasksViewProps> = ({
     setIsFormOpen(true);
   };
 
+  // Kanban: move a tarefa uma coluna para trás (-1) ou para frente (+1)
+  const moveTask = (task: Task, dir: -1 | 1) => {
+    const cur = getTaskStatus(task);
+    const next = STATUS_ORDER[Math.min(2, Math.max(0, STATUS_ORDER.indexOf(cur) + dir))];
+    if (next === cur) return;
+    onUpdateTask({
+      ...task,
+      status: next,
+      completed: next === 'done',
+      completedAt: next === 'done' ? (task.completedAt ?? new Date().toISOString()) : undefined,
+    });
+  };
+
   return (
     <div className="space-y-5">
       <div className="flex items-start justify-between gap-4">
@@ -112,6 +126,12 @@ export const TasksView: React.FC<TasksViewProps> = ({
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${mode === 'matrix' ? 'bg-white shadow-sm text-indigo-700' : 'text-slate-500'}`}
           >
             <LayoutGrid size={16} /> Matriz
+          </button>
+          <button
+            onClick={() => setMode('board')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${mode === 'board' ? 'bg-white shadow-sm text-indigo-700' : 'text-slate-500'}`}
+          >
+            <Columns3 size={16} /> Quadro
           </button>
         </div>
 
@@ -162,7 +182,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
             </div>
           )}
         </div>
-      ) : (
+      ) : mode === 'matrix' ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {QUADRANTS.map(q => {
             const info = QUADRANT_INFO[q];
@@ -190,6 +210,45 @@ export const TasksView: React.FC<TasksViewProps> = ({
                   ))}
                   {qTasks.length === 0 && (
                     <p className="text-xs text-slate-300 text-center py-4">Vazio</p>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {KANBAN_COLUMNS.map((col, colIndex) => {
+            const colTasks = tasks.filter(t => getTaskStatus(t) === col.id);
+            const sorted = col.id === 'done'
+              ? [...colTasks].sort((a, b) => (b.completedAt ?? '').localeCompare(a.completedAt ?? ''))
+              : sortByQuadrant(colTasks);
+            return (
+              <div key={col.id} className={`rounded-2xl border-2 ${col.ringClass} bg-white/60 p-3`}>
+                <div className="flex items-center justify-between mb-3 px-1">
+                  <div className="flex items-center gap-2">
+                    <span className={`w-2.5 h-2.5 rounded-full ${col.dotClass}`} />
+                    <h3 className="font-bold text-slate-700 text-sm">{col.label}</h3>
+                  </div>
+                  <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">{sorted.length}</span>
+                </div>
+                <div className="space-y-1.5 max-h-[60vh] overflow-y-auto no-scrollbar">
+                  {sorted.map(task => (
+                    <TaskItem
+                      key={task.id}
+                      task={task}
+                      compact
+                      onToggle={onToggleTask}
+                      onDelete={onDeleteTask}
+                      onEdit={openEdit}
+                      onFocus={onStartFocusTask}
+                      onMove={(_id, dir) => moveTask(task, dir)}
+                      canMovePrev={colIndex > 0}
+                      canMoveNext={colIndex < KANBAN_COLUMNS.length - 1}
+                    />
+                  ))}
+                  {sorted.length === 0 && (
+                    <p className="text-xs text-slate-300 text-center py-6">Vazio</p>
                   )}
                 </div>
               </div>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Check, Edit2, Trash2, Play, Timer, Calendar } from 'lucide-react';
+import { Check, Edit2, Trash2, Play, Timer, Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Task, QUADRANT_INFO, getQuadrant } from '../types';
 import { todayISO, formatShortDate } from '../utils';
 
@@ -9,10 +9,13 @@ interface TaskItemProps {
   onDelete: (id: string) => void;
   onEdit?: (task: Task) => void;
   onFocus?: (id: string) => void;
+  onMove?: (id: string, dir: -1 | 1) => void;  // Kanban: mover entre colunas
+  canMovePrev?: boolean;
+  canMoveNext?: boolean;
   compact?: boolean;
 }
 
-export const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, onDelete, onEdit, onFocus, compact }) => {
+export const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, onDelete, onEdit, onFocus, onMove, canMovePrev, canMoveNext, compact }) => {
   const quadrant = QUADRANT_INFO[getQuadrant(task)];
   const overdue = !task.completed && !!task.dueDate && task.dueDate < todayISO();
 
@@ -49,6 +52,27 @@ export const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, onDelete, on
           )}
         </div>
       </div>
+
+      {onMove && (
+        <div className="flex items-center gap-0.5 shrink-0">
+          <button
+            onClick={() => onMove(task.id, -1)}
+            disabled={!canMovePrev}
+            aria-label="Mover para a coluna anterior"
+            className="p-1.5 rounded-lg text-slate-400 enabled:hover:text-indigo-600 enabled:hover:bg-indigo-50 disabled:opacity-20 transition-colors"
+          >
+            <ChevronLeft size={16} />
+          </button>
+          <button
+            onClick={() => onMove(task.id, 1)}
+            disabled={!canMoveNext}
+            aria-label="Mover para a próxima coluna"
+            className="p-1.5 rounded-lg text-slate-400 enabled:hover:text-emerald-600 enabled:hover:bg-emerald-50 disabled:opacity-20 transition-colors"
+          >
+            <ChevronRight size={16} />
+          </button>
+        </div>
+      )}
 
       <div className="flex gap-0.5 shrink-0 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
         {onFocus && !task.completed && (

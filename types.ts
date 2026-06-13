@@ -53,6 +53,9 @@ export const getQuadrant = (task: Pick<Task, 'urgent' | 'important'>): Quadrant 
 
 // --- Entidades ---
 
+// Kanban: estágio da tarefa. 'done' é espelhado por `completed` (compatibilidade).
+export type TaskStatus = 'todo' | 'doing' | 'done';
+
 export interface Task {
   id: string;
   title: string;
@@ -64,8 +67,26 @@ export interface Task {
   completedPomodoros: number;
   completed: boolean;
   completedAt?: string;        // ISO datetime
+  status?: TaskStatus;         // coluna do Kanban; ausente = 'todo' (ou 'done' se completed)
   createdAt: string;           // ISO datetime
 }
+
+// Estágio efetivo da tarefa no Kanban (deriva de `completed` + `status`).
+export const getTaskStatus = (task: Pick<Task, 'completed' | 'status'>): TaskStatus =>
+  task.completed ? 'done' : task.status === 'doing' ? 'doing' : 'todo';
+
+export interface KanbanColumnInfo {
+  id: TaskStatus;
+  label: string;
+  dotClass: string;   // cor do marcador da coluna
+  ringClass: string;  // borda da coluna
+}
+
+export const KANBAN_COLUMNS: KanbanColumnInfo[] = [
+  { id: 'todo', label: 'A fazer', dotClass: 'bg-slate-400', ringClass: 'border-slate-200' },
+  { id: 'doing', label: 'Fazendo', dotClass: 'bg-indigo-500', ringClass: 'border-indigo-200' },
+  { id: 'done', label: 'Concluído', dotClass: 'bg-emerald-500', ringClass: 'border-emerald-200' },
+];
 
 export interface FocusSession {
   id: string;
