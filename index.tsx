@@ -13,3 +13,10 @@ root.render(
     <App />
   </React.StrictMode>
 );
+
+// PWA: registra o Service Worker (instalável + carregamento offline do shell)
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  });
+}
