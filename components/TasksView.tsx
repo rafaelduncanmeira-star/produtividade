@@ -158,9 +158,17 @@ export const TasksView: React.FC<TasksViewProps> = ({
             type="text"
             value={quickTitle}
             onChange={e => setQuickTitle(e.target.value)}
-            placeholder="Adicionar tarefa rápida e apertar Enter..."
-            className="flex-1 px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-200 outline-none text-sm bg-white"
+            placeholder="Adicionar tarefa rápida..."
+            className="flex-1 min-w-0 px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-200 outline-none text-sm bg-white"
           />
+          <button
+            type="submit"
+            disabled={!quickTitle.trim()}
+            aria-label="Adicionar tarefa"
+            className="shrink-0 w-12 flex items-center justify-center rounded-xl bg-indigo-600 text-white enabled:hover:bg-indigo-700 enabled:active:scale-95 transition-all disabled:opacity-40"
+          >
+            <Plus size={20} />
+          </button>
         </form>
       )}
 

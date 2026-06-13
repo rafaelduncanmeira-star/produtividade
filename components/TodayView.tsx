@@ -122,16 +122,21 @@ export const TodayView: React.FC<TodayViewProps> = ({
             </button>
           </div>
           <form onSubmit={handleQuickAdd} className="flex gap-2 mb-3">
-            <div className="flex-1 relative">
-              <Plus size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300" />
-              <input
-                type="text"
-                value={quickTitle}
-                onChange={e => setQuickTitle(e.target.value)}
-                placeholder="Nova tarefa para hoje..."
-                className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-200 outline-none text-sm"
-              />
-            </div>
+            <input
+              type="text"
+              value={quickTitle}
+              onChange={e => setQuickTitle(e.target.value)}
+              placeholder="Nova tarefa para hoje..."
+              className="flex-1 min-w-0 px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-200 outline-none text-sm"
+            />
+            <button
+              type="submit"
+              disabled={!quickTitle.trim()}
+              aria-label="Adicionar tarefa"
+              className="shrink-0 w-11 flex items-center justify-center rounded-xl bg-indigo-600 text-white enabled:hover:bg-indigo-700 enabled:active:scale-95 transition-all disabled:opacity-40"
+            >
+              <Plus size={20} />
+            </button>
           </form>
           <div className="space-y-1.5">
             {todayTasks.map(task => (
