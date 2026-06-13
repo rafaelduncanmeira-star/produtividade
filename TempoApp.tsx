@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
-import { LayoutDashboard, CheckSquare, Timer, Repeat, CalendarClock, BarChart3, MoreHorizontal, X, Calendar, LogOut, Sparkles } from 'lucide-react';
+import { LayoutDashboard, CheckSquare, Timer, Repeat, CalendarClock, BarChart3, MoreHorizontal, X, Calendar, LogOut, Sparkles, Bell, BellRing, BellOff } from 'lucide-react';
 import {
   Task, Habit, TimeBlock, FocusSession, PomodoroSettings, TimerState, TimerPhase,
   GoogleSettings, GoogleEvent, DEFAULT_POMODORO_SETTINGS, DEFAULT_TIMER_STATE, DEFAULT_GOOGLE_SETTINGS,
 } from './types';
-import { uid, toISODate, todayISO, formatTimerMs, playBeep, nextRecurrenceISO } from './utils';
+import { uid, toISODate, todayISO, formatTimerMs, playBeep, nextRecurrenceISO, timeToMinutes } from './utils';
 import { AppSnapshot } from './services/cloudStore';
+import { notifPermission, requestNotifPermission, sendNotification } from './services/notifications';
 import {
   getValidToken, requestToken, disconnectGoogle, fetchDayEvents,
   createEventFromBlock, updateEventFromBlock, deleteEventById,
@@ -172,6 +173,8 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
   useEffect(() => { settingsRef.current = settings; }, [settings]);
 
   const [nowTick, setNowTick] = useState(Date.now());
+  const [notifPerm, setNotifPerm] = useState<NotificationPermission | 'unsupported'>(notifPermission());
+  const notifiedRef = useRef<Set<string>>(new Set());
 
   const completePhase = useCallback(() => {
     const t = timerRef.current;
@@ -208,6 +211,10 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
       });
     }
     if (s.soundEnabled) playBeep();
+    sendNotification(
+      t.phase === 'focus' ? 'Foco concluído! 🎉' : 'Pausa encerrada ⏰',
+      t.phase === 'focus' ? 'Hora de uma pausa.' : 'Bora focar!'
+    );
   }, []);
 
   // Recuperação pós-reload: fase terminou enquanto a página estava fechada
@@ -244,6 +251,27 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
       document.title = 'Tempo AI';
     }
   }, [remainingMs, timer.status, timer.phase]);
+
+  // Lembretes (app aberto): avisa quando um bloco de hoje está prestes a começar
+  useEffect(() => {
+    if (notifPerm !== 'granted') return;
+    const check = () => {
+      const today = todayISO();
+      const d = new Date();
+      const nowMin = d.getHours() * 60 + d.getMinutes();
+      blocks.filter(b => b.date === today).forEach(b => {
+        const diff = timeToMinutes(b.start) - nowMin;
+        const key = `${today}:${b.id}`;
+        if (diff >= 0 && diff <= 5 && !notifiedRef.current.has(key)) {
+          notifiedRef.current.add(key);
+          sendNotification(`⏰ ${b.title}`, diff === 0 ? `Começa agora · ${b.start}` : `Começa em ${diff} min · ${b.start}`);
+        }
+      });
+    };
+    check();
+    const iv = setInterval(check, 30000);
+    return () => clearInterval(iv);
+  }, [notifPerm, blocks]);
 
   const startTimer = () => {
     setTimer(prev => {
@@ -405,6 +433,14 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
     setMoreOpen(false);
   };
 
+  const handleNotifClick = async () => {
+    if (notifPerm === 'granted') { sendNotification('Lembretes já estão ativos ✅'); return; }
+    if (notifPerm === 'denied' || notifPerm === 'unsupported') return;
+    const p = await requestNotifPermission();
+    setNotifPerm(p);
+    if (p === 'granted') sendNotification('Lembretes ativados ✅', 'Avisaremos dos blocos e do fim do Pomodoro.');
+  };
+
   const timerActive = timer.status === 'running' || timer.status === 'paused';
 
   return (
@@ -448,6 +484,17 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
             <span>Google Agenda</span>
             {googleConnected && <span className="ml-auto w-2 h-2 rounded-full bg-emerald-500" />}
           </button>
+          {notifPerm !== 'unsupported' && (
+            <button
+              onClick={handleNotifClick}
+              title={notifPerm === 'denied' ? 'Notificações bloqueadas no navegador' : 'Lembretes de blocos e Pomodoro'}
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-500 hover:bg-slate-50 hover:text-slate-700 transition-colors"
+            >
+              {notifPerm === 'granted' ? <BellRing size={18} className="text-indigo-600" /> : notifPerm === 'denied' ? <BellOff size={18} /> : <Bell size={18} />}
+              <span>Lembretes</span>
+              {notifPerm === 'granted' && <span className="ml-auto w-2 h-2 rounded-full bg-emerald-500" />}
+            </button>
+          )}
         </div>
         <div className="px-4 py-3 border-t border-slate-100 flex items-center gap-2">
           <div className="flex-1 min-w-0">
@@ -468,15 +515,22 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
         {/* Top bar (mobile) */}
         <header className="md:hidden sticky top-0 z-30 bg-white/90 backdrop-blur border-b border-slate-100 px-4 py-3 flex items-center justify-between">
           <h1 className="text-lg font-bold bg-gradient-to-r from-indigo-600 to-violet-500 bg-clip-text text-transparent">Tempo AI</h1>
-          {timerActive && currentView !== 'focus' && (
-            <button
-              onClick={() => navigate('focus')}
-              className="flex items-center gap-1.5 bg-indigo-600 text-white text-xs font-bold px-3 py-1.5 rounded-full tabular-nums active:scale-95 transition-transform"
-            >
-              <Timer size={14} />
-              {formatTimerMs(remainingMs)}
-            </button>
-          )}
+          <div className="flex items-center gap-2">
+            {timerActive && currentView !== 'focus' && (
+              <button
+                onClick={() => navigate('focus')}
+                className="flex items-center gap-1.5 bg-indigo-600 text-white text-xs font-bold px-3 py-1.5 rounded-full tabular-nums active:scale-95 transition-transform"
+              >
+                <Timer size={14} />
+                {formatTimerMs(remainingMs)}
+              </button>
+            )}
+            {notifPerm !== 'unsupported' && (
+              <button onClick={handleNotifClick} aria-label="Lembretes" className="p-1 text-slate-400">
+                {notifPerm === 'granted' ? <BellRing size={20} className="text-indigo-600" /> : notifPerm === 'denied' ? <BellOff size={20} /> : <Bell size={20} />}
+              </button>
+            )}
+          </div>
         </header>
 
         <main className="p-4 md:p-8 pb-28 md:pb-8 max-w-5xl mx-auto">
