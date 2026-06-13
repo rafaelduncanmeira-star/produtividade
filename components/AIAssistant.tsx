@@ -1,7 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { X, Mic, MicOff, Send, Sparkles, LoaderCircle, CheckSquare, CalendarClock, Repeat, Check, CircleCheck, ArrowRightLeft, type LucideIcon } from 'lucide-react';
+import { X, Mic, MicOff, Send, Sparkles, LoaderCircle, CheckSquare, CalendarClock, Repeat, Check, CircleCheck, ArrowRightLeft, Pencil, type LucideIcon } from 'lucide-react';
 import { askAssistant, AIResult, AIAction } from '../services/aiAssistant';
 import { Task, TimeBlock, Habit, TaskStatus } from '../types';
+import { TaskForm } from './TaskForm';
+import { TimeBlockForm } from './TimeBlockForm';
+import { HabitForm } from './HabitForm';
 
 interface AIAssistantProps {
   tasks: Task[];
@@ -39,6 +42,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ tasks, blocks, onCreat
   const [result, setResult] = useState<AIResult | null>(null);
   const [applied, setApplied] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const recognitionRef = useRef<any>(null);
   const speechSupported = getSpeechRecognition() !== null;
 
@@ -109,7 +113,34 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ tasks, blocks, onCreat
     setInput('');
   };
 
+  const labelFor = (type: AIAction['type'], data: any): string => {
+    if (type === 'create_task') return `Tarefa: ${data.title}${data.dueDate ? ` (até ${data.dueDate.slice(8, 10)}/${data.dueDate.slice(5, 7)})` : ''}`;
+    if (type === 'create_block') return `Bloco: ${data.title} — ${data.date.slice(8, 10)}/${data.date.slice(5, 7)} ${data.start}–${data.end}`;
+    if (type === 'create_habit') return `Hábito: ${data.emoji} ${data.name}`;
+    return '';
+  };
+
+  // Substitui os dados de uma ação proposta após edição no formulário
+  const updateAction = (index: number, data: any) => {
+    setResult(prev => {
+      if (!prev) return prev;
+      const actions = prev.actions.map((a, i) =>
+        i === index && (a.type === 'create_task' || a.type === 'create_block' || a.type === 'create_habit')
+          ? ({ ...a, data, label: labelFor(a.type, data) } as AIAction)
+          : a
+      );
+      return { ...prev, actions };
+    });
+    setEditingIndex(null);
+  };
+
+  const removeAction = (index: number) =>
+    setResult(prev => (prev ? { ...prev, actions: prev.actions.filter((_, i) => i !== index) } : prev));
+
+  const editing = editingIndex !== null && result ? result.actions[editingIndex] : null;
+
   return (
+    <>
     <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/50 backdrop-blur-sm md:p-4">
       <div className="bg-white rounded-t-2xl md:rounded-2xl shadow-xl w-full max-w-md overflow-hidden max-h-[92vh] flex flex-col">
         <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-gradient-to-r from-indigo-600 to-violet-600 text-white">
@@ -197,11 +228,25 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ tasks, blocks, onCreat
                   </p>
                   {result.actions.map((action, i) => {
                     const Icon = ACTION_ICONS[action.type];
+                    const editable = action.type === 'create_task' || action.type === 'create_block' || action.type === 'create_habit';
                     return (
                       <div key={i} className="flex items-center gap-2.5 bg-slate-50 rounded-lg px-3 py-2.5">
                         <Icon size={15} className={applied ? 'text-emerald-500' : 'text-indigo-500'} />
                         <span className="text-sm text-slate-600 flex-1">{action.label}</span>
-                        {applied && <Check size={15} className="text-emerald-500" strokeWidth={3} />}
+                        {applied ? (
+                          <Check size={15} className="text-emerald-500" strokeWidth={3} />
+                        ) : (
+                          <div className="flex items-center gap-0.5 shrink-0">
+                            {editable && (
+                              <button onClick={() => setEditingIndex(i)} aria-label="Editar" className="p-1 text-slate-400 hover:text-indigo-600 rounded-md hover:bg-indigo-50 transition-colors">
+                                <Pencil size={14} />
+                              </button>
+                            )}
+                            <button onClick={() => removeAction(i)} aria-label="Remover" className="p-1 text-slate-400 hover:text-rose-600 rounded-md hover:bg-rose-50 transition-colors">
+                              <X size={14} />
+                            </button>
+                          </div>
+                        )}
                       </div>
                     );
                   })}
@@ -235,5 +280,30 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ tasks, blocks, onCreat
         </div>
       </div>
     </div>
+
+    {editing && editing.type === 'create_task' && (
+      <TaskForm
+        initialTask={{ ...editing.data, id: 'ai-edit' }}
+        onSave={(data) => updateAction(editingIndex!, data)}
+        onClose={() => setEditingIndex(null)}
+      />
+    )}
+    {editing && editing.type === 'create_block' && (
+      <TimeBlockForm
+        initialBlock={{ ...editing.data, id: 'ai-edit' }}
+        defaultDate={editing.data.date}
+        tasks={tasks}
+        onSave={(data) => updateAction(editingIndex!, data)}
+        onClose={() => setEditingIndex(null)}
+      />
+    )}
+    {editing && editing.type === 'create_habit' && (
+      <HabitForm
+        initialHabit={{ ...editing.data, id: 'ai-edit' }}
+        onSave={(data) => updateAction(editingIndex!, data)}
+        onClose={() => setEditingIndex(null)}
+      />
+    )}
+    </>
   );
 };
