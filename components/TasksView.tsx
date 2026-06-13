@@ -1,6 +1,6 @@
-import React, { useState, useMemo } from 'react';
-import { Plus, List, LayoutGrid, CheckSquare, Columns3 } from 'lucide-react';
-import { Task, TaskStatus, QUADRANTS, QUADRANT_INFO, getQuadrant, getTaskStatus, KANBAN_COLUMNS } from '../types';
+import React, { useState, useMemo, useCallback } from 'react';
+import { Plus, List, LayoutGrid, CheckSquare, Columns3, Search, X } from 'lucide-react';
+import { Task, TaskStatus, QUADRANTS, QUADRANT_INFO, getQuadrant, getTaskStatus, KANBAN_COLUMNS, DEFAULT_TASK_CATEGORIES } from '../types';
 import { todayISO, getWeekDays } from '../utils';
 import { TaskItem } from './TaskItem';
 import { KanbanCard } from './KanbanCard';
@@ -29,6 +29,9 @@ const FILTERS: { id: Filter; label: string }[] = [
 const QUADRANT_ORDER: Record<string, number> = { q1: 0, q2: 1, q3: 2, q4: 3 };
 const STATUS_ORDER: TaskStatus[] = ['todo', 'doing', 'done'];
 
+// normaliza p/ busca (minúsculas, sem acentos)
+const norm = (s: string) => s.toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '');
+
 export const TasksView: React.FC<TasksViewProps> = ({
   tasks, onAddTask, onUpdateTask, onDeleteTask, onToggleTask, onSetStatus, onStartFocusTask,
 }) => {
@@ -37,28 +40,39 @@ export const TasksView: React.FC<TasksViewProps> = ({
   const [quickTitle, setQuickTitle] = useState('');
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [search, setSearch] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('');
 
   const today = todayISO();
   const weekEnd = getWeekDays()[6];
 
+  const matches = useCallback((t: Task) => {
+    if (categoryFilter && t.category !== categoryFilter) return false;
+    if (!search.trim()) return true;
+    const q = norm(search);
+    return norm(t.title).includes(q) || (t.subtasks ?? []).some(s => norm(s.title).includes(q));
+  }, [search, categoryFilter]);
+
   const sortByQuadrant = (list: Task[]) =>
     [...list].sort((a, b) => QUADRANT_ORDER[getQuadrant(a)] - QUADRANT_ORDER[getQuadrant(b)]);
+
+  const src = useMemo(() => tasks.filter(matches), [tasks, matches]);
 
   const filtered = useMemo(() => {
     switch (filter) {
       case 'hoje':
-        return sortByQuadrant(tasks.filter(t => !t.completed && !!t.dueDate && t.dueDate <= today));
+        return sortByQuadrant(src.filter(t => !t.completed && !!t.dueDate && t.dueDate <= today));
       case 'semana':
-        return sortByQuadrant(tasks.filter(t => !t.completed && !!t.dueDate && t.dueDate <= weekEnd));
+        return sortByQuadrant(src.filter(t => !t.completed && !!t.dueDate && t.dueDate <= weekEnd));
       case 'todas':
-        return sortByQuadrant(tasks.filter(t => !t.completed));
+        return sortByQuadrant(src.filter(t => !t.completed));
       case 'concluidas':
-        return [...tasks.filter(t => t.completed)]
+        return [...src.filter(t => t.completed)]
           .sort((a, b) => (b.completedAt ?? '').localeCompare(a.completedAt ?? ''));
     }
-  }, [tasks, filter, today, weekEnd]);
+  }, [src, filter, today, weekEnd]);
 
-  const pending = useMemo(() => tasks.filter(t => !t.completed), [tasks]);
+  const pending = useMemo(() => src.filter(t => !t.completed), [src]);
 
   const handleQuickAdd = (e: React.FormEvent) => {
     e.preventDefault();
@@ -147,6 +161,34 @@ export const TasksView: React.FC<TasksViewProps> = ({
         )}
       </div>
 
+      {/* Busca + categoria */}
+      <div className="flex items-center gap-2">
+        <div className="relative flex-1 min-w-0">
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+          <input
+            type="text"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Buscar tarefa..."
+            className="w-full pl-9 pr-9 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-200 outline-none text-sm bg-white"
+          />
+          {search && (
+            <button onClick={() => setSearch('')} aria-label="Limpar busca" className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600">
+              <X size={15} />
+            </button>
+          )}
+        </div>
+        <select
+          value={categoryFilter}
+          onChange={e => setCategoryFilter(e.target.value)}
+          aria-label="Filtrar por categoria"
+          className="shrink-0 px-3 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-200 outline-none text-sm bg-white text-slate-600"
+        >
+          <option value="">Todas categorias</option>
+          {DEFAULT_TASK_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+        </select>
+      </div>
+
       {/* Quick add */}
       {filter !== 'concluidas' && (
         <form onSubmit={handleQuickAdd} className="flex gap-2">
@@ -226,7 +268,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {KANBAN_COLUMNS.map((col, colIndex) => {
-            const colTasks = tasks.filter(t => getTaskStatus(t) === col.id);
+            const colTasks = src.filter(t => getTaskStatus(t) === col.id);
             const sorted = col.id === 'done'
               ? [...colTasks].sort((a, b) => (b.completedAt ?? '').localeCompare(a.completedAt ?? ''))
               : sortByQuadrant(colTasks);
