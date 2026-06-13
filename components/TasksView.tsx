@@ -1,10 +1,11 @@
 import React, { useState, useMemo, useCallback, useRef } from 'react';
-import { Plus, List, LayoutGrid, CheckSquare, Columns3, Search, X } from 'lucide-react';
+import { Plus, List, LayoutGrid, CheckSquare, Columns3, Search, X, Info } from 'lucide-react';
 import { Task, TaskStatus, Project, QUADRANTS, QUADRANT_INFO, getQuadrant, getTaskStatus, KANBAN_COLUMNS, DEFAULT_TASK_CATEGORIES } from '../types';
 import { todayISO, getWeekDays } from '../utils';
 import { TaskItem } from './TaskItem';
 import { KanbanCard } from './KanbanCard';
 import { TaskForm } from './TaskForm';
+import { EisenhowerInfo } from './EisenhowerInfo';
 
 interface TasksViewProps {
   tasks: Task[];
@@ -41,6 +42,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
   const [quickTitle, setQuickTitle] = useState('');
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [showInfo, setShowInfo] = useState(false);
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
   const colRefs = useRef<Partial<Record<TaskStatus, HTMLDivElement | null>>>({});
@@ -146,7 +148,17 @@ export const TasksView: React.FC<TasksViewProps> = ({
       <div className="flex items-start justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold text-slate-800">Tarefas</h2>
-          <p className="text-slate-500 text-sm">Priorize com a Matriz de Eisenhower.</p>
+          <p className="text-slate-500 text-sm flex items-center gap-1.5">
+            Priorize com a Matriz de Eisenhower.
+            <button
+              onClick={() => setShowInfo(true)}
+              aria-label="Como usar a Matriz de Eisenhower"
+              title="Como usar a Matriz de Eisenhower?"
+              className="text-slate-400 hover:text-indigo-600 transition-colors"
+            >
+              <Info size={15} />
+            </button>
+          </p>
         </div>
         <button
           onClick={() => { setEditingTask(null); setIsFormOpen(true); }}
@@ -372,6 +384,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
           onClose={() => { setIsFormOpen(false); setEditingTask(null); }}
         />
       )}
+      {showInfo && <EisenhowerInfo onClose={() => setShowInfo(false)} />}
     </div>
   );
 };
