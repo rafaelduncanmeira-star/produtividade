@@ -3,6 +3,7 @@ import { Plus, List, LayoutGrid, CheckSquare, Columns3 } from 'lucide-react';
 import { Task, TaskStatus, QUADRANTS, QUADRANT_INFO, getQuadrant, getTaskStatus, KANBAN_COLUMNS } from '../types';
 import { todayISO, getWeekDays } from '../utils';
 import { TaskItem } from './TaskItem';
+import { KanbanCard } from './KanbanCard';
 import { TaskForm } from './TaskForm';
 
 interface TasksViewProps {
@@ -232,12 +233,11 @@ export const TasksView: React.FC<TasksViewProps> = ({
                   </div>
                   <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">{sorted.length}</span>
                 </div>
-                <div className="space-y-1.5 max-h-[60vh] overflow-y-auto no-scrollbar">
+                <div className="space-y-2 max-h-[60vh] overflow-y-auto no-scrollbar">
                   {sorted.map(task => (
-                    <TaskItem
+                    <KanbanCard
                       key={task.id}
                       task={task}
-                      compact
                       onToggle={onToggleTask}
                       onDelete={onDeleteTask}
                       onEdit={openEdit}
