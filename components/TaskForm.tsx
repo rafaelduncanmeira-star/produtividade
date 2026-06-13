@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { X, Save, Zap, Star } from 'lucide-react';
-import { Task, RecurrenceFreq, QUADRANT_INFO, getQuadrant, DEFAULT_TASK_CATEGORIES, RECURRENCE_OPTIONS } from '../types';
+import { X, Save, Zap, Star, Plus, Check } from 'lucide-react';
+import { Task, Subtask, RecurrenceFreq, QUADRANT_INFO, getQuadrant, DEFAULT_TASK_CATEGORIES, RECURRENCE_OPTIONS } from '../types';
+import { uid } from '../utils';
 
 interface TaskFormProps {
   initialTask?: Task | null;
@@ -16,12 +17,25 @@ export const TaskForm: React.FC<TaskFormProps> = ({ initialTask, onSave, onClose
   const [category, setCategory] = useState(initialTask?.category ?? DEFAULT_TASK_CATEGORIES[0]);
   const [estimatedPomodoros, setEstimatedPomodoros] = useState(String(initialTask?.estimatedPomodoros ?? 1));
   const [recurrence, setRecurrence] = useState<'' | RecurrenceFreq>(initialTask?.recurrence ?? '');
+  const [subtasks, setSubtasks] = useState<Subtask[]>(initialTask?.subtasks ?? []);
+  const [newSub, setNewSub] = useState('');
 
   const quadrant = QUADRANT_INFO[getQuadrant({ urgent, important })];
+
+  const addSub = () => {
+    const t = newSub.trim();
+    if (!t) return;
+    setSubtasks(prev => [...prev, { id: uid(), title: t, done: false }]);
+    setNewSub('');
+  };
+  const toggleSub = (id: string) => setSubtasks(prev => prev.map(s => (s.id === id ? { ...s, done: !s.done } : s)));
+  const renameSub = (id: string, title: string) => setSubtasks(prev => prev.map(s => (s.id === id ? { ...s, title } : s)));
+  const removeSub = (id: string) => setSubtasks(prev => prev.filter(s => s.id !== id));
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) return;
+    const cleanSubs = subtasks.map(s => ({ ...s, title: s.title.trim() })).filter(s => s.title);
     onSave({
       title: title.trim(),
       urgent,
@@ -35,6 +49,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({ initialTask, onSave, onClose
       status: initialTask?.status,
       recurrence: recurrence || undefined,
       recurrenceSpawned: initialTask?.recurrenceSpawned,
+      subtasks: cleanSubs.length ? cleanSubs : undefined,
       createdAt: initialTask?.createdAt ?? new Date().toISOString(),
     }, initialTask?.id);
   };
@@ -145,6 +160,49 @@ export const TaskForm: React.FC<TaskFormProps> = ({ initialTask, onSave, onClose
               {RECURRENCE_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
             </select>
             {recurrence && <p className="text-[11px] text-slate-400 mt-1">Ao concluir, a próxima ocorrência é criada automaticamente.</p>}
+          </div>
+
+          <div>
+            <div className="flex items-center justify-between mb-1">
+              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider">Subtarefas</label>
+              {subtasks.length > 0 && (
+                <span className="text-[11px] text-slate-400">{subtasks.filter(s => s.done).length}/{subtasks.length}</span>
+              )}
+            </div>
+            <div className="space-y-1.5">
+              {subtasks.map(st => (
+                <div key={st.id} className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => toggleSub(st.id)}
+                    aria-label={st.done ? 'Desmarcar passo' : 'Marcar passo'}
+                    className={`shrink-0 w-5 h-5 rounded-md border-2 flex items-center justify-center transition-colors ${st.done ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-slate-300 text-transparent'}`}
+                  >
+                    <Check size={12} strokeWidth={3} />
+                  </button>
+                  <input
+                    value={st.title}
+                    onChange={e => renameSub(st.id, e.target.value)}
+                    className={`flex-1 min-w-0 px-2 py-1.5 rounded-lg border border-slate-200 text-sm outline-none focus:ring-2 focus:ring-indigo-200 ${st.done ? 'line-through text-slate-400' : ''}`}
+                  />
+                  <button type="button" onClick={() => removeSub(st.id)} aria-label="Remover passo" className="p-1 text-slate-300 hover:text-rose-600 shrink-0">
+                    <X size={15} />
+                  </button>
+                </div>
+              ))}
+              <div className="flex items-center gap-2">
+                <input
+                  value={newSub}
+                  onChange={e => setNewSub(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addSub(); } }}
+                  placeholder="Adicionar passo..."
+                  className="flex-1 min-w-0 px-2 py-1.5 rounded-lg border border-dashed border-slate-300 text-sm outline-none focus:ring-2 focus:ring-indigo-200"
+                />
+                <button type="button" onClick={addSub} aria-label="Adicionar subtarefa" className="p-1.5 text-indigo-600 hover:bg-indigo-50 rounded-lg shrink-0">
+                  <Plus size={18} />
+                </button>
+              </div>
+            </div>
           </div>
 
           <button type="submit" className="w-full py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 flex items-center justify-center gap-2 mt-2 active:scale-[0.98] transition-transform">

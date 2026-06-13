@@ -2,7 +2,7 @@ import { supabase } from './supabaseClient';
 import {
   Task, TimeBlock, Habit, TaskStatus, DEFAULT_TASK_CATEGORIES, HABIT_COLORS, HABIT_EMOJIS, BLOCK_COLORS, getTaskStatus,
 } from '../types';
-import { todayISO } from '../utils';
+import { todayISO, uid } from '../utils';
 
 // Ações estruturadas devolvidas pelo assistente (validadas aqui no cliente)
 
@@ -29,6 +29,10 @@ const coerceAction = (raw: any, index: number, taskMap: Map<string, Task>): AIAc
   if (raw.type === 'create_task' && typeof raw.title === 'string' && raw.title.trim()) {
     const dueDate = typeof raw.dueDate === 'string' && DATE_RE.test(raw.dueDate) ? raw.dueDate : undefined;
     const category = DEFAULT_TASK_CATEGORIES.includes(raw.category) ? raw.category : 'Outros';
+    const subs = Array.isArray(raw.subtasks)
+      ? raw.subtasks.filter((s: unknown): s is string => typeof s === 'string' && !!s.trim())
+          .slice(0, 8).map((s: string) => ({ id: uid(), title: s.trim().slice(0, 100), done: false }))
+      : [];
     const data: Omit<Task, 'id'> = {
       title: raw.title.trim().slice(0, 120),
       urgent: !!raw.urgent,
@@ -38,9 +42,10 @@ const coerceAction = (raw: any, index: number, taskMap: Map<string, Task>): AIAc
       estimatedPomodoros: Math.min(12, Math.max(0, Math.round(Number(raw.estimatedPomodoros)) || 1)),
       completedPomodoros: 0,
       completed: false,
+      subtasks: subs.length ? subs : undefined,
       createdAt: now,
     };
-    return { type: 'create_task', data, label: `Tarefa: ${data.title}${dueDate ? ` (até ${dueDate.slice(8, 10)}/${dueDate.slice(5, 7)})` : ''}` };
+    return { type: 'create_task', data, label: `Tarefa: ${data.title}${dueDate ? ` (até ${dueDate.slice(8, 10)}/${dueDate.slice(5, 7)})` : ''}${subs.length ? ` · ${subs.length} passos` : ''}` };
   }
 
   if (raw.type === 'create_block' && typeof raw.title === 'string' && raw.title.trim()

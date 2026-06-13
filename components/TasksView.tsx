@@ -178,6 +178,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
               onDelete={onDeleteTask}
               onEdit={openEdit}
               onFocus={onStartFocusTask}
+              onUpdate={onUpdateTask}
             />
           ))}
           {filtered.length === 0 && (
@@ -211,6 +212,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
                       onDelete={onDeleteTask}
                       onEdit={openEdit}
                       onFocus={onStartFocusTask}
+                      onUpdate={onUpdateTask}
                     />
                   ))}
                   {qTasks.length === 0 && (

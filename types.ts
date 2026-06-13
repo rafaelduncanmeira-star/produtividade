@@ -59,6 +59,13 @@ export type TaskStatus = 'todo' | 'doing' | 'done';
 // Recorrência: ao concluir, gera a próxima ocorrência.
 export type RecurrenceFreq = 'daily' | 'weekdays' | 'weekly' | 'monthly';
 
+// Subtarefa (checklist dentro de uma tarefa)
+export interface Subtask {
+  id: string;
+  title: string;
+  done: boolean;
+}
+
 export interface Task {
   id: string;
   title: string;
@@ -73,6 +80,7 @@ export interface Task {
   status?: TaskStatus;         // coluna do Kanban; ausente = 'todo' (ou 'done' se completed)
   recurrence?: RecurrenceFreq; // se definido, concluir gera a próxima ocorrência
   recurrenceSpawned?: boolean; // marca interna p/ não gerar a próxima ocorrência duas vezes
+  subtasks?: Subtask[];        // checklist opcional
   createdAt: string;           // ISO datetime
 }
 
