@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
-import { LayoutDashboard, CheckSquare, Timer, Repeat, CalendarClock, BarChart3, MoreHorizontal, X, Calendar, LogOut, Sparkles, Bell, BellRing, BellOff, Sun, Moon } from 'lucide-react';
+import { LayoutDashboard, CheckSquare, Timer, Repeat, CalendarClock, BarChart3, MoreHorizontal, X, Calendar, LogOut, Sparkles, Bell, BellRing, BellOff, Sun, Moon, Target } from 'lucide-react';
 import {
-  Task, TaskStatus, Habit, TimeBlock, FocusSession, PomodoroSettings, TimerState, TimerPhase,
+  Task, TaskStatus, Habit, Project, TimeBlock, FocusSession, PomodoroSettings, TimerState, TimerPhase,
   GoogleSettings, GoogleEvent, DEFAULT_POMODORO_SETTINGS, DEFAULT_TIMER_STATE, DEFAULT_GOOGLE_SETTINGS,
 } from './types';
 import { uid, toISODate, todayISO, formatTimerMs, playBeep, nextRecurrenceISO, timeToMinutes } from './utils';
@@ -20,6 +20,7 @@ import { PlannerView } from './components/PlannerView';
 import { ReportsView } from './components/ReportsView';
 import { GoogleSettingsModal } from './components/GoogleSettingsModal';
 import { AIAssistant } from './components/AIAssistant';
+import { MetasView } from './components/MetasView';
 
 // Dados iniciais de exemplo
 const now = new Date().toISOString();
@@ -44,11 +45,12 @@ const INITIAL_BLOCKS: TimeBlock[] = [
   { id: 'b3', date: today, start: '14:00', end: '15:00', title: 'Reuniões', color: '#f59e0b' },
 ];
 
-type View = 'today' | 'tasks' | 'focus' | 'habits' | 'planner' | 'reports';
+type View = 'today' | 'tasks' | 'metas' | 'focus' | 'habits' | 'planner' | 'reports';
 
 const NAV_ITEMS: { id: View; label: string; icon: React.ElementType }[] = [
   { id: 'today', label: 'Hoje', icon: LayoutDashboard },
   { id: 'tasks', label: 'Tarefas', icon: CheckSquare },
+  { id: 'metas', label: 'Metas', icon: Target },
   { id: 'focus', label: 'Foco', icon: Timer },
   { id: 'habits', label: 'Hábitos', icon: Repeat },
   { id: 'planner', label: 'Planejamento', icon: CalendarClock },
@@ -56,7 +58,7 @@ const NAV_ITEMS: { id: View; label: string; icon: React.ElementType }[] = [
 ];
 
 const MOBILE_NAV: View[] = ['today', 'tasks', 'focus', 'habits'];
-const MORE_NAV: View[] = ['planner', 'reports'];
+const MORE_NAV: View[] = ['metas', 'planner', 'reports'];
 
 const phaseDurationMin = (phase: TimerPhase, settings: PomodoroSettings): number => {
   if (phase === 'focus') return settings.focusMinutes;
@@ -88,6 +90,7 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
   const [tasks, setTasks] = useState<Task[]>(() => initial.tasks ?? INITIAL_TASKS);
   const [sessions, setSessions] = useState<FocusSession[]>(() => initial.sessions ?? []);
   const [habits, setHabits] = useState<Habit[]>(() => initial.habits ?? INITIAL_HABITS);
+  const [projects, setProjects] = useState<Project[]>(() => initial.projects ?? []);
   const [blocks, setBlocks] = useState<TimeBlock[]>(() => initial.blocks ?? INITIAL_BLOCKS);
   const [settings, setSettings] = useState<PomodoroSettings>(() => ({ ...DEFAULT_POMODORO_SETTINGS, ...initial.pomodoroSettings }));
   const [timer, setTimer] = useState<TimerState>(() => ({ ...DEFAULT_TIMER_STATE, ...initial.timer }));
@@ -95,8 +98,8 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
 
   // Notifica o App pai a cada mudança; ele salva na nuvem (com debounce)
   const snapshot = useMemo<AppSnapshot>(() => ({
-    tasks, sessions, habits, blocks, pomodoroSettings: settings, timer, googleSettings,
-  }), [tasks, sessions, habits, blocks, settings, timer, googleSettings]);
+    tasks, sessions, habits, blocks, projects, pomodoroSettings: settings, timer, googleSettings,
+  }), [tasks, sessions, habits, blocks, projects, settings, timer, googleSettings]);
   useEffect(() => { onSnapshotChange(snapshot); }, [snapshot, onSnapshotChange]);
 
   // --- Google Agenda ---
@@ -416,6 +419,19 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
     return { ...h, completions: done ? h.completions.filter(d => d !== isoDate) : [...h.completions, isoDate] };
   }));
 
+  const addProject = (data: Omit<Project, 'id'>) => setProjects(prev => [...prev, { ...data, id: uid() }]);
+  const updateProject = (project: Project) => setProjects(prev => prev.map(p => (p.id === project.id ? project : p)));
+  const deleteProject = (id: string) => {
+    setProjects(prev => prev.filter(p => p.id !== id));
+    setTasks(prev => prev.map(t => (t.projectId === id ? { ...t, projectId: undefined } : t)));
+  };
+  // IA: cria a meta e já adiciona as tarefas vinculadas a ela
+  const createProjectWithTasks = (data: Omit<Project, 'id'>, taskList: Omit<Task, 'id'>[]) => {
+    const projectId = uid();
+    setProjects(prev => [...prev, { ...data, id: projectId }]);
+    if (taskList.length) setTasks(prev => [...taskList.map(t => ({ ...t, id: uid(), projectId })), ...prev]);
+  };
+
   // Sincronização automática com o Google Agenda (silenciosa; o botão
   // manual no Planejamento continua disponível para blocos antigos)
   const autoSyncNewBlock = async (block: TimeBlock) => {
@@ -597,6 +613,21 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
               onToggleTask={toggleTask}
               onSetStatus={setTaskStatusById}
               onStartFocusTask={startFocusOnTask}
+              projects={projects}
+            />
+          )}
+          {currentView === 'metas' && (
+            <MetasView
+              projects={projects}
+              tasks={tasks}
+              onAddProject={addProject}
+              onUpdateProject={updateProject}
+              onDeleteProject={deleteProject}
+              onAddTask={addTask}
+              onUpdateTask={updateTask}
+              onDeleteTask={deleteTask}
+              onToggleTask={toggleTask}
+              onStartFocusTask={startFocusOnTask}
             />
           )}
           {currentView === 'focus' && (
@@ -737,9 +768,11 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
         <AIAssistant
           tasks={tasks}
           blocks={blocks}
+          projects={projects}
           onCreateTask={addTask}
           onCreateBlock={addBlock}
           onCreateHabit={addHabit}
+          onCreateProject={createProjectWithTasks}
           onSetTaskStatus={setTaskStatusById}
           onClose={() => setIsAIOpen(false)}
         />

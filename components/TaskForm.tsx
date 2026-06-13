@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
 import { X, Save, Zap, Star, Plus, Check } from 'lucide-react';
-import { Task, Subtask, RecurrenceFreq, QUADRANT_INFO, getQuadrant, DEFAULT_TASK_CATEGORIES, RECURRENCE_OPTIONS } from '../types';
+import { Task, Subtask, Project, RecurrenceFreq, QUADRANT_INFO, getQuadrant, DEFAULT_TASK_CATEGORIES, RECURRENCE_OPTIONS } from '../types';
 import { uid } from '../utils';
 
 interface TaskFormProps {
   initialTask?: Task | null;
+  projects?: Project[];
+  defaultProjectId?: string;
   onSave: (data: Omit<Task, 'id'>, id?: string) => void;
   onClose: () => void;
 }
 
-export const TaskForm: React.FC<TaskFormProps> = ({ initialTask, onSave, onClose }) => {
+export const TaskForm: React.FC<TaskFormProps> = ({ initialTask, projects, defaultProjectId, onSave, onClose }) => {
   const [title, setTitle] = useState(initialTask?.title ?? '');
   const [urgent, setUrgent] = useState(initialTask?.urgent ?? false);
   const [important, setImportant] = useState(initialTask?.important ?? true);
@@ -19,6 +21,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({ initialTask, onSave, onClose
   const [recurrence, setRecurrence] = useState<'' | RecurrenceFreq>(initialTask?.recurrence ?? '');
   const [subtasks, setSubtasks] = useState<Subtask[]>(initialTask?.subtasks ?? []);
   const [newSub, setNewSub] = useState('');
+  const [projectId, setProjectId] = useState(initialTask?.projectId ?? defaultProjectId ?? '');
 
   const quadrant = QUADRANT_INFO[getQuadrant({ urgent, important })];
 
@@ -50,6 +53,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({ initialTask, onSave, onClose
       recurrence: recurrence || undefined,
       recurrenceSpawned: initialTask?.recurrenceSpawned,
       subtasks: cleanSubs.length ? cleanSubs : undefined,
+      projectId: projectId || undefined,
       createdAt: initialTask?.createdAt ?? new Date().toISOString(),
     }, initialTask?.id);
   };
@@ -149,6 +153,20 @@ export const TaskForm: React.FC<TaskFormProps> = ({ initialTask, onSave, onClose
               {DEFAULT_TASK_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
           </div>
+
+          {projects && projects.length > 0 && (
+            <div>
+              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Meta</label>
+              <select
+                value={projectId}
+                onChange={e => setProjectId(e.target.value)}
+                className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-200 outline-none bg-white text-slate-600"
+              >
+                <option value="">Nenhuma</option>
+                {projects.map(p => <option key={p.id} value={p.id}>{p.emoji} {p.name}</option>)}
+              </select>
+            </div>
+          )}
 
           <div>
             <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Repetir</label>

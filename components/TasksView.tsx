@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useCallback, useRef } from 'react';
 import { Plus, List, LayoutGrid, CheckSquare, Columns3, Search, X } from 'lucide-react';
-import { Task, TaskStatus, QUADRANTS, QUADRANT_INFO, getQuadrant, getTaskStatus, KANBAN_COLUMNS, DEFAULT_TASK_CATEGORIES } from '../types';
+import { Task, TaskStatus, Project, QUADRANTS, QUADRANT_INFO, getQuadrant, getTaskStatus, KANBAN_COLUMNS, DEFAULT_TASK_CATEGORIES } from '../types';
 import { todayISO, getWeekDays } from '../utils';
 import { TaskItem } from './TaskItem';
 import { KanbanCard } from './KanbanCard';
@@ -14,6 +14,7 @@ interface TasksViewProps {
   onToggleTask: (id: string) => void;
   onSetStatus: (id: string, status: TaskStatus) => void;
   onStartFocusTask: (id: string) => void;
+  projects: Project[];
 }
 
 type Mode = 'list' | 'matrix' | 'board';
@@ -33,7 +34,7 @@ const STATUS_ORDER: TaskStatus[] = ['todo', 'doing', 'done'];
 const norm = (s: string) => s.toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '');
 
 export const TasksView: React.FC<TasksViewProps> = ({
-  tasks, onAddTask, onUpdateTask, onDeleteTask, onToggleTask, onSetStatus, onStartFocusTask,
+  tasks, onAddTask, onUpdateTask, onDeleteTask, onToggleTask, onSetStatus, onStartFocusTask, projects,
 }) => {
   const [mode, setMode] = useState<Mode>('list');
   const [filter, setFilter] = useState<Filter>('todas');
@@ -366,6 +367,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
       {isFormOpen && (
         <TaskForm
           initialTask={editingTask}
+          projects={projects}
           onSave={handleSave}
           onClose={() => { setIsFormOpen(false); setEditingTask(null); }}
         />

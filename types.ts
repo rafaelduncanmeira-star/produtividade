@@ -81,6 +81,7 @@ export interface Task {
   recurrence?: RecurrenceFreq; // se definido, concluir gera a próxima ocorrência
   recurrenceSpawned?: boolean; // marca interna p/ não gerar a próxima ocorrência duas vezes
   subtasks?: Subtask[];        // checklist opcional
+  projectId?: string;          // meta/projeto ao qual a tarefa pertence
   createdAt: string;           // ISO datetime
 }
 
@@ -128,6 +129,16 @@ export interface Habit {
   emoji: string;
   targetDays: number[];        // 0=Dom ... 6=Sáb
   completions: string[];       // ['YYYY-MM-DD', ...]
+  createdAt: string;           // ISO datetime
+}
+
+// Meta/Projeto: agrupa tarefas rumo a um objetivo
+export interface Project {
+  id: string;
+  name: string;
+  emoji: string;
+  color: string;
+  dueDate?: string;            // 'YYYY-MM-DD' (prazo opcional)
   createdAt: string;           // ISO datetime
 }
 
@@ -218,6 +229,8 @@ export const HABIT_COLORS = ['#6366f1', '#10b981', '#f43f5e', '#f59e0b', '#8b5cf
 export const BLOCK_COLORS = HABIT_COLORS;
 
 export const HABIT_EMOJIS = ['💧', '🏃', '📖', '🧘', '💪', '🥗', '😴', '🎸', '✍️', '🦷', '☀️', '🚭'];
+
+export const PROJECT_EMOJIS = ['🎯', '📚', '💼', '🏆', '🚀', '🎓', '💡', '🗂️', '🔬', '🎨', '🔥', '⭐'];
 
 export const WEEKDAY_LETTERS = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
 export const WEEKDAY_SHORT = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];

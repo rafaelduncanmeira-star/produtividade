@@ -1,5 +1,5 @@
 import { supabase } from './supabaseClient';
-import { Task, Habit, TimeBlock, FocusSession, PomodoroSettings, TimerState, GoogleSettings } from '../types';
+import { Task, Habit, Project, TimeBlock, FocusSession, PomodoroSettings, TimerState, GoogleSettings } from '../types';
 
 // Snapshot completo do estado do app, salvo como JSON (1 registro por usuário)
 export interface AppSnapshot {
@@ -7,6 +7,7 @@ export interface AppSnapshot {
   sessions?: FocusSession[];
   habits?: Habit[];
   blocks?: TimeBlock[];
+  projects?: Project[];
   pomodoroSettings?: PomodoroSettings;
   googleSettings?: GoogleSettings;
   timer?: TimerState;
@@ -45,6 +46,7 @@ export const legacyLocalSnapshot = (): AppSnapshot => {
     sessions: read<FocusSession[]>('tempo_sessions'),
     habits: read<Habit[]>('tempo_habits'),
     blocks: read<TimeBlock[]>('tempo_blocks'),
+    projects: read<Project[]>('tempo_projects'),
     pomodoroSettings: read<PomodoroSettings>('tempo_pomodoro_settings'),
     googleSettings: read<GoogleSettings>('tempo_google_settings'),
     timer: read<TimerState>('tempo_timer_state'),

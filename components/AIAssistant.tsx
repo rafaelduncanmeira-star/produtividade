@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { X, Mic, MicOff, Send, Sparkles, LoaderCircle, CheckSquare, CalendarClock, Repeat, Check, CircleCheck, ArrowRightLeft, Pencil, type LucideIcon } from 'lucide-react';
+import { X, Mic, MicOff, Send, Sparkles, LoaderCircle, CheckSquare, CalendarClock, Repeat, Check, CircleCheck, ArrowRightLeft, Pencil, Target, type LucideIcon } from 'lucide-react';
 import { askAssistant, AIResult, AIAction } from '../services/aiAssistant';
-import { Task, TimeBlock, Habit, TaskStatus } from '../types';
+import { Task, TimeBlock, Habit, Project, TaskStatus } from '../types';
 import { TaskForm } from './TaskForm';
 import { TimeBlockForm } from './TimeBlockForm';
 import { HabitForm } from './HabitForm';
@@ -9,9 +9,11 @@ import { HabitForm } from './HabitForm';
 interface AIAssistantProps {
   tasks: Task[];
   blocks: TimeBlock[];
+  projects: Project[];
   onCreateTask: (data: Omit<Task, 'id'>) => void;
   onCreateBlock: (data: Omit<TimeBlock, 'id'>) => void;
   onCreateHabit: (data: Omit<Habit, 'id'>) => void;
+  onCreateProject: (data: Omit<Project, 'id'>, tasks: Omit<Task, 'id'>[]) => void;
   onSetTaskStatus: (id: string, status: TaskStatus) => void;
   onClose: () => void;
 }
@@ -20,6 +22,7 @@ const ACTION_ICONS: Record<AIAction['type'], LucideIcon> = {
   create_task: CheckSquare,
   create_block: CalendarClock,
   create_habit: Repeat,
+  create_project: Target,
   complete_task: CircleCheck,
   set_task_status: ArrowRightLeft,
 };
@@ -35,7 +38,7 @@ const getSpeechRecognition = (): any => {
   return w.SpeechRecognition || w.webkitSpeechRecognition || null;
 };
 
-export const AIAssistant: React.FC<AIAssistantProps> = ({ tasks, blocks, onCreateTask, onCreateBlock, onCreateHabit, onSetTaskStatus, onClose }) => {
+export const AIAssistant: React.FC<AIAssistantProps> = ({ tasks, blocks, projects, onCreateTask, onCreateBlock, onCreateHabit, onCreateProject, onSetTaskStatus, onClose }) => {
   const [input, setInput] = useState('');
   const [listening, setListening] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -106,6 +109,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ tasks, blocks, onCreat
       if (action.type === 'create_task') onCreateTask(action.data);
       else if (action.type === 'create_block') onCreateBlock(action.data);
       else if (action.type === 'create_habit') onCreateHabit(action.data);
+      else if (action.type === 'create_project') onCreateProject(action.data, action.tasks);
       else if (action.type === 'complete_task') onSetTaskStatus(action.taskId, 'done');
       else if (action.type === 'set_task_status') onSetTaskStatus(action.taskId, action.status);
     });
@@ -284,6 +288,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ tasks, blocks, onCreat
     {editing && editing.type === 'create_task' && (
       <TaskForm
         initialTask={{ ...editing.data, id: 'ai-edit' }}
+        projects={projects}
         onSave={(data) => updateAction(editingIndex!, data)}
         onClose={() => setEditingIndex(null)}
       />
