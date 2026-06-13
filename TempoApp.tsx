@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
-import { LayoutDashboard, CheckSquare, Timer, Repeat, CalendarClock, BarChart3, MoreHorizontal, X, Calendar, LogOut, Sparkles, Bell, BellRing, BellOff } from 'lucide-react';
+import { LayoutDashboard, CheckSquare, Timer, Repeat, CalendarClock, BarChart3, MoreHorizontal, X, Calendar, LogOut, Sparkles, Bell, BellRing, BellOff, Sun, Moon } from 'lucide-react';
 import {
   Task, TaskStatus, Habit, TimeBlock, FocusSession, PomodoroSettings, TimerState, TimerPhase,
   GoogleSettings, GoogleEvent, DEFAULT_POMODORO_SETTINGS, DEFAULT_TIMER_STATE, DEFAULT_GOOGLE_SETTINGS,
@@ -76,6 +76,13 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
   const [moreOpen, setMoreOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isAIOpen, setIsAIOpen] = useState(false);
+  const [dark, setDark] = useState(() => typeof document !== 'undefined' && document.documentElement.classList.contains('dark'));
+  const toggleTheme = () => setDark(d => {
+    const next = !d;
+    document.documentElement.classList.toggle('dark', next);
+    try { localStorage.setItem('tempo_theme', next ? 'dark' : 'light'); } catch { /* ignore */ }
+    return next;
+  });
 
   // --- Estado do usuário (carregado da nuvem, salvo de volta pelo App pai) ---
   const [tasks, setTasks] = useState<Task[]>(() => initial.tasks ?? INITIAL_TASKS);
@@ -515,6 +522,13 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
               {notifPerm === 'granted' && <span className="ml-auto w-2 h-2 rounded-full bg-emerald-500" />}
             </button>
           )}
+          <button
+            onClick={toggleTheme}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-500 hover:bg-slate-50 hover:text-slate-700 transition-colors"
+          >
+            {dark ? <Sun size={18} /> : <Moon size={18} />}
+            <span>{dark ? 'Tema claro' : 'Tema escuro'}</span>
+          </button>
         </div>
         <div className="px-4 py-3 border-t border-slate-100 flex items-center gap-2">
           <div className="flex-1 min-w-0">
@@ -550,6 +564,9 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
                 {notifPerm === 'granted' ? <BellRing size={20} className="text-indigo-600" /> : notifPerm === 'denied' ? <BellOff size={20} /> : <Bell size={20} />}
               </button>
             )}
+            <button onClick={toggleTheme} aria-label="Alternar tema" className="p-1 text-slate-400">
+              {dark ? <Sun size={20} /> : <Moon size={20} />}
+            </button>
           </div>
         </header>
 
