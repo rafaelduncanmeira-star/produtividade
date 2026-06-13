@@ -1,4 +1,4 @@
-import { Habit, FocusSession } from './types';
+import { Habit, FocusSession, RecurrenceFreq } from './types';
 
 export const uid = () => Math.random().toString(36).substring(2, 11);
 
@@ -22,6 +22,25 @@ export const addDaysISO = (iso: string, days: number): string => {
   const d = parseISODate(iso);
   d.setDate(d.getDate() + days);
   return toISODate(d);
+};
+
+/** Próxima data (ISO) de uma tarefa recorrente, a partir de `fromISO`. */
+export const nextRecurrenceISO = (freq: RecurrenceFreq, fromISO: string): string => {
+  switch (freq) {
+    case 'daily': return addDaysISO(fromISO, 1);
+    case 'weekly': return addDaysISO(fromISO, 7);
+    case 'weekdays': {
+      let d = addDaysISO(fromISO, 1);
+      let wd = parseISODate(d).getDay();
+      while (wd === 0 || wd === 6) { d = addDaysISO(d, 1); wd = parseISODate(d).getDay(); }
+      return d;
+    }
+    case 'monthly': {
+      const d = parseISODate(fromISO);
+      d.setMonth(d.getMonth() + 1);
+      return toISODate(d);
+    }
+  }
 };
 
 /** Dias (ISO) da semana Dom–Sáb que contém hoje, deslocada por `offset` semanas. */

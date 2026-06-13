@@ -1,5 +1,5 @@
 import React from 'react';
-import { Check, Edit2, Trash2, Play, Timer, Calendar } from 'lucide-react';
+import { Check, Edit2, Trash2, Play, Timer, Calendar, Repeat } from 'lucide-react';
 import { Task, QUADRANT_INFO, getQuadrant } from '../types';
 import { todayISO, formatShortDate } from '../utils';
 
@@ -34,6 +34,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, onDelete, on
         </p>
         <div className="flex items-center gap-2 mt-0.5 flex-wrap">
           <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${quadrant.badgeClass}`}>{quadrant.label}</span>
+          {task.recurrence && <Repeat size={11} className="text-slate-400 shrink-0" />}
           {!compact && <span className="text-[10px] text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded">{task.category}</span>}
           {task.dueDate && (
             <span className={`flex items-center gap-0.5 text-[10px] font-medium ${overdue ? 'text-rose-600' : 'text-slate-400'}`}>

@@ -4,7 +4,7 @@ import {
   Task, Habit, TimeBlock, FocusSession, PomodoroSettings, TimerState, TimerPhase,
   GoogleSettings, GoogleEvent, DEFAULT_POMODORO_SETTINGS, DEFAULT_TIMER_STATE, DEFAULT_GOOGLE_SETTINGS,
 } from './types';
-import { uid, toISODate, todayISO, formatTimerMs, playBeep } from './utils';
+import { uid, toISODate, todayISO, formatTimerMs, playBeep, nextRecurrenceISO } from './utils';
 import { AppSnapshot } from './services/cloudStore';
 import {
   getValidToken, requestToken, disconnectGoogle, fetchDayEvents,
@@ -320,11 +320,32 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
   const addTask = (data: Omit<Task, 'id'>) => setTasks(prev => [{ ...data, id: uid() }, ...prev]);
   const updateTask = (task: Task) => setTasks(prev => prev.map(t => t.id === task.id ? task : t));
   const deleteTask = (id: string) => setTasks(prev => prev.filter(t => t.id !== id));
-  const toggleTask = (id: string) => setTasks(prev => prev.map(t =>
-    t.id === id
-      ? { ...t, completed: !t.completed, completedAt: !t.completed ? new Date().toISOString() : undefined }
-      : t
-  ));
+  const toggleTask = (id: string) => setTasks(prev => {
+    const target = prev.find(t => t.id === id);
+    if (!target) return prev;
+    const completing = !target.completed;
+    const ts = new Date().toISOString();
+    let next = prev.map(t =>
+      t.id === id ? { ...t, completed: completing, completedAt: completing ? ts : undefined } : t
+    );
+    // Tarefa recorrente: ao concluir pela 1ª vez, cria a próxima ocorrência
+    if (completing && target.recurrence && !target.recurrenceSpawned) {
+      next = next.map(t => (t.id === id ? { ...t, recurrenceSpawned: true } : t));
+      const nextDue = nextRecurrenceISO(target.recurrence, target.dueDate ?? todayISO());
+      next = [{
+        ...target,
+        id: uid(),
+        completed: false,
+        completedAt: undefined,
+        completedPomodoros: 0,
+        status: 'todo',
+        recurrenceSpawned: false,
+        dueDate: nextDue,
+        createdAt: ts,
+      }, ...next];
+    }
+    return next;
+  });
 
   const quickAddTask = (title: string, dueDate?: string) => addTask({
     title, urgent: false, important: true, dueDate, category: 'Outros',

@@ -56,6 +56,9 @@ export const getQuadrant = (task: Pick<Task, 'urgent' | 'important'>): Quadrant 
 // Kanban: estágio da tarefa. 'done' é espelhado por `completed` (compatibilidade).
 export type TaskStatus = 'todo' | 'doing' | 'done';
 
+// Recorrência: ao concluir, gera a próxima ocorrência.
+export type RecurrenceFreq = 'daily' | 'weekdays' | 'weekly' | 'monthly';
+
 export interface Task {
   id: string;
   title: string;
@@ -68,6 +71,8 @@ export interface Task {
   completed: boolean;
   completedAt?: string;        // ISO datetime
   status?: TaskStatus;         // coluna do Kanban; ausente = 'todo' (ou 'done' se completed)
+  recurrence?: RecurrenceFreq; // se definido, concluir gera a próxima ocorrência
+  recurrenceSpawned?: boolean; // marca interna p/ não gerar a próxima ocorrência duas vezes
   createdAt: string;           // ISO datetime
 }
 
@@ -87,6 +92,18 @@ export const KANBAN_COLUMNS: KanbanColumnInfo[] = [
   { id: 'doing', label: 'Fazendo', dotClass: 'bg-indigo-500', ringClass: 'border-indigo-200' },
   { id: 'done', label: 'Concluído', dotClass: 'bg-emerald-500', ringClass: 'border-emerald-200' },
 ];
+
+export const RECURRENCE_OPTIONS: { value: '' | RecurrenceFreq; label: string }[] = [
+  { value: '', label: 'Não repete' },
+  { value: 'daily', label: 'Todo dia' },
+  { value: 'weekdays', label: 'Dias úteis (seg–sex)' },
+  { value: 'weekly', label: 'Toda semana' },
+  { value: 'monthly', label: 'Todo mês' },
+];
+
+export const RECURRENCE_LABELS: Record<RecurrenceFreq, string> = {
+  daily: 'Diária', weekdays: 'Dias úteis', weekly: 'Semanal', monthly: 'Mensal',
+};
 
 export interface FocusSession {
   id: string;

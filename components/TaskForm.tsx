@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { X, Save, Zap, Star } from 'lucide-react';
-import { Task, QUADRANT_INFO, getQuadrant, DEFAULT_TASK_CATEGORIES } from '../types';
+import { Task, RecurrenceFreq, QUADRANT_INFO, getQuadrant, DEFAULT_TASK_CATEGORIES, RECURRENCE_OPTIONS } from '../types';
 
 interface TaskFormProps {
   initialTask?: Task | null;
@@ -15,6 +15,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({ initialTask, onSave, onClose
   const [dueDate, setDueDate] = useState(initialTask?.dueDate ?? '');
   const [category, setCategory] = useState(initialTask?.category ?? DEFAULT_TASK_CATEGORIES[0]);
   const [estimatedPomodoros, setEstimatedPomodoros] = useState(String(initialTask?.estimatedPomodoros ?? 1));
+  const [recurrence, setRecurrence] = useState<'' | RecurrenceFreq>(initialTask?.recurrence ?? '');
 
   const quadrant = QUADRANT_INFO[getQuadrant({ urgent, important })];
 
@@ -31,6 +32,9 @@ export const TaskForm: React.FC<TaskFormProps> = ({ initialTask, onSave, onClose
       completedPomodoros: initialTask?.completedPomodoros ?? 0,
       completed: initialTask?.completed ?? false,
       completedAt: initialTask?.completedAt,
+      status: initialTask?.status,
+      recurrence: recurrence || undefined,
+      recurrenceSpawned: initialTask?.recurrenceSpawned,
       createdAt: initialTask?.createdAt ?? new Date().toISOString(),
     }, initialTask?.id);
   };
@@ -129,6 +133,18 @@ export const TaskForm: React.FC<TaskFormProps> = ({ initialTask, onSave, onClose
             >
               {DEFAULT_TASK_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Repetir</label>
+            <select
+              value={recurrence}
+              onChange={e => setRecurrence(e.target.value as '' | RecurrenceFreq)}
+              className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-200 outline-none bg-white text-slate-600"
+            >
+              {RECURRENCE_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+            </select>
+            {recurrence && <p className="text-[11px] text-slate-400 mt-1">Ao concluir, a próxima ocorrência é criada automaticamente.</p>}
           </div>
 
           <button type="submit" className="w-full py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 flex items-center justify-center gap-2 mt-2 active:scale-[0.98] transition-transform">

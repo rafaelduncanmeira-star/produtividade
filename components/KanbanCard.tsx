@@ -1,5 +1,5 @@
 import React from 'react';
-import { Check, Play, Edit2, Trash2, Calendar, Timer, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Check, Play, Edit2, Trash2, Calendar, Timer, ChevronLeft, ChevronRight, Repeat } from 'lucide-react';
 import { Task, QUADRANT_INFO, getQuadrant } from '../types';
 import { todayISO, formatShortDate } from '../utils';
 
@@ -41,6 +41,7 @@ export const KanbanCard: React.FC<KanbanCardProps> = ({
 
       <div className="flex items-center gap-2 flex-wrap mt-2 pl-[30px]">
         <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${quadrant.badgeClass}`}>{quadrant.label}</span>
+        {task.recurrence && <Repeat size={11} className="text-slate-400 shrink-0" />}
         {task.dueDate && (
           <span className={`flex items-center gap-0.5 text-[10px] font-medium ${overdue ? 'text-rose-600' : 'text-slate-400'}`}>
             <Calendar size={10} />
