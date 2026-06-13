@@ -32,7 +32,7 @@ const addMonthsISO = (iso: string, months: number): string => {
 
 const weekStartISO = (iso: string): string => {
   const d = parseISODate(iso);
-  d.setDate(d.getDate() - d.getDay()); // volta para o domingo daquela semana
+  d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); // volta para a segunda-feira daquela semana
   return toISODate(d);
 };
 
@@ -219,7 +219,10 @@ export const PlannerView: React.FC<PlannerViewProps> = ({
   blocks, tasks, googleActive, googleEvents, onLoadGoogleEvents, onSendBlockToGoogle, onOpenGoogleSettings,
   onAddBlock, onUpdateBlock, onDeleteBlock,
 }) => {
-  const [viewMode, setViewMode] = useState<ViewMode>('day');
+  // No desktop abre na semana (7 dias); no celular começa no Dia (sem 7 colunas)
+  const [viewMode, setViewMode] = useState<ViewMode>(() =>
+    typeof window !== 'undefined' && window.matchMedia('(min-width: 768px)').matches ? 'week' : 'day'
+  );
   const [anchor, setAnchor] = useState(todayISO());
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingBlock, setEditingBlock] = useState<TimeBlock | null>(null);
