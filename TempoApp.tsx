@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import { LayoutDashboard, CheckSquare, Timer, Repeat, CalendarClock, BarChart3, MoreHorizontal, X, Calendar, LogOut, Sparkles, Bell, BellRing, BellOff, Sun, Moon, Target } from 'lucide-react';
 import {
   Task, TaskStatus, Habit, Project, DailyReview, TimeBlock, FocusSession, PomodoroSettings, TimerState, TimerPhase,
-  GoogleSettings, GoogleEvent, DEFAULT_POMODORO_SETTINGS, DEFAULT_TIMER_STATE, DEFAULT_GOOGLE_SETTINGS,
+  GoogleSettings, GoogleEvent, DEFAULT_POMODORO_SETTINGS, DEFAULT_TIMER_STATE, DEFAULT_GOOGLE_SETTINGS, GOOGLE_CLIENT_ID,
 } from './types';
 import { uid, toISODate, todayISO, formatTimerMs, playBeep, nextRecurrenceISO, timeToMinutes } from './utils';
 import { AppSnapshot } from './services/cloudStore';
@@ -120,11 +120,12 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
   const ensureToken = useCallback(async (interactive: boolean): Promise<string | null> => {
     const cached = getValidToken();
     if (cached) return cached;
-    if (!googleSettingsRef.current.clientId) return null;
+    const clientId = GOOGLE_CLIENT_ID || googleSettingsRef.current.clientId;
+    if (!clientId) return null;
     if (!interactive && autoRenewTriedRef.current) return null;
     autoRenewTriedRef.current = true;
     try {
-      const fresh = await requestToken(googleSettingsRef.current.clientId);
+      const fresh = await requestToken(clientId);
       autoRenewTriedRef.current = false;
       setGoogleConnected(true);
       return fresh;
@@ -134,10 +135,12 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
     }
   }, []);
 
-  const connectGoogle = async (clientId: string) => {
-    setGoogleSettings({ clientId });
-    googleSettingsRef.current = { clientId };
-    await requestToken(clientId);
+  const connectGoogle = async (clientId?: string) => {
+    const id = clientId || GOOGLE_CLIENT_ID || googleSettingsRef.current.clientId;
+    if (!id) throw new Error('Google Agenda não configurado.');
+    // Só guarda no perfil quando NÃO há ID global do app (modo manual/avançado)
+    if (!GOOGLE_CLIENT_ID) { setGoogleSettings({ clientId: id }); googleSettingsRef.current = { clientId: id }; }
+    await requestToken(id);
     autoRenewTriedRef.current = false;
     setGoogleConnected(true);
     setGoogleEvents({});
@@ -600,7 +603,7 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
               habits={habits}
               blocks={blocks}
               sessions={sessions}
-              googleActive={!!googleSettings.clientId}
+              googleActive={googleConnected}
               googleEvents={googleEvents[todayISO()] ?? []}
               onLoadGoogleEvents={loadGoogleEventsFor}
               onToggleTask={toggleTask}
@@ -668,7 +671,7 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
             <PlannerView
               blocks={blocks}
               tasks={tasks}
-              googleActive={!!googleSettings.clientId}
+              googleActive={googleConnected}
               googleEvents={googleEvents}
               onLoadGoogleEvents={loadGoogleEventsFor}
               onSendBlockToGoogle={sendBlockToGoogle}
@@ -791,6 +794,7 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
         <GoogleSettingsModal
           settings={googleSettings}
           connected={googleConnected}
+          appConfigured={!!GOOGLE_CLIENT_ID}
           onConnect={connectGoogle}
           onDisconnect={handleGoogleDisconnect}
           onClose={() => setIsGoogleOpen(false)}

@@ -170,6 +170,10 @@ export interface GoogleSettings {
 
 export const DEFAULT_GOOGLE_SETTINGS: GoogleSettings = { clientId: '' };
 
+// Client ID OAuth do app (compartilhado): habilita "Conectar com Google" em 1 toque,
+// sem cada usuário criar o seu. Vazio = cai no modo manual (avançado).
+export const GOOGLE_CLIENT_ID = '302000666542-q3s86uoauf1bne6v17nlv4tr2osghd88.apps.googleusercontent.com';
+
 export interface GoogleEvent {
   id: string;
   title: string;
