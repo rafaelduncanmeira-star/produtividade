@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Timer, Play, CalendarClock, ChevronRight, Check, Plus, Calendar } from 'lucide-react';
+import { Play, CalendarClock, ChevronRight, Check, Plus, Calendar } from 'lucide-react';
 import { Task, Habit, TimeBlock, FocusSession, GoogleEvent, Project, DailyReview, GOOGLE_EVENT_COLOR, REVIEW_MOODS } from '../types';
 import { todayISO, getGreeting, formatLongDate, formatMinutes, focusMinutesOn } from '../utils';
 import { TaskItem } from './TaskItem';
@@ -78,7 +78,6 @@ export const TodayView: React.FC<TodayViewProps> = ({
   const habitsDone = todayHabits.filter(h => h.completions.includes(today)).length;
 
   const focusToday = focusMinutesOn(sessions, today);
-  const pomodorosToday = sessions.filter(s => s.date === today).length;
 
   const handleQuickAdd = (e: React.FormEvent) => {
     e.preventDefault();
@@ -95,42 +94,25 @@ export const TodayView: React.FC<TodayViewProps> = ({
 
   return (
     <div className="space-y-5">
-      {/* Saudação */}
-      <div>
-        <h2 className="text-2xl font-bold text-slate-800">{getGreeting()}! 👋</h2>
-        <p className="text-slate-500 text-sm capitalize">{formatLongDate()}</p>
-      </div>
-
-      {/* Resumo rápido */}
-      <div className="grid grid-cols-3 gap-3">
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-3 text-center">
-          <p className="text-lg font-bold text-indigo-600">{formatMinutes(focusToday)}</p>
-          <p className="text-[10px] text-slate-400 font-medium">focado hoje</p>
-        </div>
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-3 text-center">
-          <p className="text-lg font-bold text-emerald-600">{doneToday}</p>
-          <p className="text-[10px] text-slate-400 font-medium">tarefas feitas</p>
-        </div>
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-3 text-center">
-          <p className="text-lg font-bold text-orange-500">{habitsDone}/{todayHabits.length}</p>
-          <p className="text-[10px] text-slate-400 font-medium">hábitos</p>
-        </div>
-      </div>
-
-      {/* Card de foco */}
-      <div className="bg-gradient-to-r from-indigo-600 to-violet-600 rounded-2xl p-5 text-white flex items-center justify-between shadow-lg shadow-indigo-200">
+      {/* Saudação + atalho discreto de foco */}
+      <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="font-bold">Pronto para focar?</p>
-          <p className="text-xs text-indigo-200 mt-0.5">
-            {pomodorosToday > 0 ? `${pomodorosToday} ${pomodorosToday === 1 ? 'pomodoro' : 'pomodoros'} hoje. Continue!` : 'Nenhum pomodoro hoje ainda.'}
-          </p>
+          <h2 className="text-2xl font-bold text-slate-800">{getGreeting()}! 👋</h2>
+          <p className="text-slate-500 text-sm capitalize">{formatLongDate()}</p>
         </div>
         <button
           onClick={() => onNavigate('focus')}
-          className="flex items-center gap-2 bg-white text-indigo-700 px-4 py-2.5 rounded-xl font-bold text-sm active:scale-95 transition-transform shrink-0"
+          className="shrink-0 flex items-center gap-1.5 bg-indigo-50 text-indigo-700 px-3.5 py-2 rounded-xl font-bold text-sm active:scale-95 transition"
         >
-          <Play size={16} /> Focar
+          <Play size={15} /> Focar
         </button>
+      </div>
+
+      {/* Resumo do dia em uma linha enxuta */}
+      <div className="flex items-center gap-5 px-1 text-xs text-slate-400">
+        <span><b className="text-sm font-bold text-indigo-600">{formatMinutes(focusToday)}</b> focado</span>
+        <span><b className="text-sm font-bold text-emerald-600">{doneToday}</b> feitas</span>
+        <span><b className="text-sm font-bold text-orange-500">{habitsDone}/{todayHabits.length}</b> hábitos</span>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
