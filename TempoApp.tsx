@@ -276,9 +276,9 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
   useEffect(() => {
     if (timer.status === 'running' || timer.status === 'paused') {
       const label = timer.phase === 'focus' ? 'Foco' : 'Pausa';
-      document.title = `${formatTimerMs(remainingMs)} — ${label} | Tempo AI`;
+      document.title = `${formatTimerMs(remainingMs)} — ${label} | GeriClass Foco`;
     } else {
-      document.title = 'Tempo AI';
+      document.title = 'GeriClass Foco';
     }
   }, [remainingMs, timer.status, timer.phase]);
 
@@ -603,7 +603,7 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
       {/* Sidebar (desktop) */}
       <aside className="hidden md:flex md:flex-col w-60 bg-white border-r border-slate-200 fixed inset-y-0 z-40">
         <div className="px-6 py-6">
-          <h1 className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-violet-500 bg-clip-text text-transparent">Tempo AI</h1>
+          <h1 className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-violet-500 bg-clip-text text-transparent">GeriClass Foco</h1>
           <p className="text-xs text-slate-400 mt-1">Gestão de tempo e produtividade</p>
         </div>
         <nav className="flex-1 px-3 space-y-1">
@@ -676,7 +676,7 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
       <div className="flex-1 md:ml-60">
         {/* Top bar (mobile) */}
         <header className="header-glass md:hidden sticky top-0 z-30 bg-white/90 backdrop-blur border-b border-slate-100 px-4 py-3 flex items-center justify-between">
-          <h1 className="text-lg font-bold bg-gradient-to-r from-indigo-600 to-violet-500 bg-clip-text text-transparent">Tempo AI</h1>
+          <h1 className="text-lg font-bold bg-gradient-to-r from-indigo-600 to-violet-500 bg-clip-text text-transparent">GeriClass Foco</h1>
           <div className="flex items-center gap-2">
             {timerActive && currentView !== 'focus' && (
               <button
@@ -705,7 +705,7 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
                 <Download size={18} />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-bold text-slate-800">Instalar o Tempo AI</p>
+                <p className="text-sm font-bold text-slate-800">Instalar o GeriClass Foco</p>
                 <p className="text-xs text-slate-500">
                   {pwa.canInstall ? 'Acesso rápido na tela inicial, em tela cheia.' : 'Toque em Compartilhar e "Adicionar à Tela de Início".'}
                 </p>
@@ -966,7 +966,7 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
             <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white flex items-center justify-center mb-4">
               <Sparkles size={24} />
             </div>
-            <h2 className="text-xl font-bold text-slate-800">Bem-vindo ao Tempo AI 👋</h2>
+            <h2 className="text-xl font-bold text-slate-800">Bem-vindo ao GeriClass Foco 👋</h2>
             <p className="text-sm text-slate-500 mt-1">Organize tarefas, foque com pomodoro e construa hábitos — tudo num lugar só.</p>
             <div className="mt-4 space-y-2.5">
               {[

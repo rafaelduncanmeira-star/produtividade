@@ -1,6 +1,6 @@
-# Tempo AI
+# GeriClass Foco
 
-App de gestão de tempo e produtividade (pt-BR), mobile-first.
+App de foco e produtividade (pt-BR), mobile-first.
 
 🔗 **No ar:** https://rafaelduncanmeira-star.github.io/produtividade/
 

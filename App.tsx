@@ -13,7 +13,7 @@ const SAVE_DEBOUNCE_MS = 1200;
 
 const Splash: React.FC<{ message: string }> = ({ message }) => (
   <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center gap-3">
-    <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-violet-500 bg-clip-text text-transparent">Tempo AI</h1>
+    <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-violet-500 bg-clip-text text-transparent">GeriClass Foco</h1>
     <div className="flex items-center gap-2 text-slate-400 text-sm">
       <LoaderCircle size={16} className="animate-spin" /> {message}
     </div>
