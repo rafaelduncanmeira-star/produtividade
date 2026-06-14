@@ -807,7 +807,7 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
             />
           )}
           {currentView === 'reports' && (
-            <ReportsView tasks={tasks} habits={habits} sessions={sessions} />
+            <ReportsView tasks={tasks} habits={habits} sessions={sessions} reviews={reviews} />
           )}
         </main>
       </div>

@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { Timer, CheckCircle2, Flame, CalendarRange } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { Task, Habit, FocusSession } from '../types';
+import { Task, Habit, FocusSession, DailyReview, REVIEW_MOODS } from '../types';
 import {
   todayISO, addDaysISO, getWeekDays, formatShortDate, formatMinutes,
   calcStreaks, habitCompletionRate, focusMinutesOn,
@@ -11,9 +11,10 @@ interface ReportsViewProps {
   tasks: Task[];
   habits: Habit[];
   sessions: FocusSession[];
+  reviews: DailyReview[];
 }
 
-export const ReportsView: React.FC<ReportsViewProps> = ({ tasks, habits, sessions }) => {
+export const ReportsView: React.FC<ReportsViewProps> = ({ tasks, habits, sessions, reviews }) => {
   const today = todayISO();
   const week = getWeekDays();
 
@@ -108,6 +109,22 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ tasks, habits, session
     return top.minutes > 0 ? top : null;
   }, [sessions]);
 
+  // --- Humor / Revisão do dia ---
+  const reviewByDate = useMemo(() => new Map(reviews.map(r => [r.date, r])), [reviews]);
+  const moodDays = useMemo(
+    () => Array.from({ length: 14 }, (_, i) => {
+      const iso = addDaysISO(today, -(13 - i));
+      return { iso, day: iso.slice(8), mood: reviewByDate.get(iso)?.mood ?? 0, isToday: iso === today };
+    }),
+    [reviewByDate, today]
+  );
+  const reviewedDays = moodDays.filter(d => d.mood > 0);
+  const avgMood = reviewedDays.length ? reviewedDays.reduce((s, d) => s + d.mood, 0) / reviewedDays.length : 0;
+  const recentNotes = useMemo(
+    () => [...reviews].filter(r => r.note && r.note.trim()).sort((a, b) => b.date.localeCompare(a.date)).slice(0, 4),
+    [reviews]
+  );
+
   const summaryCards = [
     { label: 'Foco hoje', value: formatMinutes(focusToday), icon: Timer, color: 'text-indigo-600 bg-indigo-50' },
     { label: 'Foco na semana', value: formatMinutes(focusWeek), icon: CalendarRange, color: 'text-sky-600 bg-sky-50' },
@@ -133,6 +150,45 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ tasks, habits, session
             <p className="text-[11px] text-slate-400 font-medium">{card.label}</p>
           </div>
         ))}
+      </div>
+
+      {/* Humor / Revisão do dia */}
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="font-bold text-slate-800 text-sm">Humor — últimos 14 dias</h3>
+          {avgMood > 0 && (
+            <span className="text-xs text-slate-400">
+              média {REVIEW_MOODS[Math.round(avgMood) - 1]} · {reviewedDays.length} {reviewedDays.length === 1 ? 'dia' : 'dias'}
+            </span>
+          )}
+        </div>
+        {reviewedDays.length === 0 ? (
+          <p className="text-sm text-slate-400 text-center py-6">Faça a “Revisão do dia” na tela Hoje para acompanhar seu humor aqui.</p>
+        ) : (
+          <>
+            <div className="grid grid-cols-7 gap-1.5">
+              {moodDays.map(d => (
+                <div key={d.iso} className={`flex flex-col items-center gap-1 rounded-lg py-2 ${d.isToday ? 'bg-indigo-50' : ''}`}>
+                  <span className={`text-lg leading-none ${d.mood ? '' : 'text-slate-200'}`}>{d.mood ? REVIEW_MOODS[d.mood - 1] : '·'}</span>
+                  <span className="text-[9px] text-slate-400 tabular-nums">{d.day}</span>
+                </div>
+              ))}
+            </div>
+            {recentNotes.length > 0 && (
+              <div className="mt-4 space-y-2.5 border-t border-slate-100 pt-3">
+                {recentNotes.map(r => (
+                  <div key={r.date} className="flex items-start gap-2.5">
+                    <span className="text-base leading-none mt-0.5 shrink-0">{REVIEW_MOODS[r.mood - 1]}</span>
+                    <div className="min-w-0">
+                      <p className="text-[11px] text-slate-400 font-medium">{formatShortDate(r.date)}</p>
+                      <p className="text-sm text-slate-600">{r.note}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
+        )}
       </div>
 
       {/* Insights: estimativa + melhor horário */}
