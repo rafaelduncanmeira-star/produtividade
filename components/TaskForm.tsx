@@ -12,6 +12,9 @@ interface TaskFormProps {
   onClose: () => void;
 }
 
+const labelCls = 'block text-xs font-medium text-slate-500 mb-1.5';
+const fieldCls = 'w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-700 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 outline-none transition';
+
 export const TaskForm: React.FC<TaskFormProps> = ({ initialTask, projects, defaultProjectId, onSave, onClose }) => {
   const [title, setTitle] = useState(initialTask?.title ?? '');
   const [urgent, setUrgent] = useState(initialTask?.urgent ?? false);
@@ -59,110 +62,116 @@ export const TaskForm: React.FC<TaskFormProps> = ({ initialTask, projects, defau
     }, initialTask?.id);
   };
 
+  const doneSubs = subtasks.filter(s => s.done).length;
+
   return (
     <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/50 backdrop-blur-sm md:p-4">
       <div className="bg-white rounded-t-2xl md:rounded-2xl shadow-xl w-full max-w-md overflow-hidden max-h-[92vh] overflow-y-auto">
-        <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50 sticky top-0">
-          <h3 className="font-bold text-slate-800">{initialTask ? 'Editar Tarefa' : 'Nova Tarefa'}</h3>
-          <button onClick={onClose} className="p-1"><X size={20} className="text-slate-400" /></button>
+        <div className="px-5 py-4 border-b border-slate-100 flex justify-between items-center bg-white/95 backdrop-blur sticky top-0 z-10">
+          <h3 className="font-bold text-slate-800 text-[15px] flex items-center gap-2">
+            <span className="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center"><Check size={16} strokeWidth={2.5} /></span>
+            {initialTask ? 'Editar tarefa' : 'Nova tarefa'}
+          </h3>
+          <button onClick={onClose} aria-label="Fechar" className="p-1.5 -mr-1.5 rounded-lg text-slate-400 hover:bg-slate-100"><X size={20} /></button>
         </div>
-        <form onSubmit={handleSubmit} className="p-6 space-y-4 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
+
+        <form onSubmit={handleSubmit} className="p-5 space-y-5 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
           <div>
-            <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">O que precisa ser feito?</label>
+            <label className={labelCls}>O que precisa ser feito?</label>
             <input
               type="text"
               required
               autoFocus
               value={title}
               onChange={e => setTitle(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-200 outline-none"
+              className={`${fieldCls} text-base font-medium`}
               placeholder="Ex: Preparar apresentação..."
             />
           </div>
 
-          {/* Matriz de Eisenhower: urgência e importância */}
-          <div className="space-y-2">
-            <button
-              type="button"
-              onClick={() => setUrgent(!urgent)}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border-2 text-left transition-colors ${
-                urgent ? 'border-rose-300 bg-rose-50' : 'border-slate-200 bg-white'
-              }`}
-            >
-              <Zap size={18} className={urgent ? 'text-rose-500' : 'text-slate-300'} />
-              <div className="flex-1">
-                <p className="text-sm font-bold text-slate-700">É urgente?</p>
-                <p className="text-xs text-slate-400">Tem prazo imediato ou consequência se esperar</p>
-              </div>
-              <div className={`w-10 h-6 rounded-full p-0.5 transition-colors ${urgent ? 'bg-rose-500' : 'bg-slate-200'}`}>
-                <div className={`w-5 h-5 bg-white rounded-full shadow transition-transform ${urgent ? 'translate-x-4' : ''}`} />
-              </div>
-            </button>
-            <button
-              type="button"
-              onClick={() => setImportant(!important)}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border-2 text-left transition-colors ${
-                important ? 'border-indigo-300 bg-indigo-50' : 'border-slate-200 bg-white'
-              }`}
-            >
-              <Star size={18} className={important ? 'text-indigo-500' : 'text-slate-300'} />
-              <div className="flex-1">
-                <p className="text-sm font-bold text-slate-700">É importante?</p>
-                <p className="text-xs text-slate-400">Contribui para seus objetivos de longo prazo</p>
-              </div>
-              <div className={`w-10 h-6 rounded-full p-0.5 transition-colors ${important ? 'bg-indigo-500' : 'bg-slate-200'}`}>
-                <div className={`w-5 h-5 bg-white rounded-full shadow transition-transform ${important ? 'translate-x-4' : ''}`} />
-              </div>
-            </button>
-            <div className="flex items-center gap-2 px-1">
-              <span className="text-xs text-slate-400">Quadrante:</span>
-              <span className={`text-xs font-bold px-2 py-0.5 rounded ${quadrant.badgeClass}`}>{quadrant.label}</span>
-              <span className="text-[10px] text-slate-400">({quadrant.hint})</span>
+          {/* Classificação: urgência e importância (Matriz de Eisenhower) */}
+          <div>
+            <label className={labelCls}>Classificação</label>
+            <div className="grid grid-cols-2 gap-2.5">
+              <button
+                type="button"
+                onClick={() => setUrgent(!urgent)}
+                className={`p-3 rounded-xl border text-left transition ${urgent ? 'border-rose-300 bg-rose-50' : 'border-slate-200 bg-white hover:border-slate-300'}`}
+              >
+                <div className="flex items-center justify-between mb-1.5">
+                  <Zap size={18} className={urgent ? 'text-rose-500' : 'text-slate-300'} />
+                  <span className={`w-9 h-5 rounded-full p-0.5 transition-colors ${urgent ? 'bg-rose-500' : 'bg-slate-200'}`}>
+                    <span className={`block w-4 h-4 bg-white rounded-full shadow transition-transform ${urgent ? 'translate-x-4' : ''}`} />
+                  </span>
+                </div>
+                <p className="text-sm font-semibold text-slate-700">Urgente</p>
+                <p className="text-[11px] text-slate-400 leading-snug">Tem prazo imediato</p>
+              </button>
+              <button
+                type="button"
+                onClick={() => setImportant(!important)}
+                className={`p-3 rounded-xl border text-left transition ${important ? 'border-indigo-300 bg-indigo-50' : 'border-slate-200 bg-white hover:border-slate-300'}`}
+              >
+                <div className="flex items-center justify-between mb-1.5">
+                  <Star size={18} className={important ? 'text-indigo-500' : 'text-slate-300'} />
+                  <span className={`w-9 h-5 rounded-full p-0.5 transition-colors ${important ? 'bg-indigo-500' : 'bg-slate-200'}`}>
+                    <span className={`block w-4 h-4 bg-white rounded-full shadow transition-transform ${important ? 'translate-x-4' : ''}`} />
+                  </span>
+                </div>
+                <p className="text-sm font-semibold text-slate-700">Importante</p>
+                <p className="text-[11px] text-slate-400 leading-snug">Ajuda nos seus objetivos</p>
+              </button>
+            </div>
+            <div className="mt-2 flex items-center gap-2 px-3 py-2 rounded-lg" style={{ backgroundColor: `${quadrant.color}14` }}>
+              <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: quadrant.color }} />
+              <span className="text-xs font-bold text-slate-700">{quadrant.label}</span>
+              <span className="text-[11px] text-slate-400">· {quadrant.hint}</span>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Prazo</label>
+              <label className={labelCls}>Prazo</label>
               <input
                 type="date"
                 value={dueDate}
                 onChange={e => setDueDate(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-200 outline-none text-slate-600"
+                className={`${fieldCls} appearance-none`}
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Pomodoros</label>
+              <label className={labelCls}>Pomodoros</label>
               <input
                 type="number"
                 min="0"
                 max="20"
                 value={estimatedPomodoros}
                 onChange={e => setEstimatedPomodoros(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-200 outline-none"
+                className={fieldCls}
               />
             </div>
           </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Categoria</label>
-            <select
-              value={category}
-              onChange={e => setCategory(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-200 outline-none bg-white text-slate-600"
-            >
-              {DEFAULT_TASK_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
-            </select>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className={labelCls}>Categoria</label>
+              <select value={category} onChange={e => setCategory(e.target.value)} className={fieldCls}>
+                {DEFAULT_TASK_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className={labelCls}>Repetir</label>
+              <select value={recurrence} onChange={e => setRecurrence(e.target.value as '' | RecurrenceFreq)} className={fieldCls}>
+                {RECURRENCE_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+              </select>
+            </div>
           </div>
+          {recurrence && <p className="text-[11px] text-slate-400 -mt-3">Ao concluir, a próxima ocorrência é criada automaticamente.</p>}
 
           {projects && projects.length > 0 && (
             <div>
-              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Meta</label>
-              <select
-                value={projectId}
-                onChange={e => setProjectId(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-200 outline-none bg-white text-slate-600"
-              >
+              <label className={labelCls}>Meta</label>
+              <select value={projectId} onChange={e => setProjectId(e.target.value)} className={fieldCls}>
                 <option value="">Nenhuma</option>
                 {projects.map(p => <option key={p.id} value={p.id}>{p.emoji} {p.name}</option>)}
               </select>
@@ -170,23 +179,9 @@ export const TaskForm: React.FC<TaskFormProps> = ({ initialTask, projects, defau
           )}
 
           <div>
-            <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Repetir</label>
-            <select
-              value={recurrence}
-              onChange={e => setRecurrence(e.target.value as '' | RecurrenceFreq)}
-              className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-200 outline-none bg-white text-slate-600"
-            >
-              {RECURRENCE_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-            </select>
-            {recurrence && <p className="text-[11px] text-slate-400 mt-1">Ao concluir, a próxima ocorrência é criada automaticamente.</p>}
-          </div>
-
-          <div>
-            <div className="flex items-center justify-between mb-1">
-              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider">Subtarefas</label>
-              {subtasks.length > 0 && (
-                <span className="text-[11px] text-slate-400">{subtasks.filter(s => s.done).length}/{subtasks.length}</span>
-              )}
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="text-xs font-medium text-slate-500">Subtarefas</label>
+              {subtasks.length > 0 && <span className="text-[11px] text-slate-400">{doneSubs}/{subtasks.length}</span>}
             </div>
             <div className="space-y-1.5">
               {subtasks.map(st => (
@@ -202,7 +197,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({ initialTask, projects, defau
                   <input
                     value={st.title}
                     onChange={e => renameSub(st.id, e.target.value)}
-                    className={`flex-1 min-w-0 px-2 py-1.5 rounded-lg border border-slate-200 text-sm outline-none focus:ring-2 focus:ring-indigo-200 ${st.done ? 'line-through text-slate-400' : ''}`}
+                    className={`flex-1 min-w-0 px-3 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 ${st.done ? 'line-through text-slate-400' : 'text-slate-700'}`}
                   />
                   <button type="button" onClick={() => removeSub(st.id)} aria-label="Remover passo" className="p-1 text-slate-300 hover:text-rose-600 shrink-0">
                     <X size={15} />
@@ -215,28 +210,30 @@ export const TaskForm: React.FC<TaskFormProps> = ({ initialTask, projects, defau
                   onChange={e => setNewSub(e.target.value)}
                   onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addSub(); } }}
                   placeholder="Adicionar passo..."
-                  className="flex-1 min-w-0 px-2 py-1.5 rounded-lg border border-dashed border-slate-300 text-sm outline-none focus:ring-2 focus:ring-indigo-200"
+                  className="flex-1 min-w-0 px-3 py-2 rounded-lg border border-dashed border-slate-300 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
                 />
-                <button type="button" onClick={addSub} aria-label="Adicionar subtarefa" className="p-1.5 text-indigo-600 hover:bg-indigo-50 rounded-lg shrink-0">
+                <button type="button" onClick={addSub} aria-label="Adicionar subtarefa" className="shrink-0 w-9 h-9 flex items-center justify-center text-indigo-600 hover:bg-indigo-50 rounded-lg">
                   <Plus size={18} />
                 </button>
               </div>
             </div>
           </div>
 
-          <button type="submit" className="w-full py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 flex items-center justify-center gap-2 mt-2 active:scale-[0.98] transition-transform">
-            <Save size={18} /> Salvar Tarefa
-          </button>
-          {dueDate && title.trim() && (
-            <a
-              href={googleAllDayUrl(title, dueDate)}
-              target="_blank"
-              rel="noreferrer"
-              className="w-full py-2.5 rounded-xl border border-slate-200 text-slate-600 font-medium hover:border-[#4285F4] hover:text-[#4285F4] flex items-center justify-center gap-2 text-sm transition-colors"
-            >
-              <Calendar size={16} /> Adicionar prazo ao Google Agenda
-            </a>
-          )}
+          <div className="space-y-2 pt-1">
+            <button type="submit" className="w-full py-3 rounded-xl font-bold text-white bg-gradient-to-r from-indigo-600 to-violet-600 hover:brightness-110 active:scale-[0.98] transition flex items-center justify-center gap-2 shadow-md shadow-indigo-200">
+              <Save size={18} /> Salvar tarefa
+            </button>
+            {dueDate && title.trim() && (
+              <a
+                href={googleAllDayUrl(title, dueDate)}
+                target="_blank"
+                rel="noreferrer"
+                className="w-full py-2.5 rounded-xl border border-slate-200 text-slate-600 font-medium hover:border-[#4285F4] hover:text-[#4285F4] flex items-center justify-center gap-2 text-sm transition-colors"
+              >
+                <Calendar size={16} /> Adicionar prazo ao Google Agenda
+              </a>
+            )}
+          </div>
         </form>
       </div>
     </div>
