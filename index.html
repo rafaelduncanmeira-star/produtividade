@@ -17,6 +17,15 @@
         if (localStorage.getItem('tempo_theme') === 'dark') document.documentElement.classList.add('dark');
       } catch (e) {}
     </script>
+    <script>
+      // Marca iPhone/iPad para aplicar o visual "Liquid Glass" do iOS.
+      try {
+        var ua = navigator.userAgent || '';
+        if (/iphone|ipad|ipod/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) {
+          document.documentElement.classList.add('ios');
+        }
+      } catch (e) {}
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>tailwind.config = { darkMode: 'class' };</script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -133,6 +142,34 @@
         input:not([type="checkbox"]):not([type="radio"]),
         select,
         textarea { font-size: 16px !important; }
+      }
+
+      /* ===== Look "Liquid Glass" do iOS (somente iPhone/iPad: html.ios) ===== */
+      html.ios .header-glass {
+        background-color: rgba(255, 255, 255, 0.7);
+        -webkit-backdrop-filter: saturate(180%) blur(20px);
+        backdrop-filter: saturate(180%) blur(20px);
+        padding-top: max(0.75rem, env(safe-area-inset-top));
+      }
+      html.dark.ios .header-glass { background-color: rgba(15, 23, 42, 0.6); }
+
+      html.ios .tabbar-glass {
+        background-color: rgba(255, 255, 255, 0.72);
+        -webkit-backdrop-filter: saturate(180%) blur(22px);
+        backdrop-filter: saturate(180%) blur(22px);
+        border: 1px solid rgba(255, 255, 255, 0.55);
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.16);
+        border-radius: 26px;
+        left: 0.75rem;
+        right: 0.75rem;
+        bottom: calc(env(safe-area-inset-bottom) + 0.5rem);
+        padding-bottom: 0;
+        overflow: hidden;
+      }
+      html.dark.ios .tabbar-glass {
+        background-color: rgba(30, 41, 59, 0.62);
+        border-color: rgba(148, 163, 184, 0.2);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
       }
 
       /* Hide scrollbar for Chrome, Safari and Opera */

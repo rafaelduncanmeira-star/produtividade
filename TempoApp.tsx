@@ -661,7 +661,7 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
 
       <div className="flex-1 md:ml-60">
         {/* Top bar (mobile) */}
-        <header className="md:hidden sticky top-0 z-30 bg-white/90 backdrop-blur border-b border-slate-100 px-4 py-3 flex items-center justify-between">
+        <header className="header-glass md:hidden sticky top-0 z-30 bg-white/90 backdrop-blur border-b border-slate-100 px-4 py-3 flex items-center justify-between">
           <h1 className="text-lg font-bold bg-gradient-to-r from-indigo-600 to-violet-500 bg-clip-text text-transparent">Tempo AI</h1>
           <div className="flex items-center gap-2">
             {timerActive && currentView !== 'focus' && (
@@ -813,7 +813,7 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
       />
 
       {/* Barra de abas (mobile) */}
-      <nav className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white border-t border-slate-200 pb-[env(safe-area-inset-bottom)]">
+      <nav className="tabbar-glass md:hidden fixed bottom-0 inset-x-0 z-40 bg-white border-t border-slate-200 pb-[env(safe-area-inset-bottom)]">
         <div className="grid grid-cols-5">
           {MOBILE_NAV.map(id => {
             const item = NAV_ITEMS.find(n => n.id === id)!;
