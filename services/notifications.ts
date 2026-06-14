@@ -19,7 +19,7 @@ export const requestNotifPermission = async (): Promise<NotificationPermission |
 export const sendNotification = (title: string, body?: string): void => {
   if (!notifSupported() || Notification.permission !== 'granted') return;
   try {
-    new Notification(title, { body, icon: './icon-192.png', badge: './icon-192.png', tag: title });
+    new Notification(title, { body, icon: './icon-192.png', badge: './icon-192.png', tag: `${title}|${body ?? ''}` });
   } catch {
     /* alguns navegadores exigem ServiceWorkerRegistration.showNotification; falha silenciosa */
   }

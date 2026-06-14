@@ -227,7 +227,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ tasks, blocks, project
 
               {result.actions.length > 0 && (
                 <div className="space-y-1.5">
-                  <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  <p className="text-xs font-medium text-slate-500">
                     {applied ? 'Aplicado!' : 'O que vou criar:'}
                   </p>
                   {result.actions.map((action, i) => {
@@ -255,7 +255,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ tasks, blocks, project
                     );
                   })}
                   {!applied ? (
-                    <div className="flex gap-2 pt-1">
+                    <div className="flex gap-2 pt-2 sticky bottom-0 bg-white">
                       <button
                         onClick={() => { setResult(null); }}
                         className="flex-1 py-2.5 bg-white border border-slate-200 text-slate-500 rounded-xl text-sm font-medium hover:border-slate-300"

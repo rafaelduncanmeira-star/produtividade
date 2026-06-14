@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Save } from 'lucide-react';
+import { X, Save, Repeat } from 'lucide-react';
 import { Habit, HABIT_COLORS, HABIT_EMOJIS, WEEKDAY_LETTERS } from '../types';
 
 interface HabitFormProps {
@@ -7,6 +7,9 @@ interface HabitFormProps {
   onSave: (data: Omit<Habit, 'id'>, id?: string) => void;
   onClose: () => void;
 }
+
+const labelCls = 'block text-xs font-medium text-slate-500 mb-1.5';
+const fieldCls = 'w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-700 focus:border-teal-400 focus:ring-2 focus:ring-teal-100 outline-none transition';
 
 export const HabitForm: React.FC<HabitFormProps> = ({ initialHabit, onSave, onClose }) => {
   const [name, setName] = useState(initialHabit?.name ?? '');
@@ -34,26 +37,29 @@ export const HabitForm: React.FC<HabitFormProps> = ({ initialHabit, onSave, onCl
   return (
     <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/50 backdrop-blur-sm md:p-4">
       <div className="bg-white rounded-t-2xl md:rounded-2xl shadow-xl w-full max-w-sm overflow-hidden max-h-[92vh] overflow-y-auto">
-        <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50 sticky top-0">
-          <h3 className="font-bold text-slate-800">{initialHabit ? 'Editar Hábito' : 'Novo Hábito'}</h3>
-          <button onClick={onClose} className="p-1"><X size={20} className="text-slate-400" /></button>
+        <div className="px-5 py-4 border-b border-slate-100 flex justify-between items-center bg-white/95 backdrop-blur sticky top-0 z-10">
+          <h3 className="font-bold text-slate-800 text-[15px] flex items-center gap-2">
+            <span className="w-7 h-7 rounded-lg bg-teal-50 text-teal-700 flex items-center justify-center"><Repeat size={16} strokeWidth={2.5} /></span>
+            {initialHabit ? 'Editar Hábito' : 'Novo Hábito'}
+          </h3>
+          <button onClick={onClose} aria-label="Fechar" className="p-1.5 -mr-1.5 rounded-lg text-slate-400 hover:bg-slate-100"><X size={20} /></button>
         </div>
-        <form onSubmit={handleSubmit} className="p-6 space-y-4 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
+        <form onSubmit={handleSubmit} className="p-5 space-y-5 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
           <div>
-            <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Nome do Hábito</label>
+            <label className={labelCls}>Nome do Hábito</label>
             <input
               type="text"
               required
               autoFocus
               value={name}
               onChange={e => setName(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal-200 outline-none"
+              className={fieldCls}
               placeholder="Ex: Meditar 10 minutos..."
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Ícone</label>
+            <label className={labelCls}>Ícone</label>
             <div className="grid grid-cols-6 gap-2">
               {HABIT_EMOJIS.map(e => (
                 <button
@@ -71,7 +77,7 @@ export const HabitForm: React.FC<HabitFormProps> = ({ initialHabit, onSave, onCl
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Cor</label>
+            <label className={labelCls}>Cor</label>
             <div className="flex gap-3">
               {HABIT_COLORS.map(c => (
                 <button
@@ -86,7 +92,7 @@ export const HabitForm: React.FC<HabitFormProps> = ({ initialHabit, onSave, onCl
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Em quais dias?</label>
+            <label className={labelCls}>Em quais dias?</label>
             <div className="grid grid-cols-7 gap-1.5">
               {WEEKDAY_LETTERS.map((letter, i) => (
                 <button
@@ -106,7 +112,7 @@ export const HabitForm: React.FC<HabitFormProps> = ({ initialHabit, onSave, onCl
             )}
           </div>
 
-          <button type="submit" className="w-full py-3 bg-teal-800 text-white rounded-xl font-bold hover:bg-teal-900 flex items-center justify-center gap-2 mt-2">
+          <button type="submit" className="w-full py-3 rounded-xl font-bold text-white bg-gradient-to-r from-teal-800 to-emerald-700 hover:brightness-110 active:scale-[0.98] transition flex items-center justify-center gap-2 shadow-md shadow-teal-200">
             <Save size={18} /> Salvar Hábito
           </button>
         </form>

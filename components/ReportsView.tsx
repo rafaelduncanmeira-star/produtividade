@@ -125,6 +125,35 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ tasks, habits, session
     [reviews]
   );
 
+  // --- Humor x foco: média de minutos de foco por nível de humor ---
+  const moodFocus = useMemo(() => {
+    const acc = new Map<number, { total: number; days: number }>();
+    for (const r of reviews) {
+      if (!r.mood) continue;
+      const cur = acc.get(r.mood) ?? { total: 0, days: 0 };
+      cur.total += focusMinutesOn(sessions, r.date);
+      cur.days += 1;
+      acc.set(r.mood, cur);
+    }
+    const rows = [5, 4, 3, 2, 1]
+      .filter(m => acc.has(m))
+      .map(m => ({ mood: m, avg: Math.round(acc.get(m)!.total / acc.get(m)!.days), days: acc.get(m)!.days }));
+    const maxAvg = rows.reduce((mx, r) => Math.max(mx, r.avg), 0);
+    return { rows, maxAvg };
+  }, [reviews, sessions]);
+
+  const moodInsight = useMemo(() => {
+    const good = reviews.filter(r => r.mood >= 4);
+    const bad = reviews.filter(r => r.mood >= 1 && r.mood <= 2);
+    const avg = (arr: typeof good) => arr.length ? Math.round(arr.reduce((s, r) => s + focusMinutesOn(sessions, r.date), 0) / arr.length) : null;
+    const g = avg(good);
+    const b = avg(bad);
+    if (g === null || b === null) return null;
+    if (g > b) return `Nos seus dias bons 😄🤩 você focou em média ${formatMinutes(g)} — ${formatMinutes(g - b)} a mais que nos dias difíceis.`;
+    if (b > g) return `Curiosamente, você focou mais nos dias difíceis (${formatMinutes(b)}) que nos dias bons (${formatMinutes(g)}).`;
+    return `Seu foco foi parecido nos dias bons e ruins (${formatMinutes(g)}).`;
+  }, [reviews, sessions]);
+
   const summaryCards = [
     { label: 'Foco hoje', value: formatMinutes(focusToday), icon: Timer, color: 'text-teal-700 bg-teal-50' },
     { label: 'Foco na semana', value: formatMinutes(focusWeek), icon: CalendarRange, color: 'text-sky-600 bg-sky-50' },
@@ -187,6 +216,29 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ tasks, habits, session
                 ))}
               </div>
             )}
+          </>
+        )}
+      </div>
+
+      {/* Humor × foco */}
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5">
+        <h3 className="font-bold text-slate-800 text-sm mb-4">Humor × foco</h3>
+        {moodFocus.rows.length === 0 ? (
+          <p className="text-sm text-slate-400 text-center py-6">Faça a “Revisão do dia” e sessões de foco para ver a relação entre humor e produtividade.</p>
+        ) : (
+          <>
+            <div className="space-y-2.5">
+              {moodFocus.rows.map(({ mood, avg, days }) => (
+                <div key={mood} className="flex items-center gap-2.5">
+                  <span className="text-lg w-6 text-center shrink-0">{REVIEW_MOODS[mood - 1]}</span>
+                  <div className="flex-1 bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                    <div className="h-full rounded-full bg-teal-700 transition-all duration-700" style={{ width: `${moodFocus.maxAvg ? (avg / moodFocus.maxAvg) * 100 : 0}%` }} />
+                  </div>
+                  <span className="text-xs font-bold text-slate-500 w-20 text-right shrink-0">{formatMinutes(avg)} <span className="text-slate-300 font-normal">·{days}d</span></span>
+                </div>
+              ))}
+            </div>
+            {moodInsight && <p className="text-xs text-slate-500 mt-3">{moodInsight}</p>}
           </>
         )}
       </div>
