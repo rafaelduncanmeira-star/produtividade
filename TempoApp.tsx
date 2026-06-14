@@ -603,7 +603,7 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
       {/* Sidebar (desktop) */}
       <aside className="hidden md:flex md:flex-col w-60 bg-white border-r border-slate-200 fixed inset-y-0 z-40">
         <div className="px-6 py-6">
-          <h1 className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-violet-500 bg-clip-text text-transparent">GeriClass Foco</h1>
+          <h1 className="text-xl font-bold bg-gradient-to-r from-teal-600 to-emerald-500 bg-clip-text text-transparent">GeriClass Foco</h1>
           <p className="text-xs text-slate-400 mt-1">Gestão de tempo e produtividade</p>
         </div>
         <nav className="flex-1 px-3 space-y-1">
@@ -612,13 +612,13 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
               key={item.id}
               onClick={() => navigate(item.id)}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
-                currentView === item.id ? 'bg-indigo-50 text-indigo-700' : 'text-slate-500 hover:bg-slate-50 hover:text-slate-700'
+                currentView === item.id ? 'bg-teal-50 text-teal-700' : 'text-slate-500 hover:bg-slate-50 hover:text-slate-700'
               }`}
             >
               <item.icon size={18} />
               <span>{item.label}</span>
               {item.id === 'focus' && timerActive && (
-                <span className="ml-auto text-xs font-bold text-indigo-600 tabular-nums">{formatTimerMs(remainingMs)}</span>
+                <span className="ml-auto text-xs font-bold text-teal-600 tabular-nums">{formatTimerMs(remainingMs)}</span>
               )}
             </button>
           ))}
@@ -626,7 +626,7 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
         <div className="px-3 pb-2 space-y-1">
           <button
             onClick={() => setIsAIOpen(true)}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-indigo-600 to-violet-600 hover:brightness-110 transition-all shadow-md shadow-indigo-200"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-teal-600 to-emerald-600 hover:brightness-110 transition-all shadow-md shadow-teal-200"
           >
             <Sparkles size={18} />
             <span>Assistente IA</span>
@@ -645,7 +645,7 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
               title={notifPerm === 'denied' ? 'Notificações bloqueadas no navegador' : 'Lembretes de blocos e Pomodoro'}
               className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-500 hover:bg-slate-50 hover:text-slate-700 transition-colors"
             >
-              {notifPerm === 'granted' ? <BellRing size={18} className="text-indigo-600" /> : notifPerm === 'denied' ? <BellOff size={18} /> : <Bell size={18} />}
+              {notifPerm === 'granted' ? <BellRing size={18} className="text-teal-600" /> : notifPerm === 'denied' ? <BellOff size={18} /> : <Bell size={18} />}
               <span>Lembretes</span>
               {notifPerm === 'granted' && <span className="ml-auto w-2 h-2 rounded-full bg-emerald-500" />}
             </button>
@@ -676,12 +676,12 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
       <div className="flex-1 md:ml-60">
         {/* Top bar (mobile) */}
         <header className="header-glass md:hidden sticky top-0 z-30 bg-white/90 backdrop-blur border-b border-slate-100 px-4 py-3 flex items-center justify-between">
-          <h1 className="text-lg font-bold bg-gradient-to-r from-indigo-600 to-violet-500 bg-clip-text text-transparent">GeriClass Foco</h1>
+          <h1 className="text-lg font-bold bg-gradient-to-r from-teal-600 to-emerald-500 bg-clip-text text-transparent">GeriClass Foco</h1>
           <div className="flex items-center gap-2">
             {timerActive && currentView !== 'focus' && (
               <button
                 onClick={() => navigate('focus')}
-                className="flex items-center gap-1.5 bg-indigo-600 text-white text-xs font-bold px-3 py-1.5 rounded-full tabular-nums active:scale-95 transition-transform"
+                className="flex items-center gap-1.5 bg-teal-600 text-white text-xs font-bold px-3 py-1.5 rounded-full tabular-nums active:scale-95 transition-transform"
               >
                 <Timer size={14} />
                 {formatTimerMs(remainingMs)}
@@ -689,7 +689,7 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
             )}
             {notifPerm !== 'unsupported' && (
               <button onClick={handleNotifClick} aria-label="Lembretes" className="p-1 text-slate-400">
-                {notifPerm === 'granted' ? <BellRing size={20} className="text-indigo-600" /> : notifPerm === 'denied' ? <BellOff size={20} /> : <Bell size={20} />}
+                {notifPerm === 'granted' ? <BellRing size={20} className="text-teal-600" /> : notifPerm === 'denied' ? <BellOff size={20} /> : <Bell size={20} />}
               </button>
             )}
             <button onClick={toggleTheme} aria-label="Alternar tema" className="p-1 text-slate-400">
@@ -700,8 +700,8 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
 
         <main className="p-4 md:p-8 pb-28 md:pb-8 max-w-5xl mx-auto">
           {pwa.showInstall && (
-            <div className="mb-4 flex items-center gap-3 bg-white rounded-xl border border-indigo-100 shadow-sm p-3">
-              <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-indigo-600 to-violet-600 text-white flex items-center justify-center shrink-0">
+            <div className="mb-4 flex items-center gap-3 bg-white rounded-xl border border-teal-100 shadow-sm p-3">
+              <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-teal-600 to-emerald-600 text-white flex items-center justify-center shrink-0">
                 <Download size={18} />
               </div>
               <div className="flex-1 min-w-0">
@@ -711,7 +711,7 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
                 </p>
               </div>
               {pwa.canInstall && (
-                <button onClick={pwa.promptInstall} className="shrink-0 bg-indigo-600 text-white text-sm font-bold px-3 py-2 rounded-lg hover:bg-indigo-700 active:scale-95 transition">
+                <button onClick={pwa.promptInstall} className="shrink-0 bg-teal-600 text-white text-sm font-bold px-3 py-2 rounded-lg hover:bg-teal-700 active:scale-95 transition">
                   Instalar
                 </button>
               )}
@@ -837,7 +837,7 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
               <button
                 key={id}
                 onClick={() => navigate(id)}
-                className={`flex flex-col items-center gap-0.5 py-2.5 min-h-[56px] justify-center ${active ? 'text-indigo-600' : 'text-slate-400'}`}
+                className={`flex flex-col items-center gap-0.5 py-2.5 min-h-[56px] justify-center ${active ? 'text-teal-600' : 'text-slate-400'}`}
               >
                 <item.icon size={22} strokeWidth={active ? 2.4 : 2} />
                 <span className="text-[10px] font-medium">{item.label}</span>
@@ -846,7 +846,7 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
           })}
           <button
             onClick={() => setMoreOpen(true)}
-            className={`flex flex-col items-center gap-0.5 py-2.5 min-h-[56px] justify-center ${MORE_NAV.includes(currentView) ? 'text-indigo-600' : 'text-slate-400'}`}
+            className={`flex flex-col items-center gap-0.5 py-2.5 min-h-[56px] justify-center ${MORE_NAV.includes(currentView) ? 'text-teal-600' : 'text-slate-400'}`}
           >
             <MoreHorizontal size={22} />
             <span className="text-[10px] font-medium">Mais</span>
@@ -870,7 +870,7 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
                     key={id}
                     onClick={() => navigate(id)}
                     className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-medium ${
-                      currentView === id ? 'bg-indigo-50 text-indigo-700' : 'text-slate-600 hover:bg-slate-50'
+                      currentView === id ? 'bg-teal-50 text-teal-700' : 'text-slate-600 hover:bg-slate-50'
                     }`}
                   >
                     <item.icon size={20} />
@@ -963,7 +963,7 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
       {showWelcome && (
         <div className="fixed inset-0 z-[80] flex items-end md:items-center justify-center bg-black/50 backdrop-blur-sm md:p-4">
           <div className="bg-white rounded-t-2xl md:rounded-2xl shadow-xl w-full max-w-md p-6 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white flex items-center justify-center mb-4">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-teal-600 to-emerald-600 text-white flex items-center justify-center mb-4">
               <Sparkles size={24} />
             </div>
             <h2 className="text-xl font-bold text-slate-800">Bem-vindo ao GeriClass Foco 👋</h2>
@@ -975,7 +975,7 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
                 { icon: Repeat, text: 'Crie hábitos e acompanhe sua evolução' },
               ].map(({ icon: Icon, text }) => (
                 <div key={text} className="flex items-center gap-3">
-                  <span className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0"><Icon size={16} /></span>
+                  <span className="w-8 h-8 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center shrink-0"><Icon size={16} /></span>
                   <span className="text-sm text-slate-600">{text}</span>
                 </div>
               ))}
@@ -984,7 +984,7 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
             <div className="mt-3 space-y-2">
               <button
                 onClick={() => dismissWelcome(false)}
-                className="w-full py-3 rounded-xl font-bold text-white bg-gradient-to-r from-indigo-600 to-violet-600 hover:brightness-110 active:scale-[0.98] transition"
+                className="w-full py-3 rounded-xl font-bold text-white bg-gradient-to-r from-teal-600 to-emerald-600 hover:brightness-110 active:scale-[0.98] transition"
               >
                 Explorar com exemplos
               </button>

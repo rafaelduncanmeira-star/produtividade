@@ -13,7 +13,7 @@ interface TaskFormProps {
 }
 
 const labelCls = 'block text-xs font-medium text-slate-500 mb-1.5';
-const fieldCls = 'w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-700 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 outline-none transition';
+const fieldCls = 'w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-700 focus:border-teal-400 focus:ring-2 focus:ring-teal-100 outline-none transition';
 
 export const TaskForm: React.FC<TaskFormProps> = ({ initialTask, projects, defaultProjectId, onSave, onClose }) => {
   const [title, setTitle] = useState(initialTask?.title ?? '');
@@ -71,7 +71,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({ initialTask, projects, defau
       <div className="bg-white rounded-t-2xl md:rounded-2xl shadow-xl w-full max-w-md overflow-hidden max-h-[92vh] overflow-y-auto">
         <div className="px-5 py-4 border-b border-slate-100 flex justify-between items-center bg-white/95 backdrop-blur sticky top-0 z-10">
           <h3 className="font-bold text-slate-800 text-[15px] flex items-center gap-2">
-            <span className="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center"><Check size={16} strokeWidth={2.5} /></span>
+            <span className="w-7 h-7 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center"><Check size={16} strokeWidth={2.5} /></span>
             {initialTask ? 'Editar tarefa' : 'Nova tarefa'}
           </h3>
           <button onClick={onClose} aria-label="Fechar" className="p-1.5 -mr-1.5 rounded-lg text-slate-400 hover:bg-slate-100"><X size={20} /></button>
@@ -112,11 +112,11 @@ export const TaskForm: React.FC<TaskFormProps> = ({ initialTask, projects, defau
               <button
                 type="button"
                 onClick={() => setImportant(!important)}
-                className={`p-3 rounded-xl border text-left transition ${important ? 'border-indigo-300 bg-indigo-50' : 'border-slate-200 bg-white hover:border-slate-300'}`}
+                className={`p-3 rounded-xl border text-left transition ${important ? 'border-teal-300 bg-teal-50' : 'border-slate-200 bg-white hover:border-slate-300'}`}
               >
                 <div className="flex items-center justify-between mb-1.5">
-                  <Star size={18} className={important ? 'text-indigo-500' : 'text-slate-300'} />
-                  <span className={`w-9 h-5 rounded-full p-0.5 transition-colors ${important ? 'bg-indigo-500' : 'bg-slate-200'}`}>
+                  <Star size={18} className={important ? 'text-teal-500' : 'text-slate-300'} />
+                  <span className={`w-9 h-5 rounded-full p-0.5 transition-colors ${important ? 'bg-teal-500' : 'bg-slate-200'}`}>
                     <span className={`block w-4 h-4 bg-white rounded-full shadow transition-transform ${important ? 'translate-x-4' : ''}`} />
                   </span>
                 </div>
@@ -210,7 +210,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({ initialTask, projects, defau
                   <input
                     value={st.title}
                     onChange={e => renameSub(st.id, e.target.value)}
-                    className={`flex-1 min-w-0 px-3 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 ${st.done ? 'line-through text-slate-400' : 'text-slate-700'}`}
+                    className={`flex-1 min-w-0 px-3 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:border-teal-400 focus:ring-2 focus:ring-teal-100 ${st.done ? 'line-through text-slate-400' : 'text-slate-700'}`}
                   />
                   <button type="button" onClick={() => removeSub(st.id)} aria-label="Remover passo" className="p-1 text-slate-300 hover:text-rose-600 shrink-0">
                     <X size={15} />
@@ -223,9 +223,9 @@ export const TaskForm: React.FC<TaskFormProps> = ({ initialTask, projects, defau
                   onChange={e => setNewSub(e.target.value)}
                   onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addSub(); } }}
                   placeholder="Adicionar passo..."
-                  className="flex-1 min-w-0 px-3 py-2 rounded-lg border border-dashed border-slate-300 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+                  className="flex-1 min-w-0 px-3 py-2 rounded-lg border border-dashed border-slate-300 text-sm outline-none focus:border-teal-400 focus:ring-2 focus:ring-teal-100"
                 />
-                <button type="button" onClick={addSub} aria-label="Adicionar subtarefa" className="shrink-0 w-9 h-9 flex items-center justify-center text-indigo-600 hover:bg-indigo-50 rounded-lg">
+                <button type="button" onClick={addSub} aria-label="Adicionar subtarefa" className="shrink-0 w-9 h-9 flex items-center justify-center text-teal-600 hover:bg-teal-50 rounded-lg">
                   <Plus size={18} />
                 </button>
               </div>
@@ -233,7 +233,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({ initialTask, projects, defau
           </div>
 
           <div className="space-y-2 pt-1">
-            <button type="submit" className="w-full py-3 rounded-xl font-bold text-white bg-gradient-to-r from-indigo-600 to-violet-600 hover:brightness-110 active:scale-[0.98] transition flex items-center justify-center gap-2 shadow-md shadow-indigo-200">
+            <button type="submit" className="w-full py-3 rounded-xl font-bold text-white bg-gradient-to-r from-teal-600 to-emerald-600 hover:brightness-110 active:scale-[0.98] transition flex items-center justify-center gap-2 shadow-md shadow-teal-200">
               <Save size={18} /> Salvar tarefa
             </button>
             {dueDate && title.trim() && (

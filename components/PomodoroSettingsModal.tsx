@@ -40,7 +40,7 @@ export const PomodoroSettingsModal: React.FC<PomodoroSettingsModalProps> = ({ se
         min="1"
         value={value}
         onChange={e => onChange(e.target.value)}
-        className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-200 outline-none"
+        className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal-200 outline-none"
       />
     </div>
   );
@@ -64,12 +64,12 @@ export const PomodoroSettingsModal: React.FC<PomodoroSettingsModalProps> = ({ se
             type="button"
             onClick={() => setSoundEnabled(!soundEnabled)}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border-2 text-left transition-colors ${
-              soundEnabled ? 'border-indigo-300 bg-indigo-50' : 'border-slate-200 bg-white'
+              soundEnabled ? 'border-teal-300 bg-teal-50' : 'border-slate-200 bg-white'
             }`}
           >
-            {soundEnabled ? <Volume2 size={18} className="text-indigo-500" /> : <VolumeX size={18} className="text-slate-300" />}
+            {soundEnabled ? <Volume2 size={18} className="text-teal-500" /> : <VolumeX size={18} className="text-slate-300" />}
             <span className="flex-1 text-sm font-bold text-slate-700">Som ao concluir fase</span>
-            <div className={`w-10 h-6 rounded-full p-0.5 transition-colors ${soundEnabled ? 'bg-indigo-500' : 'bg-slate-200'}`}>
+            <div className={`w-10 h-6 rounded-full p-0.5 transition-colors ${soundEnabled ? 'bg-teal-500' : 'bg-slate-200'}`}>
               <div className={`w-5 h-5 bg-white rounded-full shadow transition-transform ${soundEnabled ? 'translate-x-4' : ''}`} />
             </div>
           </button>
@@ -78,7 +78,7 @@ export const PomodoroSettingsModal: React.FC<PomodoroSettingsModalProps> = ({ se
             Mudanças de duração valem a partir da próxima fase; a fase em andamento não é alterada.
           </p>
 
-          <button type="submit" className="w-full py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 flex items-center justify-center gap-2">
+          <button type="submit" className="w-full py-3 bg-teal-600 text-white rounded-xl font-bold hover:bg-teal-700 flex items-center justify-center gap-2">
             <Save size={18} /> Salvar
           </button>
         </form>

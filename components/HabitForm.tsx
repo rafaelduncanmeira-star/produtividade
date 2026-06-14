@@ -47,7 +47,7 @@ export const HabitForm: React.FC<HabitFormProps> = ({ initialHabit, onSave, onCl
               autoFocus
               value={name}
               onChange={e => setName(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-200 outline-none"
+              className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal-200 outline-none"
               placeholder="Ex: Meditar 10 minutos..."
             />
           </div>
@@ -61,7 +61,7 @@ export const HabitForm: React.FC<HabitFormProps> = ({ initialHabit, onSave, onCl
                   type="button"
                   onClick={() => setEmoji(e)}
                   className={`h-10 rounded-xl text-lg flex items-center justify-center transition-all ${
-                    emoji === e ? 'bg-indigo-50 ring-2 ring-indigo-300 scale-105' : 'bg-slate-50 hover:bg-slate-100'
+                    emoji === e ? 'bg-teal-50 ring-2 ring-teal-300 scale-105' : 'bg-slate-50 hover:bg-slate-100'
                   }`}
                 >
                   {e}
@@ -78,7 +78,7 @@ export const HabitForm: React.FC<HabitFormProps> = ({ initialHabit, onSave, onCl
                   key={c}
                   type="button"
                   onClick={() => setColor(c)}
-                  className={`w-8 h-8 rounded-full transition-transform ${color === c ? 'scale-110 ring-2 ring-offset-2 ring-indigo-200' : 'hover:scale-105'}`}
+                  className={`w-8 h-8 rounded-full transition-transform ${color === c ? 'scale-110 ring-2 ring-offset-2 ring-teal-200' : 'hover:scale-105'}`}
                   style={{ backgroundColor: c }}
                 />
               ))}
@@ -94,7 +94,7 @@ export const HabitForm: React.FC<HabitFormProps> = ({ initialHabit, onSave, onCl
                   type="button"
                   onClick={() => toggleDay(i)}
                   className={`h-10 rounded-xl text-sm font-bold transition-colors ${
-                    targetDays.includes(i) ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-400 hover:bg-slate-200'
+                    targetDays.includes(i) ? 'bg-teal-600 text-white' : 'bg-slate-100 text-slate-400 hover:bg-slate-200'
                   }`}
                 >
                   {letter}
@@ -106,7 +106,7 @@ export const HabitForm: React.FC<HabitFormProps> = ({ initialHabit, onSave, onCl
             )}
           </div>
 
-          <button type="submit" className="w-full py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 flex items-center justify-center gap-2 mt-2">
+          <button type="submit" className="w-full py-3 bg-teal-600 text-white rounded-xl font-bold hover:bg-teal-700 flex items-center justify-center gap-2 mt-2">
             <Save size={18} /> Salvar Hábito
           </button>
         </form>

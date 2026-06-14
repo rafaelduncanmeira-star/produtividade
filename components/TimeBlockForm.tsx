@@ -60,7 +60,7 @@ export const TimeBlockForm: React.FC<TimeBlockFormProps> = ({
               autoFocus
               value={title}
               onChange={e => setTitle(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-200 outline-none"
+              className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal-200 outline-none"
               placeholder="Ex: Trabalho focado, Academia..."
             />
           </div>
@@ -72,7 +72,7 @@ export const TimeBlockForm: React.FC<TimeBlockFormProps> = ({
               required
               value={date}
               onChange={e => setDate(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-200 outline-none text-slate-600"
+              className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal-200 outline-none text-slate-600"
             />
           </div>
 
@@ -85,7 +85,7 @@ export const TimeBlockForm: React.FC<TimeBlockFormProps> = ({
                 step="900"
                 value={start}
                 onChange={e => setStart(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-200 outline-none text-slate-600"
+                className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal-200 outline-none text-slate-600"
               />
             </div>
             <div>
@@ -97,7 +97,7 @@ export const TimeBlockForm: React.FC<TimeBlockFormProps> = ({
                 value={end}
                 onChange={e => setEnd(e.target.value)}
                 className={`w-full px-4 py-2.5 rounded-lg border focus:ring-2 outline-none text-slate-600 ${
-                  invalidRange ? 'border-rose-300 focus:ring-rose-200' : 'border-slate-200 focus:ring-indigo-200'
+                  invalidRange ? 'border-rose-300 focus:ring-rose-200' : 'border-slate-200 focus:ring-teal-200'
                 }`}
               />
             </div>
@@ -112,7 +112,7 @@ export const TimeBlockForm: React.FC<TimeBlockFormProps> = ({
                   key={c}
                   type="button"
                   onClick={() => setColor(c)}
-                  className={`w-8 h-8 rounded-full transition-transform ${color === c ? 'scale-110 ring-2 ring-offset-2 ring-indigo-200' : 'hover:scale-105'}`}
+                  className={`w-8 h-8 rounded-full transition-transform ${color === c ? 'scale-110 ring-2 ring-offset-2 ring-teal-200' : 'hover:scale-105'}`}
                   style={{ backgroundColor: c }}
                 />
               ))}
@@ -124,14 +124,14 @@ export const TimeBlockForm: React.FC<TimeBlockFormProps> = ({
             <select
               value={taskId}
               onChange={e => setTaskId(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-200 outline-none bg-white text-slate-600"
+              className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal-200 outline-none bg-white text-slate-600"
             >
               <option value="">Nenhuma</option>
               {pendingTasks.map(t => <option key={t.id} value={t.id}>{t.title}</option>)}
             </select>
           </div>
 
-          <button type="submit" className="w-full py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 flex items-center justify-center gap-2 mt-2">
+          <button type="submit" className="w-full py-3 bg-teal-600 text-white rounded-xl font-bold hover:bg-teal-700 flex items-center justify-center gap-2 mt-2">
             <Save size={18} /> Salvar Bloco
           </button>
           {title.trim() && !invalidRange && (

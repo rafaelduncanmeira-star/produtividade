@@ -50,7 +50,7 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             {t.action && (
               <button
                 onClick={() => { t.action!.onClick(); dismiss(t.id); }}
-                className="shrink-0 text-sm font-bold text-indigo-300 hover:text-indigo-200 px-1"
+                className="shrink-0 text-sm font-bold text-teal-300 hover:text-teal-200 px-1"
               >
                 {t.action.label}
               </button>

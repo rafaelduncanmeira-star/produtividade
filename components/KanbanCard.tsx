@@ -75,11 +75,11 @@ export const KanbanCard: React.FC<KanbanCardProps> = ({
       <div className="flex items-center justify-between mt-2.5 pl-[30px]">
         <div className="flex gap-0.5">
           {!task.completed && (
-            <button onClick={() => onFocus(task.id)} title="Focar nesta tarefa" className="p-1.5 text-slate-300 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg">
+            <button onClick={() => onFocus(task.id)} title="Focar nesta tarefa" className="p-1.5 text-slate-300 hover:text-teal-600 hover:bg-teal-50 rounded-lg">
               <Play size={15} />
             </button>
           )}
-          <button onClick={() => onEdit(task)} title="Editar" className="p-1.5 text-slate-300 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg">
+          <button onClick={() => onEdit(task)} title="Editar" className="p-1.5 text-slate-300 hover:text-teal-600 hover:bg-teal-50 rounded-lg">
             <Edit2 size={15} />
           </button>
           <button onClick={() => onDelete(task.id)} title="Excluir" className="p-1.5 text-slate-300 hover:text-rose-600 hover:bg-rose-50 rounded-lg">
@@ -91,7 +91,7 @@ export const KanbanCard: React.FC<KanbanCardProps> = ({
             onClick={() => onMove(task.id, -1)}
             disabled={!canMovePrev}
             aria-label="Mover para a coluna anterior"
-            className="p-1.5 rounded-lg text-slate-400 enabled:hover:text-indigo-600 enabled:hover:bg-indigo-50 disabled:opacity-20 transition-colors"
+            className="p-1.5 rounded-lg text-slate-400 enabled:hover:text-teal-600 enabled:hover:bg-teal-50 disabled:opacity-20 transition-colors"
           >
             <ChevronLeft size={16} />
           </button>

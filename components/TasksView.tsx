@@ -173,7 +173,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
               onClick={() => setShowInfo(true)}
               aria-label="Como usar a Matriz de Eisenhower"
               title="Como usar a Matriz de Eisenhower?"
-              className="text-slate-400 hover:text-indigo-600 transition-colors"
+              className="text-slate-400 hover:text-teal-600 transition-colors"
             >
               <Info size={15} />
             </button>
@@ -181,7 +181,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
         </div>
         <button
           onClick={() => { setEditingTask(null); setAddStatus(null); setIsFormOpen(true); }}
-          className="hidden md:flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition-all shadow-md shadow-indigo-200 active:scale-95"
+          className="hidden md:flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg font-medium transition-all shadow-md shadow-teal-200 active:scale-95"
         >
           <Plus size={18} />
           <span>Nova Tarefa</span>
@@ -193,19 +193,19 @@ export const TasksView: React.FC<TasksViewProps> = ({
         <div className="flex bg-slate-100 rounded-xl p-1">
           <button
             onClick={() => setMode('list')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${mode === 'list' ? 'bg-white shadow-sm text-indigo-700' : 'text-slate-500'}`}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${mode === 'list' ? 'bg-white shadow-sm text-teal-700' : 'text-slate-500'}`}
           >
             <List size={16} /> Lista
           </button>
           <button
             onClick={() => setMode('matrix')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${mode === 'matrix' ? 'bg-white shadow-sm text-indigo-700' : 'text-slate-500'}`}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${mode === 'matrix' ? 'bg-white shadow-sm text-teal-700' : 'text-slate-500'}`}
           >
             <LayoutGrid size={16} /> Matriz
           </button>
           <button
             onClick={() => setMode('board')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${mode === 'board' ? 'bg-white shadow-sm text-indigo-700' : 'text-slate-500'}`}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${mode === 'board' ? 'bg-white shadow-sm text-teal-700' : 'text-slate-500'}`}
           >
             <Columns3 size={16} /> Quadro
           </button>
@@ -217,7 +217,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
               <button
                 key={f.id}
                 onClick={() => setFilter(f.id)}
-                className={`px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${filter === f.id ? 'bg-white shadow-sm text-indigo-700' : 'text-slate-500'}`}
+                className={`px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${filter === f.id ? 'bg-white shadow-sm text-teal-700' : 'text-slate-500'}`}
               >
                 {f.label}
               </button>
@@ -235,7 +235,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Buscar tarefa..."
-            className="w-full pl-9 pr-9 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-200 outline-none text-sm bg-white"
+            className="w-full pl-9 pr-9 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-teal-200 outline-none text-sm bg-white"
           />
           {search && (
             <button onClick={() => setSearch('')} aria-label="Limpar busca" className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600">
@@ -247,7 +247,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
           value={categoryFilter}
           onChange={e => setCategoryFilter(e.target.value)}
           aria-label="Filtrar por categoria"
-          className="shrink-0 px-3 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-200 outline-none text-sm bg-white text-slate-600"
+          className="shrink-0 px-3 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-teal-200 outline-none text-sm bg-white text-slate-600"
         >
           <option value="">Todas categorias</option>
           {DEFAULT_TASK_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
@@ -262,13 +262,13 @@ export const TasksView: React.FC<TasksViewProps> = ({
             value={quickTitle}
             onChange={e => setQuickTitle(e.target.value)}
             placeholder="Adicionar... ex: pagar conta sexta 9h"
-            className="flex-1 min-w-0 px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-200 outline-none text-sm bg-white"
+            className="flex-1 min-w-0 px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-teal-200 outline-none text-sm bg-white"
           />
           <button
             type="submit"
             disabled={!quickTitle.trim()}
             aria-label="Adicionar tarefa"
-            className="shrink-0 w-12 flex items-center justify-center rounded-xl bg-indigo-600 text-white enabled:hover:bg-indigo-700 enabled:active:scale-95 transition-all disabled:opacity-40"
+            className="shrink-0 w-12 flex items-center justify-center rounded-xl bg-teal-600 text-white enabled:hover:bg-teal-700 enabled:active:scale-95 transition-all disabled:opacity-40"
           >
             <Plus size={20} />
           </button>
@@ -295,7 +295,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
               {filter !== 'concluidas' && (
                 <button
                   onClick={() => { setEditingTask(null); setAddStatus(null); setIsFormOpen(true); }}
-                  className="mt-4 inline-flex items-center gap-2 bg-indigo-600 text-white px-4 py-2.5 rounded-xl font-bold text-sm hover:bg-indigo-700 active:scale-95 transition"
+                  className="mt-4 inline-flex items-center gap-2 bg-teal-600 text-white px-4 py-2.5 rounded-xl font-bold text-sm hover:bg-teal-700 active:scale-95 transition"
                 >
                   <Plus size={16} /> Nova tarefa
                 </button>
@@ -349,7 +349,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
               <div
                 key={col.id}
                 ref={el => { colRefs.current[col.id] = el; }}
-                className={`rounded-2xl border-2 p-3 transition-colors ${drag && drag.over === col.id ? 'border-indigo-400 bg-indigo-50/60' : `${col.ringClass} bg-white/60`}`}
+                className={`rounded-2xl border-2 p-3 transition-colors ${drag && drag.over === col.id ? 'border-teal-400 bg-teal-50/60' : `${col.ringClass} bg-white/60`}`}
               >
                 <div className="flex items-center justify-between mb-3 px-1">
                   <div className="flex items-center gap-2">
@@ -376,7 +376,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
                   ))}
                   <button
                     onClick={() => openAdd(col.id)}
-                    className="w-full flex items-center justify-center gap-1.5 py-2 rounded-xl border border-dashed border-slate-200 text-slate-400 text-sm font-medium hover:border-indigo-300 hover:text-indigo-600 transition-colors"
+                    className="w-full flex items-center justify-center gap-1.5 py-2 rounded-xl border border-dashed border-slate-200 text-slate-400 text-sm font-medium hover:border-teal-300 hover:text-teal-600 transition-colors"
                   >
                     <Plus size={16} /> Adicionar
                   </button>
@@ -390,7 +390,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
       {/* Fantasma seguindo o cursor durante o arraste */}
       {drag && (
         <div
-          className="fixed z-[60] pointer-events-none -translate-x-1/2 -translate-y-1/2 px-3 py-2 rounded-xl bg-white shadow-xl border border-indigo-200 text-sm font-medium text-slate-700 max-w-[220px] truncate opacity-90"
+          className="fixed z-[60] pointer-events-none -translate-x-1/2 -translate-y-1/2 px-3 py-2 rounded-xl bg-white shadow-xl border border-teal-200 text-sm font-medium text-slate-700 max-w-[220px] truncate opacity-90"
           style={{ left: drag.x, top: drag.y }}
         >
           {drag.title}

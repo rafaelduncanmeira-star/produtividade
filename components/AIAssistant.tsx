@@ -147,9 +147,9 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ tasks, blocks, project
     <>
     <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/50 backdrop-blur-sm md:p-4">
       <div className="bg-white rounded-t-2xl md:rounded-2xl shadow-xl w-full max-w-md overflow-hidden max-h-[92vh] flex flex-col">
-        <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-gradient-to-r from-indigo-600 to-violet-600 text-white">
+        <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-gradient-to-r from-teal-600 to-emerald-600 text-white">
           <h3 className="font-bold flex items-center gap-2"><Sparkles size={18} /> Assistente IA</h3>
-          <button onClick={onClose} className="p-1"><X size={20} className="text-indigo-200" /></button>
+          <button onClick={onClose} className="p-1"><X size={20} className="text-teal-200" /></button>
         </div>
 
         <div className="p-5 space-y-4 overflow-y-auto pb-[max(1.25rem,env(safe-area-inset-bottom))]">
@@ -164,7 +164,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ tasks, blocks, project
                     className={`w-20 h-20 rounded-full flex items-center justify-center transition-all active:scale-95 ${
                       listening
                         ? 'bg-rose-500 text-white shadow-lg shadow-rose-200 animate-pulse'
-                        : 'bg-indigo-600 text-white shadow-lg shadow-indigo-200 hover:bg-indigo-700'
+                        : 'bg-teal-600 text-white shadow-lg shadow-teal-200 hover:bg-teal-700'
                     }`}
                   >
                     {listening ? <MicOff size={32} /> : <Mic size={32} />}
@@ -187,13 +187,13 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ tasks, blocks, project
                 onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
                 rows={2}
                 placeholder='Ex: "Amanhã às 14h tenho reunião e preciso estudar dermato urgente"'
-                className="flex-1 px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-200 outline-none text-sm resize-none"
+                className="flex-1 px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-teal-200 outline-none text-sm resize-none"
               />
               <button
                 onClick={handleSend}
                 disabled={busy || !input.trim()}
                 aria-label="Enviar comando"
-                className="self-end p-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 disabled:opacity-40 active:scale-95 transition-all"
+                className="self-end p-3 bg-teal-600 text-white rounded-xl hover:bg-teal-700 disabled:opacity-40 active:scale-95 transition-all"
               >
                 {busy ? <LoaderCircle size={20} className="animate-spin" /> : <Send size={20} />}
               </button>
@@ -205,7 +205,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ tasks, blocks, project
                   <button
                     key={s}
                     onClick={() => setInput(s)}
-                    className="w-full text-left text-xs text-slate-500 bg-slate-50 hover:bg-indigo-50 hover:text-indigo-600 px-3 py-2 rounded-lg transition-colors"
+                    className="w-full text-left text-xs text-slate-500 bg-slate-50 hover:bg-teal-50 hover:text-teal-600 px-3 py-2 rounded-lg transition-colors"
                   >
                     💡 {s}
                   </button>
@@ -221,7 +221,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ tasks, blocks, project
           {/* Resposta e ações propostas */}
           {result && (
             <div className="space-y-3">
-              <div className="bg-indigo-50 border border-indigo-100 rounded-xl px-4 py-3 text-sm text-indigo-800">
+              <div className="bg-teal-50 border border-teal-100 rounded-xl px-4 py-3 text-sm text-teal-800">
                 {result.reply}
               </div>
 
@@ -235,14 +235,14 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ tasks, blocks, project
                     const editable = action.type === 'create_task' || action.type === 'create_block' || action.type === 'create_habit';
                     return (
                       <div key={i} className="flex items-center gap-2.5 bg-slate-50 rounded-lg px-3 py-2.5">
-                        <Icon size={15} className={applied ? 'text-emerald-500' : 'text-indigo-500'} />
+                        <Icon size={15} className={applied ? 'text-emerald-500' : 'text-teal-500'} />
                         <span className="text-sm text-slate-600 flex-1">{action.label}</span>
                         {applied ? (
                           <Check size={15} className="text-emerald-500" strokeWidth={3} />
                         ) : (
                           <div className="flex items-center gap-0.5 shrink-0">
                             {editable && (
-                              <button onClick={() => setEditingIndex(i)} aria-label="Editar" className="p-1 text-slate-400 hover:text-indigo-600 rounded-md hover:bg-indigo-50 transition-colors">
+                              <button onClick={() => setEditingIndex(i)} aria-label="Editar" className="p-1 text-slate-400 hover:text-teal-600 rounded-md hover:bg-teal-50 transition-colors">
                                 <Pencil size={14} />
                               </button>
                             )}
@@ -264,7 +264,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ tasks, blocks, project
                       </button>
                       <button
                         onClick={handleApply}
-                        className="flex-1 py-2.5 bg-indigo-600 text-white rounded-xl text-sm font-bold hover:bg-indigo-700 flex items-center justify-center gap-1.5"
+                        className="flex-1 py-2.5 bg-teal-600 text-white rounded-xl text-sm font-bold hover:bg-teal-700 flex items-center justify-center gap-1.5"
                       >
                         <Check size={16} /> Aplicar tudo
                       </button>

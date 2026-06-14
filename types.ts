@@ -24,9 +24,9 @@ export const QUADRANT_INFO: Record<Quadrant, QuadrantInfo> = {
   q2: {
     label: 'Agendar',
     hint: 'Importante, não urgente',
-    color: '#6366f1',
-    badgeClass: 'bg-indigo-100 text-indigo-700',
-    cellClass: 'border-indigo-200 bg-indigo-50/50',
+    color: '#0d9488',
+    badgeClass: 'bg-teal-100 text-teal-700',
+    cellClass: 'border-teal-200 bg-teal-50/50',
   },
   q3: {
     label: 'Delegar',
@@ -99,7 +99,7 @@ export interface KanbanColumnInfo {
 
 export const KANBAN_COLUMNS: KanbanColumnInfo[] = [
   { id: 'todo', label: 'A fazer', dotClass: 'bg-slate-400', ringClass: 'border-slate-200' },
-  { id: 'doing', label: 'Fazendo', dotClass: 'bg-indigo-500', ringClass: 'border-indigo-200' },
+  { id: 'doing', label: 'Fazendo', dotClass: 'bg-teal-500', ringClass: 'border-teal-200' },
   { id: 'done', label: 'Concluído', dotClass: 'bg-emerald-500', ringClass: 'border-emerald-200' },
 ];
 

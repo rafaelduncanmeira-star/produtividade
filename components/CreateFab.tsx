@@ -14,8 +14,8 @@ export const CreateFab: React.FC<CreateFabProps> = ({ onTask, onHabit, onBlock, 
   const [open, setOpen] = useState(false);
 
   const actions = [
-    { label: 'Assistente IA', style: { backgroundImage: 'linear-gradient(135deg, #4f46e5, #7c3aed)' }, icon: <Sparkles size={20} />, run: onAI },
-    { label: 'Tarefa', style: { backgroundColor: '#6366f1' }, icon: <CheckSquare size={20} />, run: onTask },
+    { label: 'Assistente IA', style: { backgroundImage: 'linear-gradient(135deg, #0d9488, #059669)' }, icon: <Sparkles size={20} />, run: onAI },
+    { label: 'Tarefa', style: { backgroundColor: '#0d9488' }, icon: <CheckSquare size={20} />, run: onTask },
     { label: 'Hábito', style: { backgroundColor: '#10b981' }, icon: <Repeat size={20} />, run: onHabit },
     { label: 'Meta', style: { backgroundColor: '#0ea5e9' }, icon: <Target size={20} />, run: onProject },
     { label: 'Bloco de agenda', style: { backgroundColor: '#f59e0b' }, icon: <CalendarClock size={20} />, run: onBlock },
@@ -44,7 +44,7 @@ export const CreateFab: React.FC<CreateFabProps> = ({ onTask, onHabit, onBlock, 
           onClick={() => setOpen(o => !o)}
           aria-label={open ? 'Fechar menu' : 'Criar ou usar a IA'}
           aria-expanded={open}
-          className={`w-14 h-14 rounded-full bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-300 flex items-center justify-center active:scale-90 transition-transform ${open ? 'rotate-45' : 'animate-float'}`}
+          className={`w-14 h-14 rounded-full bg-gradient-to-r from-teal-600 to-emerald-600 text-white shadow-lg shadow-teal-300 flex items-center justify-center active:scale-90 transition-transform ${open ? 'rotate-45' : 'animate-float'}`}
         >
           <Plus size={26} />
         </button>

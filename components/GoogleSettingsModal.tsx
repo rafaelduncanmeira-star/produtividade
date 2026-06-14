@@ -102,7 +102,7 @@ export const GoogleSettingsModal: React.FC<GoogleSettingsModalProps> = ({
                   value={clientId}
                   onChange={e => setClientId(e.target.value)}
                   placeholder="xxxxxxxx.apps.googleusercontent.com"
-                  className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-200 outline-none text-sm"
+                  className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal-200 outline-none text-sm"
                 />
               </div>
               <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
@@ -118,7 +118,7 @@ export const GoogleSettingsModal: React.FC<GoogleSettingsModalProps> = ({
                   href="https://console.cloud.google.com/apis/credentials"
                   target="_blank"
                   rel="noreferrer"
-                  className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-indigo-600 hover:underline"
+                  className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-teal-600 hover:underline"
                 >
                   Abrir o painel do Google <ExternalLink size={12} />
                 </a>

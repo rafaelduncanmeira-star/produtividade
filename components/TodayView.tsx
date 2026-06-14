@@ -65,7 +65,7 @@ export const TodayView: React.FC<TodayViewProps> = ({
       .map(ev => ({ key: `g-${ev.id}`, title: ev.title, start: ev.start, end: ev.end, color: ev.color ?? GOOGLE_EVENT_COLOR, fromGoogle: true }));
     const taskItems: AgendaItem[] = tasks
       .filter(t => !!t.dueTime && t.dueDate === today)
-      .map(t => ({ key: `t-${t.id}`, title: t.title, start: t.dueTime!, end: '', color: '#6366f1', fromGoogle: false, taskId: t.id, completed: t.completed }));
+      .map(t => ({ key: `t-${t.id}`, title: t.title, start: t.dueTime!, end: '', color: '#0d9488', fromGoogle: false, taskId: t.id, completed: t.completed }));
     return [...blockItems, ...eventItems, ...taskItems].sort((a, b) => a.start.localeCompare(b.start));
   }, [blocks, googleEvents, tasks, today]);
 
@@ -103,7 +103,7 @@ export const TodayView: React.FC<TodayViewProps> = ({
         </div>
         <button
           onClick={() => onNavigate('focus')}
-          className="shrink-0 flex items-center gap-1.5 bg-indigo-50 text-indigo-700 px-3.5 py-2 rounded-xl font-bold text-sm active:scale-95 transition"
+          className="shrink-0 flex items-center gap-1.5 bg-teal-50 text-teal-700 px-3.5 py-2 rounded-xl font-bold text-sm active:scale-95 transition"
         >
           <Play size={15} /> Focar
         </button>
@@ -111,7 +111,7 @@ export const TodayView: React.FC<TodayViewProps> = ({
 
       {/* Resumo do dia em uma linha enxuta */}
       <div className="flex items-center gap-5 px-1 text-xs text-slate-400">
-        <span><b className="text-sm font-bold text-indigo-600">{formatMinutes(focusToday)}</b> focado</span>
+        <span><b className="text-sm font-bold text-teal-600">{formatMinutes(focusToday)}</b> focado</span>
         <span><b className="text-sm font-bold text-emerald-600">{doneToday}</b> feitas</span>
         <span><b className="text-sm font-bold text-orange-500">{habitsDone}/{todayHabits.length}</b> hábitos</span>
       </div>
@@ -121,7 +121,7 @@ export const TodayView: React.FC<TodayViewProps> = ({
         <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4">
           <div className="flex items-center justify-between mb-3">
             <h3 className="font-bold text-slate-800 text-sm">Tarefas de hoje</h3>
-            <button onClick={() => onNavigate('tasks')} className="text-xs text-indigo-600 font-medium flex items-center gap-0.5 hover:underline">
+            <button onClick={() => onNavigate('tasks')} className="text-xs text-teal-600 font-medium flex items-center gap-0.5 hover:underline">
               Ver todas <ChevronRight size={12} />
             </button>
           </div>
@@ -131,13 +131,13 @@ export const TodayView: React.FC<TodayViewProps> = ({
               value={quickTitle}
               onChange={e => setQuickTitle(e.target.value)}
               placeholder="Nova tarefa... ex: reunião amanhã 14h"
-              className="flex-1 min-w-0 px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-200 outline-none text-sm"
+              className="flex-1 min-w-0 px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-teal-200 outline-none text-sm"
             />
             <button
               type="submit"
               disabled={!quickTitle.trim()}
               aria-label="Adicionar tarefa"
-              className="shrink-0 w-11 flex items-center justify-center rounded-xl bg-indigo-600 text-white enabled:hover:bg-indigo-700 enabled:active:scale-95 transition-all disabled:opacity-40"
+              className="shrink-0 w-11 flex items-center justify-center rounded-xl bg-teal-600 text-white enabled:hover:bg-teal-700 enabled:active:scale-95 transition-all disabled:opacity-40"
             >
               <Plus size={20} />
             </button>
@@ -166,7 +166,7 @@ export const TodayView: React.FC<TodayViewProps> = ({
           <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4">
             <div className="flex items-center justify-between mb-3">
               <h3 className="font-bold text-slate-800 text-sm">Agenda de hoje</h3>
-              <button onClick={() => onNavigate('planner')} className="text-xs text-indigo-600 font-medium flex items-center gap-0.5 hover:underline">
+              <button onClick={() => onNavigate('planner')} className="text-xs text-teal-600 font-medium flex items-center gap-0.5 hover:underline">
                 Abrir agenda <ChevronRight size={12} />
               </button>
             </div>
@@ -225,7 +225,7 @@ export const TodayView: React.FC<TodayViewProps> = ({
           <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4">
             <div className="flex items-center justify-between mb-3">
               <h3 className="font-bold text-slate-800 text-sm">Hábitos de hoje</h3>
-              <button onClick={() => onNavigate('habits')} className="text-xs text-indigo-600 font-medium flex items-center gap-0.5 hover:underline">
+              <button onClick={() => onNavigate('habits')} className="text-xs text-teal-600 font-medium flex items-center gap-0.5 hover:underline">
                 Ver todos <ChevronRight size={12} />
               </button>
             </div>
@@ -279,7 +279,7 @@ export const TodayView: React.FC<TodayViewProps> = ({
                 key={val}
                 onClick={() => pickMood(val)}
                 aria-label={`Humor ${val} de 5`}
-                className={`flex-1 h-11 rounded-xl text-xl transition-all ${mood === val ? 'bg-indigo-50 ring-2 ring-indigo-300 scale-105' : 'bg-slate-50 hover:bg-slate-100'}`}
+                className={`flex-1 h-11 rounded-xl text-xl transition-all ${mood === val ? 'bg-teal-50 ring-2 ring-teal-300 scale-105' : 'bg-slate-50 hover:bg-slate-100'}`}
               >
                 {emoji}
               </button>
@@ -292,7 +292,7 @@ export const TodayView: React.FC<TodayViewProps> = ({
           onBlur={saveNote}
           rows={2}
           placeholder="Como foi seu dia? (opcional)"
-          className="w-full mt-3 px-3 py-2 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-200 outline-none text-sm resize-none"
+          className="w-full mt-3 px-3 py-2 rounded-xl border border-slate-200 focus:ring-2 focus:ring-teal-200 outline-none text-sm resize-none"
         />
         {mood > 0 && <p className="text-[11px] text-emerald-600 mt-1.5">Revisão salva ✓</p>}
       </div>
