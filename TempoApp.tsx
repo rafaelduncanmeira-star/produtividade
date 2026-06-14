@@ -608,7 +608,9 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
               onLoadGoogleEvents={loadGoogleEventsFor}
               onToggleTask={toggleTask}
               onDeleteTask={deleteTask}
+              onUpdateTask={updateTask}
               onQuickAddTask={(title) => quickAddTask(title, todayISO())}
+              projects={projects}
               onToggleHabitDay={toggleHabitDay}
               onStartFocusTask={startFocusOnTask}
               onNavigate={(v) => navigate(v as View)}

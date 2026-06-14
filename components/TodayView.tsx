@@ -1,8 +1,9 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Timer, Play, CalendarClock, ChevronRight, Check, Plus, Calendar } from 'lucide-react';
-import { Task, Habit, TimeBlock, FocusSession, GoogleEvent, DailyReview, GOOGLE_EVENT_COLOR, REVIEW_MOODS } from '../types';
+import { Task, Habit, TimeBlock, FocusSession, GoogleEvent, Project, DailyReview, GOOGLE_EVENT_COLOR, REVIEW_MOODS } from '../types';
 import { todayISO, getGreeting, formatLongDate, formatMinutes, focusMinutesOn } from '../utils';
 import { TaskItem } from './TaskItem';
+import { TaskForm } from './TaskForm';
 
 interface TodayViewProps {
   tasks: Task[];
@@ -14,7 +15,9 @@ interface TodayViewProps {
   onLoadGoogleEvents: (dateISO: string) => void;
   onToggleTask: (id: string) => void;
   onDeleteTask: (id: string) => void;
+  onUpdateTask: (task: Task) => void;
   onQuickAddTask: (title: string) => void;
+  projects?: Project[];
   onToggleHabitDay: (habitId: string, isoDate: string) => void;
   onStartFocusTask: (id: string) => void;
   onNavigate: (view: string) => void;
@@ -24,10 +27,11 @@ interface TodayViewProps {
 
 export const TodayView: React.FC<TodayViewProps> = ({
   tasks, habits, blocks, sessions, googleActive, googleEvents, onLoadGoogleEvents,
-  onToggleTask, onDeleteTask, onQuickAddTask, onToggleHabitDay, onStartFocusTask, onNavigate,
-  review, onSaveReview,
+  onToggleTask, onDeleteTask, onUpdateTask, onQuickAddTask, onToggleHabitDay, onStartFocusTask, onNavigate,
+  review, onSaveReview, projects,
 }) => {
   const [quickTitle, setQuickTitle] = useState('');
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [mood, setMood] = useState(review?.mood ?? 0);
   const [note, setNote] = useState(review?.note ?? '');
   const pickMood = (m: number) => { setMood(m); onSaveReview(m, note); };
@@ -77,6 +81,11 @@ export const TodayView: React.FC<TodayViewProps> = ({
     if (!title) return;
     onQuickAddTask(title);
     setQuickTitle('');
+  };
+
+  const handleSaveTask = (data: Omit<Task, 'id'>, id?: string) => {
+    if (id) onUpdateTask({ ...data, id });
+    setEditingTask(null);
   };
 
   return (
@@ -153,7 +162,9 @@ export const TodayView: React.FC<TodayViewProps> = ({
                 compact
                 onToggle={onToggleTask}
                 onDelete={onDeleteTask}
+                onEdit={setEditingTask}
                 onFocus={onStartFocusTask}
+                onUpdate={onUpdateTask}
               />
             ))}
             {todayTasks.length === 0 && (
@@ -280,6 +291,15 @@ export const TodayView: React.FC<TodayViewProps> = ({
         />
         {mood > 0 && <p className="text-[11px] text-emerald-600 mt-1.5">Revisão salva ✓</p>}
       </div>
+
+      {editingTask && (
+        <TaskForm
+          initialTask={editingTask}
+          projects={projects}
+          onSave={handleSaveTask}
+          onClose={() => setEditingTask(null)}
+        />
+      )}
     </div>
   );
 };
