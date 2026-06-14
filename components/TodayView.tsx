@@ -18,7 +18,7 @@ interface TodayViewProps {
   onToggleTask: (id: string) => void;
   onDeleteTask: (id: string) => void;
   onUpdateTask: (task: Task) => void;
-  onQuickAddTask: (title: string, dueDate?: string, dueTime?: string) => void;
+  onQuickAddTask: (title: string, dueDate?: string, dueTime?: string, recurrence?: Task['recurrence']) => void;
   projects?: Project[];
   onToggleHabitDay: (habitId: string, isoDate: string) => void;
   onStartFocusTask: (id: string) => void;
@@ -84,7 +84,7 @@ export const TodayView: React.FC<TodayViewProps> = ({
     const raw = quickTitle.trim();
     if (!raw) return;
     const p = parseQuickTask(raw);
-    onQuickAddTask(p.title, p.dueDate, p.dueTime);
+    onQuickAddTask(p.title, p.dueDate, p.dueTime, p.recurrence);
     setQuickTitle('');
   };
 

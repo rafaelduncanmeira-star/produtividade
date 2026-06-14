@@ -89,6 +89,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
       title: p.title, urgent: false, important: true,
       dueDate: p.dueDate ?? (filter === 'hoje' ? today : undefined),
       dueTime: p.dueTime,
+      recurrence: p.recurrence,
       category: 'Outros', estimatedPomodoros: 1, completedPomodoros: 0,
       completed: false, createdAt: new Date().toISOString(),
     });

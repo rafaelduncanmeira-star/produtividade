@@ -63,10 +63,11 @@ export const formatShortDate = (iso: string): string => {
  * Quick-add em linguagem natural (PT-BR): extrai data e hora do texto.
  * Ex.: "pagar conta sexta 9h" -> { title: 'pagar conta', dueDate, dueTime: '09:00' }
  */
-export const parseQuickTask = (input: string): { title: string; dueDate?: string; dueTime?: string } => {
+export const parseQuickTask = (input: string): { title: string; dueDate?: string; dueTime?: string; recurrence?: RecurrenceFreq } => {
   let text = ` ${input} `;
   let dueDate: string | undefined;
   let dueTime: string | undefined;
+  let recurrence: RecurrenceFreq | undefined;
 
   const pad = (n: number) => String(n).padStart(2, '0');
   const base = new Date();
@@ -97,6 +98,22 @@ export const parseQuickTask = (input: string): { title: string; dueDate?: string
     }
   }
 
+  // ===== RECORRÊNCIA =====
+  const recPatterns: [RegExp, RecurrenceFreq][] = [
+    [/\b(dias?\s+[úu]teis|dias?\s+de\s+semana|de\s+segunda\s+a\s+sexta)\b/i, 'weekdays'],
+    [/\b(todo\s+(?:o\s+)?m[êe]s|mensalmente|mensal)\b/i, 'monthly'],
+    [/\b(todos?\s+os?\s+dias?|todo\s+dia|diariamente|di[áa]ri[ao])\b/i, 'daily'],
+    [/\b(toda\s+semana|todas\s+as\s+semanas|semanalmente|semanal)\b/i, 'weekly'],
+  ];
+  for (const [re, freq] of recPatterns) {
+    if (re.test(text)) { recurrence = freq; text = text.replace(re, ' '); break; }
+  }
+  // "toda(s)/às [dia da semana]" => semanal, preservando o dia para a 1ª ocorrência
+  if (!recurrence && /\b(toda|todas|[àa]s)\s+(?:as\s+)?(domingos?|segundas?|ter[çc]as?|quartas?|quintas?|sextas?|s[áa]bados?)/i.test(text)) {
+    recurrence = 'weekly';
+    text = text.replace(/\b(toda|todas|[àa]s)\s+(?:as\s+)?/i, ' ');
+  }
+
   // ===== DATA =====
   const isNext = /\b(pr[oó]xim[ao]|que\s+vem)\b/i.test(text);
   const removeAndSet = (re: RegExp, days: number): boolean => {
@@ -125,13 +142,13 @@ export const parseQuickTask = (input: string): { title: string; dueDate?: string
     }
   } else {
     const weekdays: [RegExp, number][] = [
-      [/\bdomingo\b/i, 0],
-      [/\bsegunda(?:-?\s*feira)?\b/i, 1],
-      [/\bter[çc]a(?:-?\s*feira)?\b/i, 2],
-      [/\bquarta(?:-?\s*feira)?\b/i, 3],
-      [/\bquinta(?:-?\s*feira)?\b/i, 4],
-      [/\bsexta(?:-?\s*feira)?\b/i, 5],
-      [/\bs[áa]bado\b/i, 6],
+      [/\bdomingos?\b/i, 0],
+      [/\bsegundas?(?:-?\s*feiras?)?\b/i, 1],
+      [/\bter[çc]as?(?:-?\s*feiras?)?\b/i, 2],
+      [/\bquartas?(?:-?\s*feiras?)?\b/i, 3],
+      [/\bquintas?(?:-?\s*feiras?)?\b/i, 4],
+      [/\bsextas?(?:-?\s*feiras?)?\b/i, 5],
+      [/\bs[áa]bados?\b/i, 6],
     ];
     for (const [re, dow] of weekdays) {
       const m = text.match(re);
@@ -141,6 +158,18 @@ export const parseQuickTask = (input: string): { title: string; dueDate?: string
       dueDate = offsetISO(ahead);
       text = text.replace(m[0], ' ').replace(/\b(pr[oó]xim[ao]|que\s+vem)\b/i, ' ');
       break;
+    }
+  }
+
+  // Recorrente sem data explícita: começa hoje (ou no próximo dia útil p/ "dias úteis")
+  if (recurrence && !dueDate) {
+    if (recurrence === 'weekdays') {
+      let add = 0;
+      let dow = base.getDay();
+      while (dow === 0 || dow === 6) { add++; dow = (dow + 1) % 7; }
+      dueDate = offsetISO(add);
+    } else {
+      dueDate = offsetISO(0);
     }
   }
 
@@ -155,7 +184,7 @@ export const parseQuickTask = (input: string): { title: string; dueDate?: string
     title = t2;
   }
 
-  return { title: title || input.trim(), dueDate, dueTime };
+  return { title: title || input.trim(), dueDate, dueTime, recurrence };
 };
 
 export const formatLongDate = (d: Date = new Date()): string =>
