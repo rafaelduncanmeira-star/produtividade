@@ -282,7 +282,7 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
     }
   }, [remainingMs, timer.status, timer.phase]);
 
-  // Lembretes (app aberto): avisa quando um bloco de hoje está prestes a começar
+  // Lembretes (app aberto): avisa quando um bloco ou tarefa de hoje está prestes a começar
   useEffect(() => {
     if (notifPerm !== 'granted') return;
     const check = () => {
@@ -297,11 +297,19 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
           sendNotification(`⏰ ${b.title}`, diff === 0 ? `Começa agora · ${b.start}` : `Começa em ${diff} min · ${b.start}`);
         }
       });
+      tasks.filter(t => !t.completed && t.dueTime && t.dueDate === today).forEach(t => {
+        const diff = timeToMinutes(t.dueTime!) - nowMin;
+        const key = `task:${today}:${t.id}`;
+        if (diff >= 0 && diff <= 5 && !notifiedRef.current.has(key)) {
+          notifiedRef.current.add(key);
+          sendNotification(`✅ ${t.title}`, diff === 0 ? `Agora · ${t.dueTime}` : `Em ${diff} min · ${t.dueTime}`);
+        }
+      });
     };
     check();
     const iv = setInterval(check, 30000);
     return () => clearInterval(iv);
-  }, [notifPerm, blocks]);
+  }, [notifPerm, blocks, tasks]);
 
   const startTimer = () => {
     setTimer(prev => {
@@ -459,10 +467,14 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
     });
   };
 
-  const quickAddTask = (title: string, dueDate?: string) => addTask({
-    title, urgent: false, important: true, dueDate, category: 'Outros',
-    estimatedPomodoros: 1, completedPomodoros: 0, completed: false, createdAt: new Date().toISOString(),
-  });
+  const quickAddTask = (title: string, dueDate?: string, dueTime?: string) => {
+    addTask({
+      title, urgent: false, important: true, dueDate, dueTime, category: 'Outros',
+      estimatedPomodoros: 1, completedPomodoros: 0, completed: false, createdAt: new Date().toISOString(),
+    });
+    if (dueDate && dueDate !== todayISO()) toast(`📅 Agendada: ${formatShortDate(dueDate)}${dueTime ? ' · ' + dueTime : ''}`);
+    else if (dueTime) toast(`⏰ Hoje às ${dueTime}`);
+  };
 
   const addHabit = (data: Omit<Habit, 'id'>) => setHabits(prev => [...prev, { ...data, id: uid() }]);
   const updateHabit = (habit: Habit) => setHabits(prev => prev.map(h => h.id === habit.id ? habit : h));
@@ -719,7 +731,7 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
               onToggleTask={toggleTask}
               onDeleteTask={deleteTask}
               onUpdateTask={updateTask}
-              onQuickAddTask={(title) => quickAddTask(title, todayISO())}
+              onQuickAddTask={(title, dueDate, dueTime) => quickAddTask(title, dueDate ?? todayISO(), dueTime)}
               projects={projects}
               onToggleHabitDay={toggleHabitDay}
               onStartFocusTask={startFocusOnTask}

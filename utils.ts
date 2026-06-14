@@ -59,6 +59,105 @@ export const formatShortDate = (iso: string): string => {
   return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}`;
 };
 
+/**
+ * Quick-add em linguagem natural (PT-BR): extrai data e hora do texto.
+ * Ex.: "pagar conta sexta 9h" -> { title: 'pagar conta', dueDate, dueTime: '09:00' }
+ */
+export const parseQuickTask = (input: string): { title: string; dueDate?: string; dueTime?: string } => {
+  let text = ` ${input} `;
+  let dueDate: string | undefined;
+  let dueTime: string | undefined;
+
+  const pad = (n: number) => String(n).padStart(2, '0');
+  const base = new Date();
+  base.setHours(0, 0, 0, 0);
+  const offsetISO = (days: number) => {
+    const d = new Date(base);
+    d.setDate(d.getDate() + days);
+    return toISODate(d);
+  };
+
+  // ===== HORA =====
+  const timeMatchers: { re: RegExp; hm: (m: RegExpMatchArray) => [number, number] }[] = [
+    { re: /\bmeio[\s-]?dia\b/i, hm: () => [12, 0] },
+    { re: /\bmeia[\s-]?noite\b/i, hm: () => [0, 0] },
+    { re: /\b(?:[àa]s\s*)?(\d{1,2})[:h](\d{2})\b/i, hm: m => [+m[1], +m[2]] },
+    { re: /\b(?:[àa]s\s*)?(\d{1,2})\s*h(?:oras?)?\b/i, hm: m => [+m[1], 0] },
+    { re: /\b[àa]s\s*(\d{1,2})\b/i, hm: m => [+m[1], 0] },
+  ];
+  for (const { re, hm } of timeMatchers) {
+    const m = text.match(re);
+    if (m) {
+      const [h, min] = hm(m);
+      if (h >= 0 && h <= 23 && min >= 0 && min <= 59) {
+        dueTime = `${pad(h)}:${pad(min)}`;
+        text = text.replace(m[0], ' ');
+        break;
+      }
+    }
+  }
+
+  // ===== DATA =====
+  const isNext = /\b(pr[oó]xim[ao]|que\s+vem)\b/i.test(text);
+  const removeAndSet = (re: RegExp, days: number): boolean => {
+    const m = text.match(re);
+    if (!m) return false;
+    dueDate = offsetISO(days);
+    text = text.replace(m[0], ' ');
+    return true;
+  };
+
+  const dmy = text.match(/\b(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?\b/);
+
+  if (removeAndSet(/\bdepois\s+de\s+amanh[ãa]\b/i, 2)) { /* feito */ }
+  else if (removeAndSet(/\bamanh[ãa]\b/i, 1)) { /* feito */ }
+  else if (removeAndSet(/\bhoje\b/i, 0)) { /* feito */ }
+  else if (removeAndSet(/\b(semana\s+que\s+vem|pr[oó]xima\s+semana)\b/i, 7)) { /* feito */ }
+  else if (dmy) {
+    const dd = +dmy[1];
+    const mm = +dmy[2] - 1;
+    let yy = dmy[3] ? +dmy[3] : base.getFullYear();
+    if (yy < 100) yy += 2000;
+    const d = new Date(yy, mm, dd);
+    if (!isNaN(d.getTime()) && d.getMonth() === mm) {
+      dueDate = toISODate(d);
+      text = text.replace(dmy[0], ' ');
+    }
+  } else {
+    const weekdays: [RegExp, number][] = [
+      [/\bdomingo\b/i, 0],
+      [/\bsegunda(?:-?\s*feira)?\b/i, 1],
+      [/\bter[çc]a(?:-?\s*feira)?\b/i, 2],
+      [/\bquarta(?:-?\s*feira)?\b/i, 3],
+      [/\bquinta(?:-?\s*feira)?\b/i, 4],
+      [/\bsexta(?:-?\s*feira)?\b/i, 5],
+      [/\bs[áa]bado\b/i, 6],
+    ];
+    for (const [re, dow] of weekdays) {
+      const m = text.match(re);
+      if (!m) continue;
+      let ahead = (dow - base.getDay() + 7) % 7;
+      if (ahead === 0) ahead = isNext ? 7 : 0;
+      dueDate = offsetISO(ahead);
+      text = text.replace(m[0], ' ').replace(/\b(pr[oó]xim[ao]|que\s+vem)\b/i, ' ');
+      break;
+    }
+  }
+
+  // ===== Limpeza do título (remove conectores soltos no início/fim) =====
+  let title = text.replace(/\s{2,}/g, ' ').trim();
+  for (let i = 0; i < 4; i++) {
+    const t2 = title
+      .replace(/[\s,]+(?:[àa]s|no|na|de|da|do|em|para|pra|dia)$/i, '')
+      .replace(/^(?:[àa]s|no|na|de|da|do|em|para|pra|dia)\s+/i, '')
+      .trim();
+    if (t2 === title) break;
+    title = t2;
+  }
+
+  return { title: title || input.trim(), dueDate, dueTime };
+};
+
 export const formatLongDate = (d: Date = new Date()): string =>
   new Intl.DateTimeFormat('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' }).format(d);
 

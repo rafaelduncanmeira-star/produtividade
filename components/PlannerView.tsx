@@ -227,6 +227,66 @@ const MonthGrid: React.FC<MonthGridProps> = ({ anchor, blocks, onPickDay }) => {
   );
 };
 
+// ---------- Agenda da semana em lista (mobile) ----------
+interface WeekAgendaProps {
+  days: string[];
+  blocks: TimeBlock[];
+  tasks: Task[];
+  eventsForDay: (date: string) => GoogleEvent[];
+  onCreate: (date: string) => void;
+  onEditBlock: (b: TimeBlock) => void;
+}
+
+const WeekAgenda: React.FC<WeekAgendaProps> = ({ days, blocks, tasks, eventsForDay, onCreate, onEditBlock }) => {
+  const today = todayISO();
+  type Item = { key: string; start: string; title: string; color: string; kind: 'block' | 'task' | 'event'; block?: TimeBlock };
+  return (
+    <div className="space-y-2.5">
+      {days.map(d => {
+        const dt = parseISODate(d);
+        const isToday = d === today;
+        const items: Item[] = [
+          ...blocks.filter(b => b.date === d).map(b => ({ key: `b-${b.id}`, start: b.start, title: b.title, color: b.color, kind: 'block' as const, block: b })),
+          ...tasks.filter(t => !t.completed && t.dueTime && t.dueDate === d).map(t => ({ key: `t-${t.id}`, start: t.dueTime!, title: t.title, color: '#6366f1', kind: 'task' as const })),
+          ...eventsForDay(d).filter(ev => !ev.allDay).map(ev => ({ key: `g-${ev.id}`, start: ev.start, title: ev.title, color: ev.color ?? GOOGLE_EVENT_COLOR, kind: 'event' as const })),
+        ].sort((a, b) => a.start.localeCompare(b.start));
+        return (
+          <div key={d} className={`bg-white rounded-2xl border p-3 ${isToday ? 'border-indigo-200' : 'border-slate-100'}`}>
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <span className={`text-sm font-bold capitalize ${isToday ? 'text-indigo-600' : 'text-slate-700'}`}>
+                  {WEEKDAY_SHORT[dt.getDay()]}, {dt.getDate()}/{String(dt.getMonth() + 1).padStart(2, '0')}
+                </span>
+                {isToday && <span className="text-[10px] font-bold text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded">hoje</span>}
+              </div>
+              <button onClick={() => onCreate(d)} aria-label="Adicionar bloco" className="p-1 text-slate-300 hover:text-indigo-600"><Plus size={16} /></button>
+            </div>
+            {items.length === 0 ? (
+              <p className="text-xs text-slate-300">Nada agendado</p>
+            ) : (
+              <div className="space-y-1.5">
+                {items.map(it => (
+                  <button
+                    key={it.key}
+                    onClick={it.block ? () => onEditBlock(it.block!) : undefined}
+                    className={`w-full flex items-center gap-2.5 text-left ${it.block ? '' : 'cursor-default'}`}
+                  >
+                    <span className="text-[11px] tabular-nums text-slate-400 w-10 shrink-0">{it.start}</span>
+                    <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: it.color }} />
+                    <span className="text-sm text-slate-700 truncate flex-1">{it.title}</span>
+                    {it.kind === 'task' && <CircleCheck size={13} className="text-slate-300 shrink-0" />}
+                    {it.kind === 'event' && <Calendar size={12} className="text-slate-300 shrink-0" />}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
 // ---------- Componente principal ----------
 export const PlannerView: React.FC<PlannerViewProps> = ({
   blocks, tasks, googleActive, googleEvents, onLoadGoogleEvents, onSendBlockToGoogle, onOpenGoogleSettings,
@@ -363,7 +423,7 @@ export const PlannerView: React.FC<PlannerViewProps> = ({
   const modes: { id: ViewMode; label: string; Icon: LucideIcon; desktopOnly?: boolean }[] = [
     { id: 'day', label: 'Dia', Icon: Calendar },
     { id: '3days', label: '3 dias', Icon: Columns3 },
-    { id: 'week', label: '7 dias', Icon: CalendarRange, desktopOnly: true },
+    { id: 'week', label: 'Semana', Icon: CalendarRange },
     { id: 'month', label: 'Mês', Icon: CalendarDays },
   ];
 
@@ -430,7 +490,20 @@ export const PlannerView: React.FC<PlannerViewProps> = ({
       {viewMode === 'month' ? (
         <MonthGrid anchor={anchor} blocks={blocks} onPickDay={(d) => { setAnchor(d); setViewMode('day'); }} />
       ) : (
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-2 md:p-3 overflow-hidden">
+      <>
+        {viewMode === 'week' && (
+          <div className="md:hidden">
+            <WeekAgenda
+              days={visibleDays}
+              blocks={previewBlocks}
+              tasks={tasks}
+              eventsForDay={eventsForDay}
+              onCreate={(d) => openCreate(d)}
+              onEditBlock={openBlockEdit}
+            />
+          </div>
+        )}
+        <div className={`bg-white rounded-2xl shadow-sm border border-slate-100 p-2 md:p-3 overflow-hidden ${viewMode === 'week' ? 'hidden md:block' : ''}`}>
           {(viewMode === '3days' || viewMode === 'week') && (
             <div className="flex">
               <div className="w-10 md:w-12 shrink-0" />
@@ -481,10 +554,11 @@ export const PlannerView: React.FC<PlannerViewProps> = ({
             ))}
           </div>
         </div>
+      </>
       )}
 
       {viewMode !== 'month' && (
-        <p className="text-center text-sm text-slate-400 -mt-2">Toque num horário para criar · arraste um bloco para remarcar.</p>
+        <p className={`text-center text-sm text-slate-400 -mt-2 ${viewMode === 'week' ? 'hidden md:block' : ''}`}>Toque num horário para criar · arraste um bloco para remarcar.</p>
       )}
 
       {isFormOpen && (

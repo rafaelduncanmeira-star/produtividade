@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Play, CalendarClock, ChevronRight, Check, Plus, Calendar } from 'lucide-react';
 import { Task, Habit, TimeBlock, FocusSession, GoogleEvent, Project, DailyReview, GOOGLE_EVENT_COLOR, REVIEW_MOODS } from '../types';
-import { todayISO, getGreeting, formatLongDate, formatMinutes, focusMinutesOn } from '../utils';
+import { todayISO, getGreeting, formatLongDate, formatMinutes, focusMinutesOn, parseQuickTask } from '../utils';
 import { TaskItem } from './TaskItem';
 import { TaskForm } from './TaskForm';
 
@@ -18,7 +18,7 @@ interface TodayViewProps {
   onToggleTask: (id: string) => void;
   onDeleteTask: (id: string) => void;
   onUpdateTask: (task: Task) => void;
-  onQuickAddTask: (title: string) => void;
+  onQuickAddTask: (title: string, dueDate?: string, dueTime?: string) => void;
   projects?: Project[];
   onToggleHabitDay: (habitId: string, isoDate: string) => void;
   onStartFocusTask: (id: string) => void;
@@ -81,9 +81,10 @@ export const TodayView: React.FC<TodayViewProps> = ({
 
   const handleQuickAdd = (e: React.FormEvent) => {
     e.preventDefault();
-    const title = quickTitle.trim();
-    if (!title) return;
-    onQuickAddTask(title);
+    const raw = quickTitle.trim();
+    if (!raw) return;
+    const p = parseQuickTask(raw);
+    onQuickAddTask(p.title, p.dueDate, p.dueTime);
     setQuickTitle('');
   };
 
@@ -129,7 +130,7 @@ export const TodayView: React.FC<TodayViewProps> = ({
               type="text"
               value={quickTitle}
               onChange={e => setQuickTitle(e.target.value)}
-              placeholder="Nova tarefa para hoje..."
+              placeholder="Nova tarefa... ex: reunião amanhã 14h"
               className="flex-1 min-w-0 px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-200 outline-none text-sm"
             />
             <button

@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useCallback, useRef } from 'react';
 import { Plus, List, LayoutGrid, CheckSquare, Columns3, Search, X, Info } from 'lucide-react';
 import { Task, TaskStatus, Project, QUADRANTS, QUADRANT_INFO, getQuadrant, getTaskStatus, KANBAN_COLUMNS, DEFAULT_TASK_CATEGORIES } from '../types';
-import { todayISO, getWeekDays } from '../utils';
+import { todayISO, getWeekDays, parseQuickTask } from '../utils';
 import { TaskItem } from './TaskItem';
 import { KanbanCard } from './KanbanCard';
 import { TaskForm } from './TaskForm';
@@ -82,11 +82,13 @@ export const TasksView: React.FC<TasksViewProps> = ({
 
   const handleQuickAdd = (e: React.FormEvent) => {
     e.preventDefault();
-    const title = quickTitle.trim();
-    if (!title) return;
+    const raw = quickTitle.trim();
+    if (!raw) return;
+    const p = parseQuickTask(raw);
     onAddTask({
-      title, urgent: false, important: true,
-      dueDate: filter === 'hoje' ? today : undefined,
+      title: p.title, urgent: false, important: true,
+      dueDate: p.dueDate ?? (filter === 'hoje' ? today : undefined),
+      dueTime: p.dueTime,
       category: 'Outros', estimatedPomodoros: 1, completedPomodoros: 0,
       completed: false, createdAt: new Date().toISOString(),
     });
@@ -258,7 +260,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
             type="text"
             value={quickTitle}
             onChange={e => setQuickTitle(e.target.value)}
-            placeholder="Adicionar tarefa rápida..."
+            placeholder="Adicionar... ex: pagar conta sexta 9h"
             className="flex-1 min-w-0 px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-200 outline-none text-sm bg-white"
           />
           <button
