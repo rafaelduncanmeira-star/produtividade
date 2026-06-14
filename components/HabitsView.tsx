@@ -149,9 +149,9 @@ export const HabitsView: React.FC<HabitsViewProps> = ({
             <p className="text-sm">Nenhum hábito criado.</p>
             <button
               onClick={() => { setEditingHabit(null); setIsFormOpen(true); }}
-              className="mt-2 text-indigo-600 font-medium hover:underline text-sm"
+              className="mt-4 inline-flex items-center gap-2 bg-indigo-600 text-white px-4 py-2.5 rounded-xl font-bold text-sm hover:bg-indigo-700 active:scale-95 transition"
             >
-              Criar o primeiro hábito
+              <Plus size={16} /> Criar primeiro hábito
             </button>
           </div>
         )}

@@ -289,6 +289,14 @@ export const TasksView: React.FC<TasksViewProps> = ({
             <div className="py-16 flex flex-col items-center justify-center text-slate-400 bg-white rounded-2xl border border-dashed border-slate-200">
               <CheckSquare size={48} className="mb-4 opacity-20" />
               <p className="text-sm">{filter === 'concluidas' ? 'Nenhuma tarefa concluída ainda.' : 'Nenhuma tarefa por aqui. Aproveite! 🎉'}</p>
+              {filter !== 'concluidas' && (
+                <button
+                  onClick={() => { setEditingTask(null); setAddStatus(null); setIsFormOpen(true); }}
+                  className="mt-4 inline-flex items-center gap-2 bg-indigo-600 text-white px-4 py-2.5 rounded-xl font-bold text-sm hover:bg-indigo-700 active:scale-95 transition"
+                >
+                  <Plus size={16} /> Nova tarefa
+                </button>
+              )}
             </div>
           )}
         </div>

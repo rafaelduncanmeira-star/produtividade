@@ -60,6 +60,12 @@ export const MetasView: React.FC<MetasViewProps> = ({
         <div className="py-16 flex flex-col items-center justify-center text-center text-slate-400 bg-white rounded-2xl border border-dashed border-slate-200 px-6">
           <Target size={48} className="mb-4 opacity-20" />
           <p className="text-sm">Nenhuma meta ainda. Crie uma ou peça à IA: <span className="text-slate-500">"organiza minha prova de anatomia"</span>.</p>
+          <button
+            onClick={openNewProject}
+            className="mt-4 inline-flex items-center gap-2 bg-indigo-600 text-white px-4 py-2.5 rounded-xl font-bold text-sm hover:bg-indigo-700 active:scale-95 transition"
+          >
+            <Plus size={16} /> Nova meta
+          </button>
         </div>
       )}
 

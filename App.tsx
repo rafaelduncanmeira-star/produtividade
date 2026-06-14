@@ -6,6 +6,7 @@ import {
   AppSnapshot, loadSnapshot, saveSnapshot, legacyLocalSnapshot, cachedSnapshot, cacheSnapshot,
 } from './services/cloudStore';
 import { AuthView } from './components/AuthView';
+import { ToastProvider } from './components/Toast';
 import TempoApp from './TempoApp';
 
 const SAVE_DEBOUNCE_MS = 1200;
@@ -112,13 +113,15 @@ const App: React.FC = () => {
   if (!initial) return <Splash message="Sincronizando seus dados..." />;
 
   return (
-    <TempoApp
-      key={session.user.id}
-      userEmail={session.user.email ?? ''}
-      initial={initial}
-      onSnapshotChange={handleSnapshotChange}
-      onSignOut={handleSignOut}
-    />
+    <ToastProvider>
+      <TempoApp
+        key={session.user.id}
+        userEmail={session.user.email ?? ''}
+        initial={initial}
+        onSnapshotChange={handleSnapshotChange}
+        onSignOut={handleSignOut}
+      />
+    </ToastProvider>
   );
 };
 

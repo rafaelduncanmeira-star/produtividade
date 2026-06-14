@@ -4,7 +4,9 @@ import {
   Task, TaskStatus, Habit, Project, DailyReview, TimeBlock, FocusSession, PomodoroSettings, TimerState, TimerPhase,
   GoogleSettings, GoogleEvent, DEFAULT_POMODORO_SETTINGS, DEFAULT_TIMER_STATE, DEFAULT_GOOGLE_SETTINGS, GOOGLE_CLIENT_ID,
 } from './types';
-import { uid, toISODate, todayISO, formatTimerMs, playBeep, nextRecurrenceISO, timeToMinutes } from './utils';
+import { uid, toISODate, todayISO, formatTimerMs, playBeep, nextRecurrenceISO, timeToMinutes, formatShortDate } from './utils';
+import { haptic, fireConfetti } from './feedback';
+import { useToast } from './components/Toast';
 import { AppSnapshot } from './services/cloudStore';
 import { notifPermission, requestNotifPermission, sendNotification } from './services/notifications';
 import {
@@ -74,10 +76,16 @@ interface TempoAppProps {
 }
 
 const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChange, onSignOut }) => {
+  const { toast } = useToast();
   const [currentView, setCurrentView] = useState<View>('today');
   const [moreOpen, setMoreOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isAIOpen, setIsAIOpen] = useState(false);
+  // Boas-vindas só no 1º acesso (e apenas quando ainda há dados de exemplo).
+  const [showWelcome, setShowWelcome] = useState(() => {
+    try { if (localStorage.getItem('tempo_onboarded')) return false; } catch { /* ignore */ }
+    return (initial.tasks ?? INITIAL_TASKS).some(t => t.id === 't1');
+  });
   const [dark, setDark] = useState(() => typeof document !== 'undefined' && document.documentElement.classList.contains('dark'));
   const toggleTheme = () => setDark(d => {
     const next = !d;
@@ -361,8 +369,37 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
   // --- Handlers de entidades ---
   const addTask = (data: Omit<Task, 'id'>) => setTasks(prev => [{ ...data, id: uid() }, ...prev]);
   const updateTask = (task: Task) => setTasks(prev => prev.map(t => t.id === task.id ? task : t));
-  const deleteTask = (id: string) => setTasks(prev => prev.filter(t => t.id !== id));
-  const toggleTask = (id: string) => setTasks(prev => {
+  const deleteTask = (id: string) => {
+    const idx = tasks.findIndex(t => t.id === id);
+    const target = tasks[idx];
+    if (!target) return;
+    setTasks(prev => prev.filter(t => t.id !== id));
+    toast('Tarefa excluída', { action: { label: 'Desfazer', onClick: () => setTasks(prev => {
+      const copy = prev.filter(t => t.id !== target.id);
+      copy.splice(Math.min(idx, copy.length), 0, target);
+      return copy;
+    } ) } });
+  };
+
+  // Celebra a conclusão de uma tarefa: vibração, aviso de recorrência e confete ao zerar o dia.
+  const celebrateTaskDone = (target: Task) => {
+    haptic();
+    if (target.recurrence && !target.recurrenceSpawned) {
+      const nextDue = nextRecurrenceISO(target.recurrence, target.dueDate ?? todayISO());
+      toast(`🔁 Próxima criada para ${formatShortDate(nextDue)}`);
+    }
+    const t = todayISO();
+    const openToday = tasks.filter(x => !x.completed && !!x.dueDate && x.dueDate <= t);
+    if (!!target.dueDate && target.dueDate <= t && openToday.length === 1 && openToday[0].id === target.id) {
+      fireConfetti();
+      toast('🎉 Tudo de hoje concluído!');
+    }
+  };
+
+  const toggleTask = (id: string) => {
+    const target = tasks.find(t => t.id === id);
+    if (target && !target.completed) celebrateTaskDone(target);
+    setTasks(prev => {
     const target = prev.find(t => t.id === id);
     if (!target) return prev;
     const completing = !target.completed;
@@ -387,10 +424,14 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
       }, ...next];
     }
     return next;
-  });
+    });
+  };
 
   // Define o estágio de uma tarefa (Kanban e IA); concluir gera a próxima ocorrência recorrente
-  const setTaskStatusById = (id: string, status: TaskStatus) => setTasks(prev => {
+  const setTaskStatusById = (id: string, status: TaskStatus) => {
+    const target = tasks.find(t => t.id === id);
+    if (target && status === 'done' && !target.completed) celebrateTaskDone(target);
+    setTasks(prev => {
     const target = prev.find(t => t.id === id);
     if (!target) return prev;
     const done = status === 'done';
@@ -407,7 +448,8 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
       }, ...next];
     }
     return next;
-  });
+    });
+  };
 
   const quickAddTask = (title: string, dueDate?: string) => addTask({
     title, urgent: false, important: true, dueDate, category: 'Outros',
@@ -416,24 +458,63 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
 
   const addHabit = (data: Omit<Habit, 'id'>) => setHabits(prev => [...prev, { ...data, id: uid() }]);
   const updateHabit = (habit: Habit) => setHabits(prev => prev.map(h => h.id === habit.id ? habit : h));
-  const deleteHabit = (id: string) => setHabits(prev => prev.filter(h => h.id !== id));
-  const toggleHabitDay = (habitId: string, isoDate: string) => setHabits(prev => prev.map(h => {
-    if (h.id !== habitId) return h;
-    const done = h.completions.includes(isoDate);
-    return { ...h, completions: done ? h.completions.filter(d => d !== isoDate) : [...h.completions, isoDate] };
-  }));
+  const deleteHabit = (id: string) => {
+    const idx = habits.findIndex(h => h.id === id);
+    const target = habits[idx];
+    if (!target) return;
+    setHabits(prev => prev.filter(h => h.id !== id));
+    toast('Hábito excluído', { action: { label: 'Desfazer', onClick: () => setHabits(prev => {
+      const copy = prev.filter(h => h.id !== target.id);
+      copy.splice(Math.min(idx, copy.length), 0, target);
+      return copy;
+    } ) } });
+  };
+  const toggleHabitDay = (habitId: string, isoDate: string) => {
+    const habit = habits.find(h => h.id === habitId);
+    const marking = habit ? !habit.completions.includes(isoDate) : false;
+    setHabits(prev => prev.map(h => {
+      if (h.id !== habitId) return h;
+      const done = h.completions.includes(isoDate);
+      return { ...h, completions: done ? h.completions.filter(d => d !== isoDate) : [...h.completions, isoDate] };
+    }));
+    // Celebra ao marcar um hábito de hoje; confete quando fecha todos os do dia.
+    if (marking && isoDate === todayISO()) {
+      haptic();
+      const weekday = new Date().getDay();
+      const todays = habits.filter(h => h.targetDays.includes(weekday));
+      const doneCount = todays.filter(h => h.id === habitId || h.completions.includes(isoDate)).length;
+      if (todays.length > 0 && doneCount === todays.length) {
+        fireConfetti();
+        toast('🎉 Hábitos do dia completos!');
+      }
+    }
+  };
 
   const addProject = (data: Omit<Project, 'id'>) => setProjects(prev => [...prev, { ...data, id: uid() }]);
   const updateProject = (project: Project) => setProjects(prev => prev.map(p => (p.id === project.id ? project : p)));
   const deleteProject = (id: string) => {
+    const prevProjects = projects;
+    const prevTasks = tasks;
     setProjects(prev => prev.filter(p => p.id !== id));
     setTasks(prev => prev.map(t => (t.projectId === id ? { ...t, projectId: undefined } : t)));
+    toast('Meta excluída', { action: { label: 'Desfazer', onClick: () => { setProjects(prevProjects); setTasks(prevTasks); } } });
   };
   // IA: cria a meta e já adiciona as tarefas vinculadas a ela
   const createProjectWithTasks = (data: Omit<Project, 'id'>, taskList: Omit<Task, 'id'>[]) => {
     const projectId = uid();
     setProjects(prev => [...prev, { ...data, id: projectId }]);
     if (taskList.length) setTasks(prev => [...taskList.map(t => ({ ...t, id: uid(), projectId })), ...prev]);
+  };
+
+  // Onboarding: fecha as boas-vindas; opcionalmente remove só os itens de exemplo.
+  const dismissWelcome = (clearSamples: boolean) => {
+    if (clearSamples) {
+      setTasks(prev => prev.filter(t => !['t1', 't2', 't3', 't4'].includes(t.id)));
+      setHabits(prev => prev.filter(h => !['h1', 'h2', 'h3'].includes(h.id)));
+      setBlocks(prev => prev.filter(b => !['b1', 'b2', 'b3'].includes(b.id)));
+    }
+    try { localStorage.setItem('tempo_onboarded', '1'); } catch { /* ignore */ }
+    setShowWelcome(false);
   };
 
   // Revisão diária: 1 registro por data (humor + nota)
@@ -801,6 +882,45 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
           onDisconnect={handleGoogleDisconnect}
           onClose={() => setIsGoogleOpen(false)}
         />
+      )}
+
+      {showWelcome && (
+        <div className="fixed inset-0 z-[80] flex items-end md:items-center justify-center bg-black/50 backdrop-blur-sm md:p-4">
+          <div className="bg-white rounded-t-2xl md:rounded-2xl shadow-xl w-full max-w-md p-6 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white flex items-center justify-center mb-4">
+              <Sparkles size={24} />
+            </div>
+            <h2 className="text-xl font-bold text-slate-800">Bem-vindo ao Tempo AI 👋</h2>
+            <p className="text-sm text-slate-500 mt-1">Organize tarefas, foque com pomodoro e construa hábitos — tudo num lugar só.</p>
+            <div className="mt-4 space-y-2.5">
+              {[
+                { icon: CheckSquare, text: 'Priorize com a Matriz de Eisenhower' },
+                { icon: Timer, text: 'Foque em blocos com o timer pomodoro' },
+                { icon: Repeat, text: 'Crie hábitos e acompanhe sua evolução' },
+              ].map(({ icon: Icon, text }) => (
+                <div key={text} className="flex items-center gap-3">
+                  <span className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0"><Icon size={16} /></span>
+                  <span className="text-sm text-slate-600">{text}</span>
+                </div>
+              ))}
+            </div>
+            <p className="text-xs text-slate-400 mt-4">Já deixamos alguns itens de exemplo pra você explorar.</p>
+            <div className="mt-3 space-y-2">
+              <button
+                onClick={() => dismissWelcome(false)}
+                className="w-full py-3 rounded-xl font-bold text-white bg-gradient-to-r from-indigo-600 to-violet-600 hover:brightness-110 active:scale-[0.98] transition"
+              >
+                Explorar com exemplos
+              </button>
+              <button
+                onClick={() => dismissWelcome(true)}
+                className="w-full py-2.5 rounded-xl border border-slate-200 text-slate-600 font-medium hover:bg-slate-50 transition"
+              >
+                Começar do zero
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
