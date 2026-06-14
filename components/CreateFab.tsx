@@ -23,7 +23,7 @@ export const CreateFab: React.FC<CreateFabProps> = ({ onTask, onHabit, onBlock, 
     <div className="md:hidden">
       {open && <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} aria-hidden />}
 
-      <div className="fixed bottom-24 right-4 z-50 flex flex-col items-end gap-3">
+      <div className="create-fab fixed bottom-24 right-4 z-50 flex flex-col items-end gap-3">
         {open && actions.map((a, i) => (
           <button
             key={a.label}

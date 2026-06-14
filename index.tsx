@@ -14,6 +14,14 @@ root.render(
   </React.StrictMode>
 );
 
+// Garante a marca de iOS mesmo que o index.html esteja em cache (CSS "Liquid Glass")
+try {
+  const ua = navigator.userAgent || '';
+  if (/iphone|ipad|ipod/i.test(ua) || ((navigator as unknown as { platform?: string }).platform === 'MacIntel' && navigator.maxTouchPoints > 1)) {
+    document.documentElement.classList.add('ios');
+  }
+} catch { /* ignore */ }
+
 // PWA: captura cedo o convite de instalação (pode disparar antes do React montar)
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
