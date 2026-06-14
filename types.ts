@@ -240,7 +240,7 @@ export const TIMER_PHASE_LABELS: Record<TimerPhase, string> = {
 
 export const DEFAULT_TASK_CATEGORIES = ['Trabalho', 'Estudos', 'Pessoal', 'Saúde', 'Casa', 'Outros'];
 
-export const HABIT_COLORS = ['#6366f1', '#10b981', '#f43f5e', '#f59e0b', '#8b5cf6', '#06b6d4'];
+export const HABIT_COLORS = ['#0f766e', '#10b981', '#0ea5e9', '#f59e0b', '#f43f5e', '#8b5cf6'];
 export const BLOCK_COLORS = HABIT_COLORS;
 
 export const HABIT_EMOJIS = ['💧', '🏃', '📖', '🧘', '💪', '🥗', '😴', '🎸', '✍️', '🦷', '☀️', '🚭'];

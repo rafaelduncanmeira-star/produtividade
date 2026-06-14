@@ -5,7 +5,7 @@ export const haptic = (pattern: number | number[] = 12) => {
   try { navigator.vibrate?.(pattern); } catch { /* sem suporte */ }
 };
 
-const CONFETTI_COLORS = ['#6366f1', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#38bdf8'];
+const CONFETTI_COLORS = ['#0d9488', '#10b981', '#34d399', '#f59e0b', '#e0a526', '#fbbf24'];
 
 // Explosão de confete leve, sem dependência: cria divs animados via CSS e remove no fim.
 export const fireConfetti = (count = 80) => {

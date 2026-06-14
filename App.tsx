@@ -3,13 +3,21 @@ import { LoaderCircle } from 'lucide-react';
 import type { Session } from '@supabase/supabase-js';
 import { supabase } from './services/supabaseClient';
 import {
-  AppSnapshot, loadSnapshot, saveSnapshot, legacyLocalSnapshot, cachedSnapshot, cacheSnapshot,
+  AppSnapshot, loadSnapshot, saveSnapshot, fetchSnapshotVersion, legacyLocalSnapshot, cachedSnapshot, cacheSnapshot,
 } from './services/cloudStore';
+import { disconnectGoogle } from './services/googleCalendar';
 import { AuthView } from './components/AuthView';
 import { ToastProvider } from './components/Toast';
 import TempoApp from './TempoApp';
 
 const SAVE_DEBOUNCE_MS = 1200;
+
+// Chaves globais (não vinculadas ao usuário) limpas no logout, p/ privacidade em aparelho compartilhado
+const GLOBAL_KEYS = [
+  'tempo_tasks', 'tempo_sessions', 'tempo_habits', 'tempo_blocks', 'tempo_projects',
+  'tempo_pomodoro_settings', 'tempo_google_settings', 'tempo_timer_state',
+  'tempo_onboarded', 'tempo_install_dismissed',
+];
 
 const Splash: React.FC<{ message: string }> = ({ message }) => (
   <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center gap-3">
@@ -26,9 +34,13 @@ const App: React.FC = () => {
   const [authReady, setAuthReady] = useState(false);
   const [initial, setInitial] = useState<AppSnapshot | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
 
   const sessionRef = useRef<Session | null>(null);
   useEffect(() => { sessionRef.current = session; }, [session]);
+
+  const serverVersionRef = useRef<string | null>(null); // updated_at conhecido da nuvem
+  const skipSaveRef = useRef(false);                     // pula o save imediato após recarregar da nuvem
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -39,7 +51,12 @@ const App: React.FC = () => {
       setSession(s);
       if (event === 'PASSWORD_RECOVERY') {
         const novaSenha = window.prompt('Digite sua nova senha (mínimo 6 caracteres):');
-        if (novaSenha) supabase.auth.updateUser({ password: novaSenha });
+        if (novaSenha && novaSenha.length >= 6) {
+          supabase.auth.updateUser({ password: novaSenha })
+            .then(({ error }) => window.alert(error ? 'Não foi possível alterar a senha.' : 'Senha alterada com sucesso!'));
+        } else if (novaSenha !== null) {
+          window.alert('A senha precisa ter pelo menos 6 caracteres.');
+        }
       }
     });
     return () => sub.subscription.unsubscribe();
@@ -51,6 +68,7 @@ const App: React.FC = () => {
     if (!userId) {
       setInitial(null);
       setLoadError(null);
+      serverVersionRef.current = null;
       return;
     }
     let cancelled = false;
@@ -58,7 +76,15 @@ const App: React.FC = () => {
       try {
         const cloud = await loadSnapshot(userId);
         if (cancelled) return;
-        setInitial(cloud ?? cachedSnapshot(userId) ?? legacyLocalSnapshot());
+        if (cloud) {
+          // Há registro na nuvem (mesmo que vazio): é a fonte da verdade — não usa dados legados/globais
+          serverVersionRef.current = cloud.updatedAt;
+          setInitial(cloud.data);
+        } else {
+          // Usuário novo (sem registro): usa o cache deste usuário ou migra do localStorage antigo
+          serverVersionRef.current = null;
+          setInitial(cachedSnapshot(userId) ?? legacyLocalSnapshot());
+        }
       } catch (e) {
         if (cancelled) return;
         const cached = cachedSnapshot(userId);
@@ -77,14 +103,45 @@ const App: React.FC = () => {
     if (!s) return;
     latestRef.current = snap;
     cacheSnapshot(s.user.id, snap);
+    if (skipSaveRef.current) { skipSaveRef.current = false; return; } // acabou de vir da nuvem: não re-salva
     window.clearTimeout(saveTimerRef.current);
     saveTimerRef.current = window.setTimeout(() => {
       const current = sessionRef.current;
       if (current && latestRef.current) {
-        saveSnapshot(current.user.id, latestRef.current).catch(() => { /* offline: cache local segura */ });
+        saveSnapshot(current.user.id, latestRef.current)
+          .then(ts => { serverVersionRef.current = ts; })
+          .catch(() => { /* offline: cache local segura */ });
       }
     }, SAVE_DEBOUNCE_MS);
   }, []);
+
+  // Recarrega o estado da nuvem (descartando edições pendentes do estado antigo) e remonta o app
+  const reloadFromCloud = useCallback(async () => {
+    const uid = sessionRef.current?.user.id;
+    if (!uid) return;
+    try {
+      const cloud = await loadSnapshot(uid);
+      if (!cloud) return;
+      window.clearTimeout(saveTimerRef.current);
+      latestRef.current = null;
+      serverVersionRef.current = cloud.updatedAt;
+      skipSaveRef.current = true;
+      setInitial(cloud.data);
+      setReloadKey(k => k + 1);
+    } catch { /* mantém estado atual */ }
+  }, []);
+
+  // Multi-aparelho: ao reabrir o app, se outro dispositivo salvou depois, recarrega (evita sobrescrever)
+  useEffect(() => {
+    if (!userId) return;
+    const onVisible = async () => {
+      if (document.visibilityState !== 'visible') return;
+      const v = await fetchSnapshotVersion(userId).catch(() => null);
+      if (v && serverVersionRef.current && v > serverVersionRef.current) reloadFromCloud();
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => document.removeEventListener('visibilitychange', onVisible);
+  }, [userId, reloadFromCloud]);
 
   const handleSignOut = useCallback(async () => {
     window.clearTimeout(saveTimerRef.current);
@@ -92,8 +149,12 @@ const App: React.FC = () => {
     if (s && latestRef.current) {
       try { await saveSnapshot(s.user.id, latestRef.current); } catch { /* melhor esforço */ }
     }
+    // Privacidade em aparelho compartilhado: revoga o Google e limpa resíduos globais do localStorage
+    try { disconnectGoogle(); } catch { /* ignore */ }
+    GLOBAL_KEYS.forEach(k => { try { localStorage.removeItem(k); } catch { /* ignore */ } });
     await supabase.auth.signOut();
     setInitial(null);
+    serverVersionRef.current = null;
   }, []);
 
   if (!authReady) return <Splash message="Carregando..." />;
@@ -116,7 +177,7 @@ const App: React.FC = () => {
   return (
     <ToastProvider>
       <TempoApp
-        key={session.user.id}
+        key={`${session.user.id}:${reloadKey}`}
         userEmail={session.user.email ?? ''}
         initial={initial}
         onSnapshotChange={handleSnapshotChange}

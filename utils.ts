@@ -1,6 +1,9 @@
 import { Habit, FocusSession, RecurrenceFreq } from './types';
 
-export const uid = () => Math.random().toString(36).substring(2, 11);
+export const uid = (): string =>
+  (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function')
+    ? crypto.randomUUID()
+    : Math.random().toString(36).substring(2, 11) + Date.now().toString(36);
 
 // --- Datas (sempre em horário local; nunca usar toISOString para dia) ---
 
@@ -37,7 +40,11 @@ export const nextRecurrenceISO = (freq: RecurrenceFreq, fromISO: string): string
     }
     case 'monthly': {
       const d = parseISODate(fromISO);
+      const day = d.getDate();
+      d.setDate(1);                              // evita "rolar" para o mês seguinte
       d.setMonth(d.getMonth() + 1);
+      const lastDay = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+      d.setDate(Math.min(day, lastDay));         // dia 31 em fev vira o último dia do mês
       return toISODate(d);
     }
   }
@@ -82,9 +89,12 @@ export const parseQuickTask = (input: string): { title: string; dueDate?: string
   const timeMatchers: { re: RegExp; hm: (m: RegExpMatchArray) => [number, number] }[] = [
     { re: /\bmeio[\s-]?dia\b/i, hm: () => [12, 0] },
     { re: /\bmeia[\s-]?noite\b/i, hm: () => [0, 0] },
+    // HH:MM ou HHhMM (sempre horário)
     { re: /\b(?:[àa]s\s*)?(\d{1,2})[:h](\d{2})\b/i, hm: m => [+m[1], +m[2]] },
-    { re: /\b(?:[àa]s\s*)?(\d{1,2})\s*h(?:oras?)?\b/i, hm: m => [+m[1], 0] },
-    { re: /\b[àa]s\s*(\d{1,2})\b/i, hm: m => [+m[1], 0] },
+    // "às N" / "às Nh" (prefixo "às" deixa explícito que é horário) — \s no início aceita "às" acentuado
+    { re: /\s[àa]s\s*(\d{1,2})\s*h?(?:oras?)?\b/i, hm: m => [+m[1], 0] },
+    // "Nh" sem "às" — mas NÃO quando é duração ("2h de matemática", "1h por dia")
+    { re: /\b(\d{1,2})\s*h(?:oras?)?\b(?!\s+(?:de|por|e\s+meia)\b)/i, hm: m => [+m[1], 0] },
   ];
   for (const { re, hm } of timeMatchers) {
     const m = text.match(re);
@@ -109,9 +119,9 @@ export const parseQuickTask = (input: string): { title: string; dueDate?: string
     if (re.test(text)) { recurrence = freq; text = text.replace(re, ' '); break; }
   }
   // "toda(s)/às [dia da semana]" => semanal, preservando o dia para a 1ª ocorrência
-  if (!recurrence && /\b(toda|todas|[àa]s)\s+(?:as\s+)?(domingos?|segundas?|ter[çc]as?|quartas?|quintas?|sextas?|s[áa]bados?)/i.test(text)) {
+  if (!recurrence && /\s(toda|todas|[àa]s)\s+(?:as\s+)?(domingos?|segundas?|ter[çc]as?|quartas?|quintas?|sextas?|s[áa]bados?)/i.test(text)) {
     recurrence = 'weekly';
-    text = text.replace(/\b(toda|todas|[àa]s)\s+(?:as\s+)?/i, ' ');
+    text = text.replace(/\s(toda|todas|[àa]s)\s+(?:as\s+)?/i, ' ');
   }
 
   // ===== DATA =====
@@ -126,8 +136,8 @@ export const parseQuickTask = (input: string): { title: string; dueDate?: string
 
   const dmy = text.match(/\b(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?\b/);
 
-  if (removeAndSet(/\bdepois\s+de\s+amanh[ãa]\b/i, 2)) { /* feito */ }
-  else if (removeAndSet(/\bamanh[ãa]\b/i, 1)) { /* feito */ }
+  if (removeAndSet(/\bdepois\s+de\s+amanh[ãa](?=\s|$|[,.;!?])/i, 2)) { /* feito */ }
+  else if (removeAndSet(/\bamanh[ãa](?=\s|$|[,.;!?])/i, 1)) { /* feito */ }
   else if (removeAndSet(/\bhoje\b/i, 0)) { /* feito */ }
   else if (removeAndSet(/\b(semana\s+que\s+vem|pr[oó]xima\s+semana)\b/i, 7)) { /* feito */ }
   else if (dmy) {
@@ -174,6 +184,8 @@ export const parseQuickTask = (input: string): { title: string; dueDate?: string
   }
 
   // ===== Limpeza do título (remove conectores soltos no início/fim) =====
+  // Quando houve horário, remove sufixo de período ("às 9 da manhã" -> "...")
+  if (dueTime) text = text.replace(/\b(?:d[ae]\s+)?(?:manhã|manha|tarde|noite|madrugada)(?=\s|$|[,.;!?])/i, ' ');
   let title = text.replace(/\s{2,}/g, ' ').trim();
   for (let i = 0; i < 4; i++) {
     const t2 = title
@@ -288,10 +300,14 @@ export const habitCompletionRate = (habit: Habit, days = 30, today: string = tod
 
 // --- Som ---
 
+let beepCtx: AudioContext | null = null;
 export const playBeep = () => {
   try {
     const Ctx = window.AudioContext || (window as any).webkitAudioContext;
-    const ctx = new Ctx();
+    if (!Ctx) return;
+    if (!beepCtx) beepCtx = new Ctx();           // reusa um único contexto (evita estourar o limite)
+    const ctx = beepCtx;
+    if (ctx.state === 'suspended') ctx.resume().catch(() => {});
     [0, 0.35].forEach(delay => {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();

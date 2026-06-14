@@ -76,7 +76,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, onDelete, on
     dir.current = null;
     if (!wasH) return;
     if (d > 75) onToggle(task.id);
-    else if (d < -75) onDelete(task.id);
+    else if (d < -100) onDelete(task.id); // excluir exige um arrasto mais deliberado
   };
 
   return (
@@ -156,11 +156,11 @@ export const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, onDelete, on
               </button>
             )}
             {onEdit && (
-              <button onClick={() => onEdit(task)} className="p-2 text-slate-300 hover:text-teal-700 hover:bg-teal-50 rounded-lg">
+              <button onClick={() => onEdit(task)} aria-label="Editar tarefa" className="p-2 text-slate-300 hover:text-teal-700 hover:bg-teal-50 rounded-lg">
                 <Edit2 size={16} />
               </button>
             )}
-            <button onClick={() => onDelete(task.id)} className="p-2 text-slate-300 hover:text-rose-600 hover:bg-rose-50 rounded-lg">
+            <button onClick={() => onDelete(task.id)} aria-label="Excluir tarefa" className="p-2 text-slate-300 hover:text-rose-600 hover:bg-rose-50 rounded-lg">
               <Trash2 size={16} />
             </button>
           </div>

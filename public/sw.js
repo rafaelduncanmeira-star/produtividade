@@ -2,7 +2,7 @@
    Sempre tenta a rede (atualização instantânea quando online) e cai no cache
    apenas como fallback offline. Não intercepta chamadas externas
    (Supabase, Google, Gemini, Tailwind CDN). */
-const CACHE = 'tempo-ai-v15';
+const CACHE = 'tempo-ai-v16';
 const SHELL = ['./', './index.html', './index.js'];
 
 self.addEventListener('install', (event) => {
@@ -29,8 +29,11 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     fetch(req)
       .then((res) => {
-        const copy = res.clone();
-        caches.open(CACHE).then((c) => c.put(req, copy)).catch(() => {});
+        // Só cacheia respostas OK (evita gravar 404/500 e travar o app offline)
+        if (res.ok) {
+          const copy = res.clone();
+          caches.open(CACHE).then((c) => c.put(req, copy)).catch(() => {});
+        }
         return res;
       })
       .catch(() => caches.match(req).then((cached) => cached || caches.match('./index.html')))

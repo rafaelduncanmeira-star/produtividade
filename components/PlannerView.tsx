@@ -262,7 +262,7 @@ const WeekAgenda: React.FC<WeekAgendaProps> = ({ days, blocks, tasks, eventsForD
               <button onClick={() => onCreate(d)} aria-label="Adicionar bloco" className="p-1 text-slate-300 hover:text-teal-700"><Plus size={16} /></button>
             </div>
             {items.length === 0 ? (
-              <p className="text-xs text-slate-300">Nada agendado</p>
+              <p className="text-xs text-slate-400">Nada agendado</p>
             ) : (
               <div className="space-y-1.5">
                 {items.map(it => (

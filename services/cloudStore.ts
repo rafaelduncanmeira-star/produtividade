@@ -14,22 +14,40 @@ export interface AppSnapshot {
   timer?: TimerState;
 }
 
-export const loadSnapshot = async (userId: string): Promise<AppSnapshot | null> => {
+export interface SnapshotRow {
+  data: AppSnapshot;
+  updatedAt: string | null;
+}
+
+export const loadSnapshot = async (userId: string): Promise<SnapshotRow | null> => {
   const { data, error } = await supabase
     .from('tempo_app_state')
-    .select('data')
+    .select('data, updated_at')
     .eq('user_id', userId)
     .maybeSingle();
   if (error) throw new Error('Não foi possível carregar seus dados. Verifique sua conexão.');
-  const snap = data?.data as AppSnapshot | undefined;
-  return snap && Object.keys(snap).length > 0 ? snap : null;
+  if (!data) return null; // nenhum registro na nuvem (usuário novo)
+  return { data: (data.data as AppSnapshot) ?? {}, updatedAt: (data.updated_at as string | null) ?? null };
 };
 
-export const saveSnapshot = async (userId: string, snapshot: AppSnapshot): Promise<void> => {
+/** Só a versão (updated_at) do snapshot — usado para detectar edição em outro aparelho. */
+export const fetchSnapshotVersion = async (userId: string): Promise<string | null> => {
+  const { data, error } = await supabase
+    .from('tempo_app_state')
+    .select('updated_at')
+    .eq('user_id', userId)
+    .maybeSingle();
+  if (error || !data) return null;
+  return (data.updated_at as string | null) ?? null;
+};
+
+export const saveSnapshot = async (userId: string, snapshot: AppSnapshot): Promise<string> => {
+  const updatedAt = new Date().toISOString();
   const { error } = await supabase
     .from('tempo_app_state')
-    .upsert({ user_id: userId, data: snapshot, updated_at: new Date().toISOString() });
+    .upsert({ user_id: userId, data: snapshot, updated_at: updatedAt });
   if (error) throw new Error('Falha ao salvar na nuvem.');
+  return updatedAt;
 };
 
 /** Dados salvos pelo app antes da era do login (migração do localStorage antigo). */

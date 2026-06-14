@@ -44,11 +44,11 @@ const INITIAL_TASKS: Task[] = [
 const INITIAL_HABITS: Habit[] = [
   { id: 'h1', name: 'Beber 2L de água', color: '#06b6d4', emoji: '💧', targetDays: [0, 1, 2, 3, 4, 5, 6], completions: [], createdAt: now },
   { id: 'h2', name: 'Exercício físico', color: '#10b981', emoji: '🏃', targetDays: [1, 3, 5], completions: [], createdAt: now },
-  { id: 'h3', name: 'Leitura antes de dormir', color: '#6366f1', emoji: '📖', targetDays: [0, 1, 2, 3, 4, 5, 6], completions: [], createdAt: now },
+  { id: 'h3', name: 'Leitura antes de dormir', color: '#0f766e', emoji: '📖', targetDays: [0, 1, 2, 3, 4, 5, 6], completions: [], createdAt: now },
 ];
 
 const INITIAL_BLOCKS: TimeBlock[] = [
-  { id: 'b1', date: today, start: '08:00', end: '09:00', title: 'Planejar o dia', color: '#6366f1' },
+  { id: 'b1', date: today, start: '08:00', end: '09:00', title: 'Planejar o dia', color: '#0f766e' },
   { id: 'b2', date: today, start: '09:00', end: '11:00', title: 'Trabalho focado', color: '#10b981' },
   { id: 'b3', date: today, start: '14:00', end: '15:00', title: 'Reuniões', color: '#f59e0b' },
 ];
@@ -191,7 +191,7 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
       setBlocks(prev => prev.map(b => b.id === block.id ? { ...b, googleEventId: eventId } : b));
       setGoogleEvents({});
     } catch (e) {
-      alert((e as Error).message || 'Não foi possível enviar para o Google Agenda.');
+      toast((e as Error).message || 'Não foi possível enviar para o Google Agenda.');
       setGoogleConnected(getValidToken() !== null);
     }
   };
@@ -225,7 +225,7 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
       }]);
       if (t.linkedTaskId) {
         setTasks(prev => prev.map(task =>
-          task.id === t.linkedTaskId ? { ...task, completedPomodoros: task.completedPomodoros + 1 } : task
+          (task.id === t.linkedTaskId && !task.completed) ? { ...task, completedPomodoros: task.completedPomodoros + 1 } : task
         ));
       }
       const cycles = t.cyclesCompleted + 1;
@@ -291,7 +291,7 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
       const nowMin = d.getHours() * 60 + d.getMinutes();
       blocks.filter(b => b.date === today).forEach(b => {
         const diff = timeToMinutes(b.start) - nowMin;
-        const key = `${today}:${b.id}`;
+        const key = `${today}:${b.id}:${b.start}`;
         if (diff >= 0 && diff <= 5 && !notifiedRef.current.has(key)) {
           notifiedRef.current.add(key);
           sendNotification(`⏰ ${b.title}`, diff === 0 ? `Começa agora · ${b.start}` : `Começa em ${diff} min · ${b.start}`);
@@ -299,7 +299,7 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
       });
       tasks.filter(t => !t.completed && t.dueTime && t.dueDate === today).forEach(t => {
         const diff = timeToMinutes(t.dueTime!) - nowMin;
-        const key = `task:${today}:${t.id}`;
+        const key = `task:${today}:${t.id}:${t.dueTime}`;
         if (diff >= 0 && diff <= 5 && !notifiedRef.current.has(key)) {
           notifiedRef.current.add(key);
           sendNotification(`✅ ${t.title}`, diff === 0 ? `Agora · ${t.dueTime}` : `Em ${diff} min · ${t.dueTime}`);

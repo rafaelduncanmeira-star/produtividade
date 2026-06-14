@@ -47,8 +47,8 @@ export const PomodoroSettingsModal: React.FC<PomodoroSettingsModalProps> = ({ se
 
   return (
     <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/50 backdrop-blur-sm md:p-4">
-      <div className="bg-white rounded-t-2xl md:rounded-2xl shadow-xl w-full max-w-sm overflow-hidden">
-        <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+      <div className="bg-white rounded-t-2xl md:rounded-2xl shadow-xl w-full max-w-sm overflow-hidden max-h-[92vh] overflow-y-auto">
+        <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50 sticky top-0 z-10">
           <h3 className="font-bold text-slate-800">Configurações do Timer</h3>
           <button onClick={onClose} className="p-1"><X size={20} className="text-slate-400" /></button>
         </div>
