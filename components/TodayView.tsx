@@ -5,6 +5,8 @@ import { todayISO, getGreeting, formatLongDate, formatMinutes, focusMinutesOn } 
 import { TaskItem } from './TaskItem';
 import { TaskForm } from './TaskForm';
 
+type AgendaItem = { key: string; title: string; start: string; end: string; color: string; fromGoogle: boolean; taskId?: string; completed?: boolean };
+
 interface TodayViewProps {
   tasks: Task[];
   habits: Habit[];
@@ -52,17 +54,20 @@ export const TodayView: React.FC<TodayViewProps> = ({
     if (googleActive) onLoadGoogleEvents(today);
   }, [googleActive, today, onLoadGoogleEvents, googleEvents]);
 
-  // Agenda do dia: blocos do app + eventos do Google, em ordem de horário
-  const agendaItems = useMemo(() => {
+  // Agenda do dia: blocos do app + eventos do Google + tarefas com horário, em ordem de horário
+  const agendaItems = useMemo<AgendaItem[]>(() => {
     const syncedIds = new Set(blocks.map(b => b.googleEventId).filter(Boolean));
-    const blockItems = blocks
+    const blockItems: AgendaItem[] = blocks
       .filter(b => b.date === today)
       .map(b => ({ key: `b-${b.id}`, title: b.title, start: b.start, end: b.end, color: b.color, fromGoogle: false }));
-    const eventItems = googleEvents
+    const eventItems: AgendaItem[] = googleEvents
       .filter(ev => !ev.allDay && !syncedIds.has(ev.id))
       .map(ev => ({ key: `g-${ev.id}`, title: ev.title, start: ev.start, end: ev.end, color: ev.color ?? GOOGLE_EVENT_COLOR, fromGoogle: true }));
-    return [...blockItems, ...eventItems].sort((a, b) => a.start.localeCompare(b.start));
-  }, [blocks, googleEvents, today]);
+    const taskItems: AgendaItem[] = tasks
+      .filter(t => !!t.dueTime && t.dueDate === today)
+      .map(t => ({ key: `t-${t.id}`, title: t.title, start: t.dueTime!, end: '', color: '#6366f1', fromGoogle: false, taskId: t.id, completed: t.completed }));
+    return [...blockItems, ...eventItems, ...taskItems].sort((a, b) => a.start.localeCompare(b.start));
+  }, [blocks, googleEvents, tasks, today]);
 
   const allDayEvents = useMemo(() => googleEvents.filter(ev => ev.allDay), [googleEvents]);
 
@@ -202,7 +207,24 @@ export const TodayView: React.FC<TodayViewProps> = ({
               </div>
             ) : (
               <div className="space-y-1.5">
-                {agendaItems.map(item => (
+                {agendaItems.map(item => (item.taskId ? (
+                  <div key={item.key} className="flex items-center gap-2.5 px-3 py-2 rounded-lg bg-slate-50">
+                    <button
+                      onClick={() => onToggleTask(item.taskId!)}
+                      aria-label={item.completed ? 'Reabrir tarefa' : 'Concluir tarefa'}
+                      className={`shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${item.completed ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-slate-300 text-transparent hover:border-emerald-400'}`}
+                    >
+                      <Check size={12} strokeWidth={3} />
+                    </button>
+                    <button
+                      onClick={() => { const t = tasks.find(x => x.id === item.taskId); if (t) setEditingTask(t); }}
+                      className={`text-sm flex-1 truncate font-medium text-left ${item.completed ? 'text-slate-400 line-through' : 'text-slate-600'}`}
+                    >
+                      {item.title}
+                    </button>
+                    <span className="text-xs text-slate-400 tabular-nums">{item.start}</span>
+                  </div>
+                ) : (
                   <div key={item.key} className="flex items-center gap-3 px-3 py-2 rounded-lg bg-slate-50">
                     {item.fromGoogle
                       ? <Calendar size={12} className="shrink-0" style={{ color: item.color }} />
@@ -211,7 +233,7 @@ export const TodayView: React.FC<TodayViewProps> = ({
                     <span className="text-sm text-slate-600 flex-1 truncate font-medium">{item.title}</span>
                     <span className="text-xs text-slate-400 tabular-nums">{item.start}–{item.end}</span>
                   </div>
-                ))}
+                )))}
               </div>
             )}
           </div>

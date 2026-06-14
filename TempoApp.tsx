@@ -23,6 +23,10 @@ import { ReportsView } from './components/ReportsView';
 import { GoogleSettingsModal } from './components/GoogleSettingsModal';
 import { AIAssistant } from './components/AIAssistant';
 import { MetasView } from './components/MetasView';
+import { TaskForm } from './components/TaskForm';
+import { HabitForm } from './components/HabitForm';
+import { TimeBlockForm } from './components/TimeBlockForm';
+import { CreateFab } from './components/CreateFab';
 
 // Dados iniciais de exemplo
 const now = new Date().toISOString();
@@ -81,6 +85,7 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
   const [moreOpen, setMoreOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isAIOpen, setIsAIOpen] = useState(false);
+  const [creating, setCreating] = useState<null | 'task' | 'habit' | 'block'>(null);
   // Boas-vindas só no 1º acesso (e apenas quando ainda há dados de exemplo).
   const [showWelcome, setShowWelcome] = useState(() => {
     try { if (localStorage.getItem('tempo_onboarded')) return false; } catch { /* ignore */ }
@@ -779,6 +784,13 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
         <Sparkles size={22} />
       </button>
 
+      {/* Bolinha de criação rápida (mobile): Tarefa / Hábito / Bloco */}
+      <CreateFab
+        onTask={() => setCreating('task')}
+        onHabit={() => setCreating('habit')}
+        onBlock={() => setCreating('block')}
+      />
+
       {/* Barra de abas (mobile) */}
       <nav className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white border-t border-slate-200 pb-[env(safe-area-inset-bottom)]">
         <div className="grid grid-cols-5">
@@ -881,6 +893,28 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
           onConnect={connectGoogle}
           onDisconnect={handleGoogleDisconnect}
           onClose={() => setIsGoogleOpen(false)}
+        />
+      )}
+
+      {creating === 'task' && (
+        <TaskForm
+          projects={projects}
+          onSave={(data) => { addTask(data); setCreating(null); }}
+          onClose={() => setCreating(null)}
+        />
+      )}
+      {creating === 'habit' && (
+        <HabitForm
+          onSave={(data) => { addHabit(data); setCreating(null); }}
+          onClose={() => setCreating(null)}
+        />
+      )}
+      {creating === 'block' && (
+        <TimeBlockForm
+          defaultDate={todayISO()}
+          tasks={tasks}
+          onSave={(data) => { addBlock(data); setCreating(null); }}
+          onClose={() => setCreating(null)}
         />
       )}
 

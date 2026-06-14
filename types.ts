@@ -72,6 +72,7 @@ export interface Task {
   urgent: boolean;
   important: boolean;
   dueDate?: string;            // 'YYYY-MM-DD' (local)
+  dueTime?: string;            // 'HH:MM' (opcional); com horário aparece na Agenda do dia
   category: string;
   estimatedPomodoros: number;
   completedPomodoros: number;

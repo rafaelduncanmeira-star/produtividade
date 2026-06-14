@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Check, Edit2, Trash2, Play, Timer, Calendar, Repeat, ListChecks, ChevronDown } from 'lucide-react';
+import { Check, Edit2, Trash2, Play, Timer, Calendar, Clock, Repeat, ListChecks, ChevronDown } from 'lucide-react';
 import { Task, QUADRANT_INFO, getQuadrant } from '../types';
 import { todayISO, formatShortDate } from '../utils';
 
@@ -129,6 +129,11 @@ export const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, onDelete, on
                 <span className={`flex items-center gap-0.5 text-[10px] font-medium ${overdue ? 'text-rose-600' : 'text-slate-400'}`}>
                   <Calendar size={10} />
                   {overdue ? `Atrasada ${formatShortDate(task.dueDate)}` : formatShortDate(task.dueDate)}
+                </span>
+              )}
+              {task.dueTime && (
+                <span className="flex items-center gap-0.5 text-[10px] font-medium text-slate-400">
+                  <Clock size={10} /> {task.dueTime}
                 </span>
               )}
               {task.estimatedPomodoros > 0 && (

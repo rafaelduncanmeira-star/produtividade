@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { X, Save, Zap, Star, Plus, Check, Calendar } from 'lucide-react';
 import { Task, Subtask, Project, RecurrenceFreq, QUADRANT_INFO, getQuadrant, DEFAULT_TASK_CATEGORIES, RECURRENCE_OPTIONS } from '../types';
-import { uid } from '../utils';
+import { uid, todayISO } from '../utils';
 import { googleAllDayUrl } from '../services/googleCalendar';
 
 interface TaskFormProps {
@@ -20,6 +20,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({ initialTask, projects, defau
   const [urgent, setUrgent] = useState(initialTask?.urgent ?? false);
   const [important, setImportant] = useState(initialTask?.important ?? true);
   const [dueDate, setDueDate] = useState(initialTask?.dueDate ?? '');
+  const [dueTime, setDueTime] = useState(initialTask?.dueTime ?? '');
   const [category, setCategory] = useState(initialTask?.category ?? DEFAULT_TASK_CATEGORIES[0]);
   const [estimatedPomodoros, setEstimatedPomodoros] = useState(String(initialTask?.estimatedPomodoros ?? 1));
   const [recurrence, setRecurrence] = useState<'' | RecurrenceFreq>(initialTask?.recurrence ?? '');
@@ -47,7 +48,8 @@ export const TaskForm: React.FC<TaskFormProps> = ({ initialTask, projects, defau
       title: title.trim(),
       urgent,
       important,
-      dueDate: dueDate || undefined,
+      dueDate: dueDate || (dueTime ? todayISO() : undefined),
+      dueTime: dueTime || undefined,
       category,
       estimatedPomodoros: Math.max(0, parseInt(estimatedPomodoros) || 0),
       completedPomodoros: initialTask?.completedPomodoros ?? 0,
@@ -140,6 +142,25 @@ export const TaskForm: React.FC<TaskFormProps> = ({ initialTask, projects, defau
               />
             </div>
             <div>
+              <label className={labelCls}>Hora <span className="font-normal text-slate-300">(opcional)</span></label>
+              <input
+                type="time"
+                value={dueTime}
+                onChange={e => setDueTime(e.target.value)}
+                className={`${fieldCls} appearance-none`}
+              />
+            </div>
+          </div>
+          {dueTime && <p className="text-[11px] text-slate-400 -mt-3">Com horário, a tarefa também aparece na sua Agenda do dia.</p>}
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className={labelCls}>Categoria</label>
+              <select value={category} onChange={e => setCategory(e.target.value)} className={fieldCls}>
+                {DEFAULT_TASK_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
+            </div>
+            <div>
               <label className={labelCls}>Pomodoros</label>
               <input
                 type="number"
@@ -152,21 +173,13 @@ export const TaskForm: React.FC<TaskFormProps> = ({ initialTask, projects, defau
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className={labelCls}>Categoria</label>
-              <select value={category} onChange={e => setCategory(e.target.value)} className={fieldCls}>
-                {DEFAULT_TASK_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className={labelCls}>Repetir</label>
-              <select value={recurrence} onChange={e => setRecurrence(e.target.value as '' | RecurrenceFreq)} className={fieldCls}>
-                {RECURRENCE_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-              </select>
-            </div>
+          <div>
+            <label className={labelCls}>Repetir</label>
+            <select value={recurrence} onChange={e => setRecurrence(e.target.value as '' | RecurrenceFreq)} className={fieldCls}>
+              {RECURRENCE_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+            </select>
+            {recurrence && <p className="text-[11px] text-slate-400 mt-1.5">Ao concluir, a próxima ocorrência é criada automaticamente.</p>}
           </div>
-          {recurrence && <p className="text-[11px] text-slate-400 -mt-3">Ao concluir, a próxima ocorrência é criada automaticamente.</p>}
 
           {projects && projects.length > 0 && (
             <div>

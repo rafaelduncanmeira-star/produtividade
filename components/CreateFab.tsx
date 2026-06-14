@@ -1,0 +1,50 @@
+import React, { useState } from 'react';
+import { Plus, CheckSquare, Repeat, CalendarClock } from 'lucide-react';
+
+interface CreateFabProps {
+  onTask: () => void;
+  onHabit: () => void;
+  onBlock: () => void;
+}
+
+// Bolinha flutuante (mobile) no canto inferior direito: menu rápido de criação.
+export const CreateFab: React.FC<CreateFabProps> = ({ onTask, onHabit, onBlock }) => {
+  const [open, setOpen] = useState(false);
+
+  const actions = [
+    { label: 'Tarefa', color: '#6366f1', icon: <CheckSquare size={20} />, run: onTask },
+    { label: 'Hábito', color: '#10b981', icon: <Repeat size={20} />, run: onHabit },
+    { label: 'Bloco de agenda', color: '#f59e0b', icon: <CalendarClock size={20} />, run: onBlock },
+  ];
+
+  return (
+    <div className="md:hidden">
+      {open && <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} aria-hidden />}
+
+      <div className="fixed bottom-24 right-4 z-50 flex flex-col items-end gap-3">
+        {open && actions.map((a, i) => (
+          <button
+            key={a.label}
+            onClick={() => { a.run(); setOpen(false); }}
+            className="flex items-center gap-2.5 animate-[fab-in_0.18s_ease_both]"
+            style={{ animationDelay: `${i * 35}ms` }}
+          >
+            <span className="px-2.5 py-1 rounded-lg bg-white shadow-md text-sm font-medium text-slate-700">{a.label}</span>
+            <span className="w-11 h-11 rounded-full shadow-lg flex items-center justify-center text-white" style={{ backgroundColor: a.color }}>
+              {a.icon}
+            </span>
+          </button>
+        ))}
+
+        <button
+          onClick={() => setOpen(o => !o)}
+          aria-label={open ? 'Fechar menu de criação' : 'Criar'}
+          aria-expanded={open}
+          className={`w-14 h-14 rounded-full bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-300 flex items-center justify-center active:scale-90 transition-transform ${open ? 'rotate-45' : 'animate-float'}`}
+        >
+          <Plus size={26} />
+        </button>
+      </div>
+    </div>
+  );
+};
