@@ -50,7 +50,7 @@ export const MetasView: React.FC<MetasViewProps> = ({
         </div>
         <button
           onClick={openNewProject}
-          className="hidden md:flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg font-medium transition-all shadow-md shadow-teal-200 active:scale-95"
+          className="hidden md:flex items-center gap-2 bg-teal-800 hover:bg-teal-900 text-white px-4 py-2 rounded-lg font-medium transition-all shadow-md shadow-teal-200 active:scale-95"
         >
           <Plus size={18} /><span>Nova Meta</span>
         </button>
@@ -62,7 +62,7 @@ export const MetasView: React.FC<MetasViewProps> = ({
           <p className="text-sm">Nenhuma meta ainda. Crie uma ou peça à IA: <span className="text-slate-500">"organiza minha prova de anatomia"</span>.</p>
           <button
             onClick={openNewProject}
-            className="mt-4 inline-flex items-center gap-2 bg-teal-600 text-white px-4 py-2.5 rounded-xl font-bold text-sm hover:bg-teal-700 active:scale-95 transition"
+            className="mt-4 inline-flex items-center gap-2 bg-teal-800 text-white px-4 py-2.5 rounded-xl font-bold text-sm hover:bg-teal-900 active:scale-95 transition"
           >
             <Plus size={16} /> Nova meta
           </button>
@@ -94,7 +94,7 @@ export const MetasView: React.FC<MetasViewProps> = ({
                     </div>
                   </div>
                   <div className="flex gap-0.5 shrink-0">
-                    <button onClick={() => { setEditingProject(p); setIsProjectFormOpen(true); }} aria-label="Editar meta" className="p-2 text-slate-300 hover:text-teal-600 hover:bg-teal-50 rounded-lg"><Pencil size={15} /></button>
+                    <button onClick={() => { setEditingProject(p); setIsProjectFormOpen(true); }} aria-label="Editar meta" className="p-2 text-slate-300 hover:text-teal-700 hover:bg-teal-50 rounded-lg"><Pencil size={15} /></button>
                     <button onClick={() => onDeleteProject(p.id)} aria-label="Excluir meta" className="p-2 text-slate-300 hover:text-rose-600 hover:bg-rose-50 rounded-lg"><Trash2 size={15} /></button>
                   </div>
                 </div>
@@ -104,11 +104,11 @@ export const MetasView: React.FC<MetasViewProps> = ({
                 </div>
 
                 <div className="flex items-center justify-between mt-3">
-                  <button onClick={() => setExpanded(isOpen ? null : p.id)} className="flex items-center gap-1 text-xs font-medium text-slate-500 hover:text-teal-600">
+                  <button onClick={() => setExpanded(isOpen ? null : p.id)} className="flex items-center gap-1 text-xs font-medium text-slate-500 hover:text-teal-700">
                     <ChevronDown size={14} className={`transition-transform ${isOpen ? 'rotate-180' : ''}`} />
                     {isOpen ? 'Ocultar tarefas' : `Ver tarefas (${total})`}
                   </button>
-                  <button onClick={() => setTaskForm({ projectId: p.id, task: null })} className="flex items-center gap-1 text-xs font-medium text-teal-600 hover:text-teal-700">
+                  <button onClick={() => setTaskForm({ projectId: p.id, task: null })} className="flex items-center gap-1 text-xs font-medium text-teal-700 hover:text-teal-800">
                     <Plus size={14} /> Tarefa
                   </button>
                 </div>

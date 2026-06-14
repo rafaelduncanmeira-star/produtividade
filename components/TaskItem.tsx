@@ -117,7 +117,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, onDelete, on
               <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${quadrant.badgeClass}`}>{quadrant.label}</span>
               {task.recurrence && <Repeat size={11} className="text-slate-400 shrink-0" />}
               {subs.length > 0 && (onUpdate ? (
-                <button type="button" onClick={() => setOpen(o => !o)} className="flex items-center gap-0.5 text-[10px] font-medium text-slate-400 hover:text-teal-600">
+                <button type="button" onClick={() => setOpen(o => !o)} className="flex items-center gap-0.5 text-[10px] font-medium text-slate-400 hover:text-teal-700">
                   <ListChecks size={11} /> {doneSubs}/{subs.length}
                   <ChevronDown size={11} className={`transition-transform ${open ? 'rotate-180' : ''}`} />
                 </button>
@@ -150,13 +150,13 @@ export const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, onDelete, on
               <button
                 onClick={() => onFocus(task.id)}
                 title="Focar nesta tarefa"
-                className="p-2 text-slate-300 hover:text-teal-600 hover:bg-teal-50 rounded-lg"
+                className="p-2 text-slate-300 hover:text-teal-700 hover:bg-teal-50 rounded-lg"
               >
                 <Play size={16} />
               </button>
             )}
             {onEdit && (
-              <button onClick={() => onEdit(task)} className="p-2 text-slate-300 hover:text-teal-600 hover:bg-teal-50 rounded-lg">
+              <button onClick={() => onEdit(task)} className="p-2 text-slate-300 hover:text-teal-700 hover:bg-teal-50 rounded-lg">
                 <Edit2 size={16} />
               </button>
             )}

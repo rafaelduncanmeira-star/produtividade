@@ -208,7 +208,7 @@ const MonthGrid: React.FC<MonthGridProps> = ({ anchor, blocks, onPickDay }) => {
               onClick={() => onPickDay(iso)}
               className={`min-h-[68px] md:min-h-[92px] rounded-lg border p-1 text-left flex flex-col gap-0.5 transition-colors ${inMonth ? 'bg-white border-slate-100 hover:border-teal-300' : 'bg-slate-50/60 border-transparent'}`}
             >
-              <span className={`text-[11px] font-semibold w-5 h-5 flex items-center justify-center rounded-full ${isToday ? 'bg-teal-600 text-white' : inMonth ? 'text-slate-600' : 'text-slate-300'}`}>
+              <span className={`text-[11px] font-semibold w-5 h-5 flex items-center justify-center rounded-full ${isToday ? 'bg-teal-800 text-white' : inMonth ? 'text-slate-600' : 'text-slate-300'}`}>
                 {d.getDate()}
               </span>
               <div className="flex flex-col gap-0.5 overflow-hidden">
@@ -247,19 +247,19 @@ const WeekAgenda: React.FC<WeekAgendaProps> = ({ days, blocks, tasks, eventsForD
         const isToday = d === today;
         const items: Item[] = [
           ...blocks.filter(b => b.date === d).map(b => ({ key: `b-${b.id}`, start: b.start, title: b.title, color: b.color, kind: 'block' as const, block: b })),
-          ...tasks.filter(t => !t.completed && t.dueTime && t.dueDate === d).map(t => ({ key: `t-${t.id}`, start: t.dueTime!, title: t.title, color: '#0d9488', kind: 'task' as const })),
+          ...tasks.filter(t => !t.completed && t.dueTime && t.dueDate === d).map(t => ({ key: `t-${t.id}`, start: t.dueTime!, title: t.title, color: '#0f766e', kind: 'task' as const })),
           ...eventsForDay(d).filter(ev => !ev.allDay).map(ev => ({ key: `g-${ev.id}`, start: ev.start, title: ev.title, color: ev.color ?? GOOGLE_EVENT_COLOR, kind: 'event' as const })),
         ].sort((a, b) => a.start.localeCompare(b.start));
         return (
           <div key={d} className={`bg-white rounded-2xl border p-3 ${isToday ? 'border-teal-200' : 'border-slate-100'}`}>
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
-                <span className={`text-sm font-bold capitalize ${isToday ? 'text-teal-600' : 'text-slate-700'}`}>
+                <span className={`text-sm font-bold capitalize ${isToday ? 'text-teal-700' : 'text-slate-700'}`}>
                   {WEEKDAY_SHORT[dt.getDay()]}, {dt.getDate()}/{String(dt.getMonth() + 1).padStart(2, '0')}
                 </span>
-                {isToday && <span className="text-[10px] font-bold text-teal-600 bg-teal-50 px-1.5 py-0.5 rounded">hoje</span>}
+                {isToday && <span className="text-[10px] font-bold text-teal-700 bg-teal-50 px-1.5 py-0.5 rounded">hoje</span>}
               </div>
-              <button onClick={() => onCreate(d)} aria-label="Adicionar bloco" className="p-1 text-slate-300 hover:text-teal-600"><Plus size={16} /></button>
+              <button onClick={() => onCreate(d)} aria-label="Adicionar bloco" className="p-1 text-slate-300 hover:text-teal-700"><Plus size={16} /></button>
             </div>
             {items.length === 0 ? (
               <p className="text-xs text-slate-300">Nada agendado</p>
@@ -436,7 +436,7 @@ export const PlannerView: React.FC<PlannerViewProps> = ({
         </div>
         <button
           onClick={() => openCreate(viewMode === 'month' ? todayISO() : anchor)}
-          className="hidden md:flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg font-medium transition-all shadow-md shadow-teal-200 active:scale-95"
+          className="hidden md:flex items-center gap-2 bg-teal-800 hover:bg-teal-900 text-white px-4 py-2 rounded-lg font-medium transition-all shadow-md shadow-teal-200 active:scale-95"
         >
           <Plus size={18} /><span>Novo Bloco</span>
         </button>
@@ -448,7 +448,7 @@ export const PlannerView: React.FC<PlannerViewProps> = ({
           <button
             key={id}
             onClick={() => setViewMode(id)}
-            className={`${desktopOnly ? 'hidden md:flex' : 'flex'} items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${viewMode === id ? 'bg-white shadow-sm text-teal-700' : 'text-slate-500'}`}
+            className={`${desktopOnly ? 'hidden md:flex' : 'flex'} items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${viewMode === id ? 'bg-white shadow-sm text-teal-800' : 'text-slate-500'}`}
           >
             <Icon size={16} /> {label}
           </button>
@@ -457,9 +457,9 @@ export const PlannerView: React.FC<PlannerViewProps> = ({
 
       {/* Navegação */}
       <div className="flex items-center justify-between bg-white rounded-xl border border-slate-100 px-3 py-2">
-        <button onClick={() => step(-1)} aria-label="Anterior" className="p-2 text-slate-400 hover:text-teal-600 rounded-lg"><ChevronLeft size={18} /></button>
-        <button onClick={() => setAnchor(todayISO())} className="text-sm font-medium capitalize text-slate-700 hover:text-teal-600">{navLabel()}</button>
-        <button onClick={() => step(1)} aria-label="Próximo" className="p-2 text-slate-400 hover:text-teal-600 rounded-lg"><ChevronRight size={18} /></button>
+        <button onClick={() => step(-1)} aria-label="Anterior" className="p-2 text-slate-400 hover:text-teal-700 rounded-lg"><ChevronLeft size={18} /></button>
+        <button onClick={() => setAnchor(todayISO())} className="text-sm font-medium capitalize text-slate-700 hover:text-teal-700">{navLabel()}</button>
+        <button onClick={() => step(1)} aria-label="Próximo" className="p-2 text-slate-400 hover:text-teal-700 rounded-lg"><ChevronRight size={18} /></button>
       </div>
 
       {/* Eventos de dia inteiro do Google */}
@@ -512,7 +512,7 @@ export const PlannerView: React.FC<PlannerViewProps> = ({
                 const isToday = d === todayISO();
                 return (
                   <div key={d} className="flex-1 min-w-0 text-center py-1.5 border-l border-slate-100 first:border-l-0">
-                    <p className={`text-[11px] font-semibold capitalize ${isToday ? 'text-teal-600' : 'text-slate-500'}`}>
+                    <p className={`text-[11px] font-semibold capitalize ${isToday ? 'text-teal-700' : 'text-slate-500'}`}>
                       {WEEKDAY_SHORT[dt.getDay()]} {dt.getDate()}
                     </p>
                   </div>

@@ -76,7 +76,8 @@ export const AuthView: React.FC = () => {
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-teal-600 to-emerald-500 bg-clip-text text-transparent">Foco GeriClass</h1>
+          <img src={`${import.meta.env.BASE_URL}icon-192.png`} alt="Foco GeriClass" className="w-20 h-20 rounded-[1.4rem] mx-auto mb-4 shadow-lg shadow-teal-900/20" />
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-teal-800 to-emerald-600 bg-clip-text text-transparent">Foco GeriClass</h1>
           <p className="text-sm text-slate-400 mt-1">Gestão de tempo e produtividade</p>
         </div>
 
@@ -85,13 +86,13 @@ export const AuthView: React.FC = () => {
           <div className="flex bg-slate-100 rounded-xl p-1 mb-5">
             <button
               onClick={() => { setMode('login'); setError(null); setInfo(null); }}
-              className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${mode === 'login' ? 'bg-white shadow-sm text-teal-700' : 'text-slate-500'}`}
+              className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${mode === 'login' ? 'bg-white shadow-sm text-teal-800' : 'text-slate-500'}`}
             >
               Entrar
             </button>
             <button
               onClick={() => { setMode('signup'); setError(null); setInfo(null); }}
-              className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${mode === 'signup' ? 'bg-white shadow-sm text-teal-700' : 'text-slate-500'}`}
+              className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${mode === 'signup' ? 'bg-white shadow-sm text-teal-800' : 'text-slate-500'}`}
             >
               Criar conta
             </button>
@@ -140,7 +141,7 @@ export const AuthView: React.FC = () => {
             <button
               type="submit"
               disabled={busy}
-              className="w-full py-3 bg-teal-600 text-white rounded-xl font-bold hover:bg-teal-700 flex items-center justify-center gap-2 disabled:opacity-60 active:scale-[0.98] transition-transform"
+              className="w-full py-3 bg-teal-800 text-white rounded-xl font-bold hover:bg-teal-900 flex items-center justify-center gap-2 disabled:opacity-60 active:scale-[0.98] transition-transform"
             >
               {busy
                 ? <LoaderCircle size={18} className="animate-spin" />
@@ -153,7 +154,7 @@ export const AuthView: React.FC = () => {
             <button
               onClick={handleForgot}
               disabled={busy}
-              className="w-full mt-3 text-xs text-slate-400 hover:text-teal-600 font-medium"
+              className="w-full mt-3 text-xs text-slate-400 hover:text-teal-700 font-medium"
             >
               Esqueci a senha
             </button>

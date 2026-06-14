@@ -42,7 +42,7 @@ export const HabitsView: React.FC<HabitsViewProps> = ({
         </div>
         <button
           onClick={() => { setEditingHabit(null); setIsFormOpen(true); }}
-          className="hidden md:flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg font-medium transition-all shadow-md shadow-teal-200 active:scale-95"
+          className="hidden md:flex items-center gap-2 bg-teal-800 hover:bg-teal-900 text-white px-4 py-2 rounded-lg font-medium transition-all shadow-md shadow-teal-200 active:scale-95"
         >
           <Plus size={18} />
           <span>Novo Hábito</span>
@@ -51,19 +51,19 @@ export const HabitsView: React.FC<HabitsViewProps> = ({
 
       {/* Navegação de semana */}
       <div className="flex items-center justify-between bg-white rounded-xl border border-slate-100 px-3 py-2">
-        <button onClick={() => setWeekOffset(weekOffset - 1)} className="p-2 text-slate-400 hover:text-teal-600 rounded-lg">
+        <button onClick={() => setWeekOffset(weekOffset - 1)} className="p-2 text-slate-400 hover:text-teal-700 rounded-lg">
           <ChevronLeft size={18} />
         </button>
         <button
           onClick={() => setWeekOffset(0)}
-          className={`text-sm font-medium ${weekOffset === 0 ? 'text-slate-700' : 'text-teal-600 hover:underline'}`}
+          className={`text-sm font-medium ${weekOffset === 0 ? 'text-slate-700' : 'text-teal-700 hover:underline'}`}
         >
           {weekOffset === 0 ? 'Esta semana' : `${formatShortDate(weekDays[0])} – ${formatShortDate(weekDays[6])}`}
         </button>
         <button
           onClick={() => setWeekOffset(weekOffset + 1)}
           disabled={weekOffset >= 0}
-          className="p-2 text-slate-400 hover:text-teal-600 rounded-lg disabled:opacity-30 disabled:hover:text-slate-400"
+          className="p-2 text-slate-400 hover:text-teal-700 rounded-lg disabled:opacity-30 disabled:hover:text-slate-400"
         >
           <ChevronRight size={18} />
         </button>
@@ -95,7 +95,7 @@ export const HabitsView: React.FC<HabitsViewProps> = ({
                 <div className="flex gap-0.5 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                   <button
                     onClick={() => { setEditingHabit(habit); setIsFormOpen(true); }}
-                    className="p-2 text-slate-300 hover:text-teal-600 hover:bg-teal-50 rounded-lg"
+                    className="p-2 text-slate-300 hover:text-teal-700 hover:bg-teal-50 rounded-lg"
                   >
                     <Edit2 size={16} />
                   </button>
@@ -149,7 +149,7 @@ export const HabitsView: React.FC<HabitsViewProps> = ({
             <p className="text-sm">Nenhum hábito criado.</p>
             <button
               onClick={() => { setEditingHabit(null); setIsFormOpen(true); }}
-              className="mt-4 inline-flex items-center gap-2 bg-teal-600 text-white px-4 py-2.5 rounded-xl font-bold text-sm hover:bg-teal-700 active:scale-95 transition"
+              className="mt-4 inline-flex items-center gap-2 bg-teal-800 text-white px-4 py-2.5 rounded-xl font-bold text-sm hover:bg-teal-900 active:scale-95 transition"
             >
               <Plus size={16} /> Criar primeiro hábito
             </button>

@@ -126,7 +126,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ tasks, habits, session
   );
 
   const summaryCards = [
-    { label: 'Foco hoje', value: formatMinutes(focusToday), icon: Timer, color: 'text-teal-600 bg-teal-50' },
+    { label: 'Foco hoje', value: formatMinutes(focusToday), icon: Timer, color: 'text-teal-700 bg-teal-50' },
     { label: 'Foco na semana', value: formatMinutes(focusWeek), icon: CalendarRange, color: 'text-sky-600 bg-sky-50' },
     { label: 'Tarefas na semana', value: String(tasksWeek), icon: CheckCircle2, color: 'text-emerald-600 bg-emerald-50' },
     { label: 'Melhor sequência', value: `${bestStreak} ${bestStreak === 1 ? 'dia' : 'dias'}`, icon: Flame, color: 'text-orange-600 bg-orange-50' },
@@ -196,7 +196,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ tasks, habits, session
         <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5">
           <h3 className="font-bold text-slate-800 text-sm mb-3">Estimativa de pomodoros</h3>
           <div className="flex items-end gap-3">
-            <div><p className="text-2xl font-bold text-teal-600">{pomo.real}</p><p className="text-[11px] text-slate-400">reais 🍅</p></div>
+            <div><p className="text-2xl font-bold text-teal-700">{pomo.real}</p><p className="text-[11px] text-slate-400">reais 🍅</p></div>
             <span className="text-slate-300 text-lg pb-1">/</span>
             <div><p className="text-2xl font-bold text-slate-400">{pomo.est}</p><p className="text-[11px] text-slate-400">estimados</p></div>
           </div>
@@ -226,10 +226,10 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ tasks, habits, session
               <div key={cat}>
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-sm text-slate-600 font-medium">{cat}</span>
-                  <span className="text-xs font-bold text-teal-600">{formatMinutes(minutes)}</span>
+                  <span className="text-xs font-bold text-teal-700">{formatMinutes(minutes)}</span>
                 </div>
                 <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
-                  <div className="h-full rounded-full bg-teal-500 transition-all duration-700" style={{ width: `${focusCatMax ? (minutes / focusCatMax) * 100 : 0}%` }} />
+                  <div className="h-full rounded-full bg-teal-700 transition-all duration-700" style={{ width: `${focusCatMax ? (minutes / focusCatMax) * 100 : 0}%` }} />
                 </div>
               </div>
             ))}
@@ -250,7 +250,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ tasks, habits, session
                 formatter={(value: number) => [formatMinutes(value), 'Foco']}
                 contentStyle={{ borderRadius: 12, border: '1px solid #e2e8f0', fontSize: 12 }}
               />
-              <Bar dataKey="Minutos" fill="#0d9488" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="Minutos" fill="#0f766e" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>

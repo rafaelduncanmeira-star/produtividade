@@ -69,7 +69,7 @@ export const PomodoroSettingsModal: React.FC<PomodoroSettingsModalProps> = ({ se
           >
             {soundEnabled ? <Volume2 size={18} className="text-teal-500" /> : <VolumeX size={18} className="text-slate-300" />}
             <span className="flex-1 text-sm font-bold text-slate-700">Som ao concluir fase</span>
-            <div className={`w-10 h-6 rounded-full p-0.5 transition-colors ${soundEnabled ? 'bg-teal-500' : 'bg-slate-200'}`}>
+            <div className={`w-10 h-6 rounded-full p-0.5 transition-colors ${soundEnabled ? 'bg-teal-700' : 'bg-slate-200'}`}>
               <div className={`w-5 h-5 bg-white rounded-full shadow transition-transform ${soundEnabled ? 'translate-x-4' : ''}`} />
             </div>
           </button>
@@ -78,7 +78,7 @@ export const PomodoroSettingsModal: React.FC<PomodoroSettingsModalProps> = ({ se
             Mudanças de duração valem a partir da próxima fase; a fase em andamento não é alterada.
           </p>
 
-          <button type="submit" className="w-full py-3 bg-teal-600 text-white rounded-xl font-bold hover:bg-teal-700 flex items-center justify-center gap-2">
+          <button type="submit" className="w-full py-3 bg-teal-800 text-white rounded-xl font-bold hover:bg-teal-900 flex items-center justify-center gap-2">
             <Save size={18} /> Salvar
           </button>
         </form>

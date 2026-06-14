@@ -90,7 +90,7 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({ initialProject, onSave
             />
           </div>
 
-          <button type="submit" className="w-full py-3 bg-teal-600 text-white rounded-xl font-bold hover:bg-teal-700 flex items-center justify-center gap-2 mt-2 active:scale-[0.98] transition-transform">
+          <button type="submit" className="w-full py-3 bg-teal-800 text-white rounded-xl font-bold hover:bg-teal-900 flex items-center justify-center gap-2 mt-2 active:scale-[0.98] transition-transform">
             <Save size={18} /> Salvar Meta
           </button>
         </form>

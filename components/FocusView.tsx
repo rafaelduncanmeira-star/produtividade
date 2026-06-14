@@ -19,7 +19,7 @@ interface FocusViewProps {
 }
 
 const PHASE_COLORS: Record<TimerState['phase'], { stroke: string; text: string; bg: string }> = {
-  focus: { stroke: '#0d9488', text: 'text-teal-600', bg: 'bg-teal-600 hover:bg-teal-700 shadow-teal-200' },
+  focus: { stroke: '#0f766e', text: 'text-teal-700', bg: 'bg-teal-800 hover:bg-teal-900 shadow-teal-200' },
   short_break: { stroke: '#10b981', text: 'text-emerald-600', bg: 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-200' },
   long_break: { stroke: '#0ea5e9', text: 'text-sky-600', bg: 'bg-sky-600 hover:bg-sky-700 shadow-sky-200' },
 };
@@ -60,7 +60,7 @@ export const FocusView: React.FC<FocusViewProps> = ({
         <button
           onClick={onOpenSettings}
           aria-label="Configurações do timer"
-          className="p-2.5 text-slate-400 hover:text-teal-600 hover:bg-teal-50 rounded-xl transition-colors"
+          className="p-2.5 text-slate-400 hover:text-teal-700 hover:bg-teal-50 rounded-xl transition-colors"
         >
           <Settings size={20} />
         </button>
@@ -96,7 +96,7 @@ export const FocusView: React.FC<FocusViewProps> = ({
         {/* Indicador de ciclos até a pausa longa */}
         <div className="flex gap-2 mb-6">
           {Array.from({ length: settings.sessionsUntilLongBreak }, (_, i) => (
-            <div key={i} className={`w-2.5 h-2.5 rounded-full ${i < dotsInCycle ? 'bg-teal-500' : 'bg-slate-200'}`} />
+            <div key={i} className={`w-2.5 h-2.5 rounded-full ${i < dotsInCycle ? 'bg-teal-700' : 'bg-slate-200'}`} />
           ))}
         </div>
 
@@ -156,7 +156,7 @@ export const FocusView: React.FC<FocusViewProps> = ({
       <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5">
         <div className="flex items-center justify-between mb-3">
           <h3 className="font-bold text-slate-800 text-sm">Sessões de hoje</h3>
-          <span className="text-xs font-bold text-teal-600 bg-teal-50 px-2.5 py-1 rounded-full">
+          <span className="text-xs font-bold text-teal-700 bg-teal-50 px-2.5 py-1 rounded-full">
             {formatMinutes(todayMinutes)} focado
           </span>
         </div>

@@ -147,7 +147,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ tasks, blocks, project
     <>
     <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/50 backdrop-blur-sm md:p-4">
       <div className="bg-white rounded-t-2xl md:rounded-2xl shadow-xl w-full max-w-md overflow-hidden max-h-[92vh] flex flex-col">
-        <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-gradient-to-r from-teal-600 to-emerald-600 text-white">
+        <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-gradient-to-r from-teal-800 to-emerald-700 text-white">
           <h3 className="font-bold flex items-center gap-2"><Sparkles size={18} /> Assistente IA</h3>
           <button onClick={onClose} className="p-1"><X size={20} className="text-teal-200" /></button>
         </div>
@@ -164,7 +164,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ tasks, blocks, project
                     className={`w-20 h-20 rounded-full flex items-center justify-center transition-all active:scale-95 ${
                       listening
                         ? 'bg-rose-500 text-white shadow-lg shadow-rose-200 animate-pulse'
-                        : 'bg-teal-600 text-white shadow-lg shadow-teal-200 hover:bg-teal-700'
+                        : 'bg-teal-800 text-white shadow-lg shadow-teal-200 hover:bg-teal-900'
                     }`}
                   >
                     {listening ? <MicOff size={32} /> : <Mic size={32} />}
@@ -193,7 +193,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ tasks, blocks, project
                 onClick={handleSend}
                 disabled={busy || !input.trim()}
                 aria-label="Enviar comando"
-                className="self-end p-3 bg-teal-600 text-white rounded-xl hover:bg-teal-700 disabled:opacity-40 active:scale-95 transition-all"
+                className="self-end p-3 bg-teal-800 text-white rounded-xl hover:bg-teal-900 disabled:opacity-40 active:scale-95 transition-all"
               >
                 {busy ? <LoaderCircle size={20} className="animate-spin" /> : <Send size={20} />}
               </button>
@@ -205,7 +205,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ tasks, blocks, project
                   <button
                     key={s}
                     onClick={() => setInput(s)}
-                    className="w-full text-left text-xs text-slate-500 bg-slate-50 hover:bg-teal-50 hover:text-teal-600 px-3 py-2 rounded-lg transition-colors"
+                    className="w-full text-left text-xs text-slate-500 bg-slate-50 hover:bg-teal-50 hover:text-teal-700 px-3 py-2 rounded-lg transition-colors"
                   >
                     💡 {s}
                   </button>
@@ -242,7 +242,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ tasks, blocks, project
                         ) : (
                           <div className="flex items-center gap-0.5 shrink-0">
                             {editable && (
-                              <button onClick={() => setEditingIndex(i)} aria-label="Editar" className="p-1 text-slate-400 hover:text-teal-600 rounded-md hover:bg-teal-50 transition-colors">
+                              <button onClick={() => setEditingIndex(i)} aria-label="Editar" className="p-1 text-slate-400 hover:text-teal-700 rounded-md hover:bg-teal-50 transition-colors">
                                 <Pencil size={14} />
                               </button>
                             )}
@@ -264,7 +264,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ tasks, blocks, project
                       </button>
                       <button
                         onClick={handleApply}
-                        className="flex-1 py-2.5 bg-teal-600 text-white rounded-xl text-sm font-bold hover:bg-teal-700 flex items-center justify-center gap-1.5"
+                        className="flex-1 py-2.5 bg-teal-800 text-white rounded-xl text-sm font-bold hover:bg-teal-900 flex items-center justify-center gap-1.5"
                       >
                         <Check size={16} /> Aplicar tudo
                       </button>

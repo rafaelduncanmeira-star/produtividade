@@ -13,7 +13,8 @@ const SAVE_DEBOUNCE_MS = 1200;
 
 const Splash: React.FC<{ message: string }> = ({ message }) => (
   <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center gap-3">
-    <h1 className="text-2xl font-bold bg-gradient-to-r from-teal-600 to-emerald-500 bg-clip-text text-transparent">Foco GeriClass</h1>
+    <img src={`${import.meta.env.BASE_URL}icon-192.png`} alt="Foco GeriClass" className="w-16 h-16 rounded-2xl shadow-lg shadow-teal-900/20" />
+    <h1 className="text-2xl font-bold bg-gradient-to-r from-teal-800 to-emerald-600 bg-clip-text text-transparent">Foco GeriClass</h1>
     <div className="flex items-center gap-2 text-slate-400 text-sm">
       <LoaderCircle size={16} className="animate-spin" /> {message}
     </div>
@@ -103,7 +104,7 @@ const App: React.FC = () => {
         <p className="text-slate-600 text-sm">{loadError}</p>
         <button
           onClick={() => window.location.reload()}
-          className="bg-teal-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm"
+          className="bg-teal-800 text-white px-5 py-2.5 rounded-xl font-bold text-sm"
         >
           Tentar de novo
         </button>

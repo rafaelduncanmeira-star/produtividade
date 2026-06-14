@@ -18,7 +18,7 @@ export const EisenhowerInfo: React.FC<EisenhowerInfoProps> = ({ onClose }) => {
     <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/50 backdrop-blur-sm md:p-4" onClick={onClose}>
       <div className="bg-white rounded-t-2xl md:rounded-2xl shadow-xl w-full max-w-lg overflow-hidden max-h-[92vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
         <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50 sticky top-0">
-          <h3 className="font-bold text-slate-800 flex items-center gap-2"><Info size={18} className="text-teal-600" /> Matriz de Eisenhower</h3>
+          <h3 className="font-bold text-slate-800 flex items-center gap-2"><Info size={18} className="text-teal-700" /> Matriz de Eisenhower</h3>
           <button onClick={onClose} className="p-1"><X size={20} className="text-slate-400" /></button>
         </div>
         <div className="p-6 space-y-4 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
@@ -40,7 +40,7 @@ export const EisenhowerInfo: React.FC<EisenhowerInfoProps> = ({ onClose }) => {
               );
             })}
           </div>
-          <div className="bg-teal-50 rounded-xl p-3 text-sm text-teal-700">
+          <div className="bg-teal-50 rounded-xl p-3 text-sm text-teal-800">
             💡 <strong>Dica:</strong> invista o máximo de tempo no quadrante <strong>Agendar</strong> (importante, não urgente). É o que mantém as urgências sob controle.
           </div>
           <p className="text-xs text-slate-400">

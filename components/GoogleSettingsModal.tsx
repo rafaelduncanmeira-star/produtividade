@@ -118,7 +118,7 @@ export const GoogleSettingsModal: React.FC<GoogleSettingsModalProps> = ({
                   href="https://console.cloud.google.com/apis/credentials"
                   target="_blank"
                   rel="noreferrer"
-                  className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-teal-600 hover:underline"
+                  className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-teal-700 hover:underline"
                 >
                   Abrir o painel do Google <ExternalLink size={12} />
                 </a>

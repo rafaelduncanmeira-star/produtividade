@@ -131,7 +131,7 @@ export const TimeBlockForm: React.FC<TimeBlockFormProps> = ({
             </select>
           </div>
 
-          <button type="submit" className="w-full py-3 bg-teal-600 text-white rounded-xl font-bold hover:bg-teal-700 flex items-center justify-center gap-2 mt-2">
+          <button type="submit" className="w-full py-3 bg-teal-800 text-white rounded-xl font-bold hover:bg-teal-900 flex items-center justify-center gap-2 mt-2">
             <Save size={18} /> Salvar Bloco
           </button>
           {title.trim() && !invalidRange && (
