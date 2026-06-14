@@ -76,7 +76,7 @@ export const AuthView: React.FC = () => {
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-teal-600 to-emerald-500 bg-clip-text text-transparent">GeriClass Foco</h1>
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-teal-600 to-emerald-500 bg-clip-text text-transparent">Foco GeriClass</h1>
           <p className="text-sm text-slate-400 mt-1">Gestão de tempo e produtividade</p>
         </div>
 

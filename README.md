@@ -1,4 +1,4 @@
-# GeriClass Foco
+# Foco GeriClass
 
 App de foco e produtividade (pt-BR), mobile-first.
 
