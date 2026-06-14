@@ -1,20 +1,22 @@
 import React, { useState } from 'react';
-import { Plus, CheckSquare, Repeat, CalendarClock } from 'lucide-react';
+import { Plus, CheckSquare, Repeat, CalendarClock, Sparkles } from 'lucide-react';
 
 interface CreateFabProps {
   onTask: () => void;
   onHabit: () => void;
   onBlock: () => void;
+  onAI: () => void;
 }
 
-// Bolinha flutuante (mobile) no canto inferior direito: menu rápido de criação.
-export const CreateFab: React.FC<CreateFabProps> = ({ onTask, onHabit, onBlock }) => {
+// Bolinha flutuante (mobile) no canto inferior direito: menu rápido de criação + IA.
+export const CreateFab: React.FC<CreateFabProps> = ({ onTask, onHabit, onBlock, onAI }) => {
   const [open, setOpen] = useState(false);
 
   const actions = [
-    { label: 'Tarefa', color: '#6366f1', icon: <CheckSquare size={20} />, run: onTask },
-    { label: 'Hábito', color: '#10b981', icon: <Repeat size={20} />, run: onHabit },
-    { label: 'Bloco de agenda', color: '#f59e0b', icon: <CalendarClock size={20} />, run: onBlock },
+    { label: 'Assistente IA', style: { backgroundImage: 'linear-gradient(135deg, #4f46e5, #7c3aed)' }, icon: <Sparkles size={20} />, run: onAI },
+    { label: 'Tarefa', style: { backgroundColor: '#6366f1' }, icon: <CheckSquare size={20} />, run: onTask },
+    { label: 'Hábito', style: { backgroundColor: '#10b981' }, icon: <Repeat size={20} />, run: onHabit },
+    { label: 'Bloco de agenda', style: { backgroundColor: '#f59e0b' }, icon: <CalendarClock size={20} />, run: onBlock },
   ];
 
   return (
@@ -30,7 +32,7 @@ export const CreateFab: React.FC<CreateFabProps> = ({ onTask, onHabit, onBlock }
             style={{ animationDelay: `${i * 35}ms` }}
           >
             <span className="px-2.5 py-1 rounded-lg bg-white shadow-md text-sm font-medium text-slate-700">{a.label}</span>
-            <span className="w-11 h-11 rounded-full shadow-lg flex items-center justify-center text-white" style={{ backgroundColor: a.color }}>
+            <span className="w-11 h-11 rounded-full shadow-lg flex items-center justify-center text-white" style={a.style}>
               {a.icon}
             </span>
           </button>
@@ -38,7 +40,7 @@ export const CreateFab: React.FC<CreateFabProps> = ({ onTask, onHabit, onBlock }
 
         <button
           onClick={() => setOpen(o => !o)}
-          aria-label={open ? 'Fechar menu de criação' : 'Criar'}
+          aria-label={open ? 'Fechar menu' : 'Criar ou usar a IA'}
           aria-expanded={open}
           className={`w-14 h-14 rounded-full bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-300 flex items-center justify-center active:scale-90 transition-transform ${open ? 'rotate-45' : 'animate-float'}`}
         >

@@ -798,26 +798,18 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
         </main>
       </div>
 
-      {/* Botão do assistente IA (mobile) */}
-      <button
-        onClick={() => setIsAIOpen(true)}
-        aria-label="Assistente IA"
-        className="md:hidden fixed bottom-24 left-4 z-40 w-12 h-12 rounded-full bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-300 flex items-center justify-center active:scale-90 transition-transform"
-      >
-        <Sparkles size={22} />
-      </button>
-
       {!pwa.online && (
         <div className="fixed top-[max(0.75rem,env(safe-area-inset-top))] left-1/2 -translate-x-1/2 z-[95] flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-800 text-white text-xs font-medium shadow-lg">
           <WifiOff size={13} /> Sem conexão
         </div>
       )}
 
-      {/* Bolinha de criação rápida (mobile): Tarefa / Hábito / Bloco */}
+      {/* Bolinha de criação rápida (mobile): IA / Tarefa / Hábito / Bloco */}
       <CreateFab
         onTask={() => setCreating('task')}
         onHabit={() => setCreating('habit')}
         onBlock={() => setCreating('block')}
+        onAI={() => setIsAIOpen(true)}
       />
 
       {/* Barra de abas (mobile) */}
