@@ -1,21 +1,23 @@
 import React, { useState } from 'react';
-import { Plus, CheckSquare, Repeat, CalendarClock, Sparkles } from 'lucide-react';
+import { Plus, CheckSquare, Repeat, CalendarClock, Sparkles, Target } from 'lucide-react';
 
 interface CreateFabProps {
   onTask: () => void;
   onHabit: () => void;
   onBlock: () => void;
+  onProject: () => void;
   onAI: () => void;
 }
 
 // Bolinha flutuante (mobile) no canto inferior direito: menu rápido de criação + IA.
-export const CreateFab: React.FC<CreateFabProps> = ({ onTask, onHabit, onBlock, onAI }) => {
+export const CreateFab: React.FC<CreateFabProps> = ({ onTask, onHabit, onBlock, onProject, onAI }) => {
   const [open, setOpen] = useState(false);
 
   const actions = [
     { label: 'Assistente IA', style: { backgroundImage: 'linear-gradient(135deg, #4f46e5, #7c3aed)' }, icon: <Sparkles size={20} />, run: onAI },
     { label: 'Tarefa', style: { backgroundColor: '#6366f1' }, icon: <CheckSquare size={20} />, run: onTask },
     { label: 'Hábito', style: { backgroundColor: '#10b981' }, icon: <Repeat size={20} />, run: onHabit },
+    { label: 'Meta', style: { backgroundColor: '#0ea5e9' }, icon: <Target size={20} />, run: onProject },
     { label: 'Bloco de agenda', style: { backgroundColor: '#f59e0b' }, icon: <CalendarClock size={20} />, run: onBlock },
   ];
 

@@ -26,6 +26,7 @@ import { MetasView } from './components/MetasView';
 import { TaskForm } from './components/TaskForm';
 import { HabitForm } from './components/HabitForm';
 import { TimeBlockForm } from './components/TimeBlockForm';
+import { ProjectForm } from './components/ProjectForm';
 import { CreateFab } from './components/CreateFab';
 import { usePwa } from './components/usePwa';
 
@@ -87,7 +88,7 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
   const [moreOpen, setMoreOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isAIOpen, setIsAIOpen] = useState(false);
-  const [creating, setCreating] = useState<null | 'task' | 'habit' | 'block'>(null);
+  const [creating, setCreating] = useState<null | 'task' | 'habit' | 'block' | 'project'>(null);
   // Boas-vindas só no 1º acesso (e apenas quando ainda há dados de exemplo).
   const [showWelcome, setShowWelcome] = useState(() => {
     try { if (localStorage.getItem('tempo_onboarded')) return false; } catch { /* ignore */ }
@@ -809,6 +810,7 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
         onTask={() => setCreating('task')}
         onHabit={() => setCreating('habit')}
         onBlock={() => setCreating('block')}
+        onProject={() => setCreating('project')}
         onAI={() => setIsAIOpen(true)}
       />
 
@@ -935,6 +937,12 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
           defaultDate={todayISO()}
           tasks={tasks}
           onSave={(data) => { addBlock(data); setCreating(null); }}
+          onClose={() => setCreating(null)}
+        />
+      )}
+      {creating === 'project' && (
+        <ProjectForm
+          onSave={(data) => { addProject(data); setCreating(null); }}
           onClose={() => setCreating(null)}
         />
       )}

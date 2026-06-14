@@ -136,15 +136,6 @@ export const MetasView: React.FC<MetasViewProps> = ({
         })}
       </div>
 
-      {/* FAB (mobile) */}
-      <button
-        onClick={openNewProject}
-        aria-label="Nova meta"
-        className="md:hidden fixed bottom-24 right-4 z-40 w-14 h-14 rounded-full bg-indigo-600 text-white shadow-lg shadow-indigo-300 flex items-center justify-center active:scale-90 transition-transform"
-      >
-        <Plus size={26} />
-      </button>
-
       {isProjectFormOpen && (
         <ProjectForm
           initialProject={editingProject}

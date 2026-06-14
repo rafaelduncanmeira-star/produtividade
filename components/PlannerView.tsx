@@ -487,15 +487,6 @@ export const PlannerView: React.FC<PlannerViewProps> = ({
         <p className="text-center text-sm text-slate-400 -mt-2">Toque num horário para criar · arraste um bloco para remarcar.</p>
       )}
 
-      {/* FAB (mobile) */}
-      <button
-        onClick={() => openCreate(viewMode === 'month' ? todayISO() : anchor)}
-        aria-label="Novo bloco"
-        className="md:hidden fixed bottom-24 right-4 z-40 w-14 h-14 rounded-full bg-indigo-600 text-white shadow-lg shadow-indigo-300 flex items-center justify-center active:scale-90 transition-transform"
-      >
-        <Plus size={26} />
-      </button>
-
       {isFormOpen && (
         <TimeBlockForm
           initialBlock={editingBlock}
