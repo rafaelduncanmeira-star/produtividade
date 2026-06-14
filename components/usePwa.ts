@@ -42,26 +42,43 @@ export function usePwa() {
   // Nova versão disponível -> toast "Atualizar"
   useEffect(() => {
     if (typeof navigator === 'undefined' || !('serviceWorker' in navigator)) return;
-    let reg: ServiceWorkerRegistration | undefined;
+    const hadController = !!navigator.serviceWorker.controller;
+    let notified = false;
+    const promptUpdate = () => {
+      if (notified) return;
+      notified = true;
+      toast('✨ Nova versão disponível', {
+        action: { label: 'Atualizar', onClick: () => window.location.reload() },
+        duration: 60000,
+      });
+    };
+
     navigator.serviceWorker.ready.then(r => {
-      reg = r;
+      if (r.waiting && hadController) promptUpdate();          // já há uma versão esperando
       r.addEventListener('updatefound', () => {
         const nw = r.installing;
-        if (!nw) return;
-        nw.addEventListener('statechange', () => {
-          if (nw.state === 'installed' && navigator.serviceWorker.controller) {
-            toast('✨ Nova versão disponível', {
-              action: { label: 'Atualizar', onClick: () => window.location.reload() },
-              duration: 60000,
-            });
-          }
+        nw?.addEventListener('statechange', () => {
+          if (nw.state === 'installed' && navigator.serviceWorker.controller) promptUpdate();
         });
       });
+      r.update().catch(() => {});
     }).catch(() => {});
-    // Verifica atualização ao voltar para o app
-    const onVis = () => { if (document.visibilityState === 'visible') reg?.update().catch(() => {}); };
+
+    // Um novo SW assumiu o controle após o carregamento => nova versão ativa
+    const onCtrl = () => { if (hadController) promptUpdate(); };
+    navigator.serviceWorker.addEventListener('controllerchange', onCtrl);
+
+    // Procura atualização ao voltar para o app
+    const onVis = () => {
+      if (document.visibilityState === 'visible') {
+        navigator.serviceWorker.getRegistration().then(r => r?.update()).catch(() => {});
+      }
+    };
     document.addEventListener('visibilitychange', onVis);
-    return () => document.removeEventListener('visibilitychange', onVis);
+    return () => {
+      navigator.serviceWorker.removeEventListener('controllerchange', onCtrl);
+      document.removeEventListener('visibilitychange', onVis);
+    };
   }, [toast]);
 
   const canInstall = !!deferred;
