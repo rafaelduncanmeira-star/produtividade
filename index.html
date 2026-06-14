@@ -127,6 +127,14 @@
       @keyframes fab-in { 0% { opacity: 0; transform: translateY(8px) scale(0.9); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
       @media (prefers-reduced-motion: reduce) { .animate-float { animation: none; } }
 
+      /* Evita o zoom automático do iOS ao focar campos (acontece quando a fonte < 16px).
+         Vale só em telas de toque, preservando o visual compacto no desktop. */
+      @media (pointer: coarse) {
+        input:not([type="checkbox"]):not([type="radio"]),
+        select,
+        textarea { font-size: 16px !important; }
+      }
+
       /* Hide scrollbar for Chrome, Safari and Opera */
       .no-scrollbar::-webkit-scrollbar {
           display: none;

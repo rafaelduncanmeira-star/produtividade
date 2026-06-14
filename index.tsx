@@ -14,6 +14,12 @@ root.render(
   </React.StrictMode>
 );
 
+// PWA: captura cedo o convite de instalação (pode disparar antes do React montar)
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  (window as unknown as { __bipEvent?: Event }).__bipEvent = e;
+});
+
 // PWA: registra o Service Worker (instalável + carregamento offline do shell)
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {

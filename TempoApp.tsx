@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
-import { LayoutDashboard, CheckSquare, Timer, Repeat, CalendarClock, BarChart3, MoreHorizontal, X, Calendar, LogOut, Sparkles, Bell, BellRing, BellOff, Sun, Moon, Target } from 'lucide-react';
+import { LayoutDashboard, CheckSquare, Timer, Repeat, CalendarClock, BarChart3, MoreHorizontal, X, Calendar, LogOut, Sparkles, Bell, BellRing, BellOff, Sun, Moon, Target, WifiOff, Download } from 'lucide-react';
 import {
   Task, TaskStatus, Habit, Project, DailyReview, TimeBlock, FocusSession, PomodoroSettings, TimerState, TimerPhase,
   GoogleSettings, GoogleEvent, DEFAULT_POMODORO_SETTINGS, DEFAULT_TIMER_STATE, DEFAULT_GOOGLE_SETTINGS, GOOGLE_CLIENT_ID,
@@ -27,6 +27,7 @@ import { TaskForm } from './components/TaskForm';
 import { HabitForm } from './components/HabitForm';
 import { TimeBlockForm } from './components/TimeBlockForm';
 import { CreateFab } from './components/CreateFab';
+import { usePwa } from './components/usePwa';
 
 // Dados iniciais de exemplo
 const now = new Date().toISOString();
@@ -81,6 +82,7 @@ interface TempoAppProps {
 
 const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChange, onSignOut }) => {
   const { toast } = useToast();
+  const pwa = usePwa();
   const [currentView, setCurrentView] = useState<View>('today');
   const [moreOpen, setMoreOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -683,6 +685,27 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
         </header>
 
         <main className="p-4 md:p-8 pb-28 md:pb-8 max-w-5xl mx-auto">
+          {pwa.showInstall && (
+            <div className="mb-4 flex items-center gap-3 bg-white rounded-xl border border-indigo-100 shadow-sm p-3">
+              <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-indigo-600 to-violet-600 text-white flex items-center justify-center shrink-0">
+                <Download size={18} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-bold text-slate-800">Instalar o Tempo AI</p>
+                <p className="text-xs text-slate-500">
+                  {pwa.canInstall ? 'Acesso rápido na tela inicial, em tela cheia.' : 'Toque em Compartilhar e "Adicionar à Tela de Início".'}
+                </p>
+              </div>
+              {pwa.canInstall && (
+                <button onClick={pwa.promptInstall} className="shrink-0 bg-indigo-600 text-white text-sm font-bold px-3 py-2 rounded-lg hover:bg-indigo-700 active:scale-95 transition">
+                  Instalar
+                </button>
+              )}
+              <button onClick={pwa.dismissInstall} aria-label="Dispensar" className="shrink-0 p-1.5 text-slate-400 hover:text-slate-600">
+                <X size={18} />
+              </button>
+            </div>
+          )}
           {currentView === 'today' && (
             <TodayView
               tasks={tasks}
@@ -783,6 +806,12 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
       >
         <Sparkles size={22} />
       </button>
+
+      {!pwa.online && (
+        <div className="fixed top-[max(0.75rem,env(safe-area-inset-top))] left-1/2 -translate-x-1/2 z-[95] flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-800 text-white text-xs font-medium shadow-lg">
+          <WifiOff size={13} /> Sem conexão
+        </div>
+      )}
 
       {/* Bolinha de criação rápida (mobile): Tarefa / Hábito / Bloco */}
       <CreateFab
