@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="index, follow" />
+  <title>Política de Privacidade — Foco GeriClass</title>
+  <style>
+    :root { --teal: #0e4a40; --teal2: #0f766e; --ink: #1e293b; --muted: #64748b; --line: #e2e8f0; --bg: #f8fafc; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--ink); line-height: 1.65; }
+    .wrap { max-width: 760px; margin: 0 auto; padding: 0 20px 64px; }
+    header { background: linear-gradient(135deg, #0e4a40, #0f766e); color: #fff; padding: 40px 20px 32px; }
+    header .inner { max-width: 760px; margin: 0 auto; display: flex; align-items: center; gap: 16px; }
+    header img { width: 56px; height: 56px; border-radius: 14px; box-shadow: 0 6px 20px rgba(0,0,0,.25); }
+    header h1 { font-size: 1.35rem; margin: 0; }
+    header p { margin: 4px 0 0; color: #a7f3d0; font-size: .9rem; }
+    .updated { color: var(--muted); font-size: .85rem; margin: 24px 0 8px; }
+    h2 { color: var(--teal); font-size: 1.1rem; margin: 32px 0 8px; }
+    h3 { font-size: 1rem; margin: 20px 0 6px; }
+    p, li { color: #334155; font-size: .97rem; }
+    a { color: var(--teal2); }
+    ul { padding-left: 22px; }
+    li { margin: 6px 0; }
+    .card { background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 4px 22px 22px; margin-top: 16px; box-shadow: 0 1px 2px rgba(0,0,0,.04); }
+    .back { display: inline-flex; align-items: center; gap: 6px; margin-top: 28px; color: var(--teal2); text-decoration: none; font-weight: 600; font-size: .9rem; }
+    footer { text-align: center; color: var(--muted); font-size: .8rem; margin-top: 40px; }
+    strong { color: var(--ink); }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="inner">
+      <img src="./icon-192.png" alt="Foco GeriClass" />
+      <div>
+        <h1>Política de Privacidade</h1>
+        <p>Foco GeriClass</p>
+      </div>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <p class="updated">Última atualização: 15 de junho de 2026</p>
+
+    <div class="card">
+      <h2>1. Sobre este app</h2>
+      <p>O <strong>Foco GeriClass</strong> é um aplicativo de produtividade pessoal (tarefas, foco/pomodoro, hábitos, metas e agenda). Esta política explica quais dados coletamos, como são usados e quais são os seus direitos. Ao usar o app, você concorda com as práticas descritas aqui.</p>
+
+      <h2>2. Dados que coletamos</h2>
+      <ul>
+        <li><strong>Dados de conta:</strong> nome e e-mail, informados no cadastro/login (gerenciados pelo Supabase Auth).</li>
+        <li><strong>Conteúdo que você cria:</strong> tarefas, hábitos, metas, blocos de agenda, sessões de foco e a "Revisão do dia" (humor e anotações). Esses dados ficam vinculados à sua conta.</li>
+        <li><strong>Google Agenda (opcional):</strong> se você conectar sua conta Google, o app acessa os eventos da sua agenda <strong>apenas para exibi-los</strong> junto do seu planejamento, e cria/atualiza eventos correspondentes aos blocos que você criar no app. O token de acesso fica armazenado <strong>no seu dispositivo</strong>.</li>
+        <li><strong>Comandos para a IA:</strong> ao usar o Assistente de IA, o texto que você digita ou dita é enviado a uma função no nosso servidor, que consulta o modelo <strong>Google Gemini</strong> para interpretar o pedido e sugerir ações (criar tarefas, blocos, etc.).</li>
+        <li><strong>Armazenamento local:</strong> o app guarda preferências (tema, lembretes) e uma cópia em cache dos seus dados no armazenamento local do navegador, para funcionar mesmo offline.</li>
+      </ul>
+      <p>Não coletamos dados de localização, não usamos cookies de rastreamento e não exibimos publicidade.</p>
+
+      <h2>3. Como usamos os dados</h2>
+      <p>Usamos seus dados <strong>exclusivamente para fornecer o app</strong>: salvar e sincronizar seu conteúdo entre dispositivos, mostrar seus relatórios, enviar lembretes e processar seus comandos de IA. <strong>Não vendemos seus dados</strong> nem os usamos para publicidade.</p>
+
+      <h2>4. Compartilhamento e provedores</h2>
+      <p>Não compartilhamos seus dados com terceiros, exceto com os provedores estritamente necessários para o funcionamento do app:</p>
+      <ul>
+        <li><strong>Supabase</strong> — autenticação e banco de dados (onde seu conteúdo é armazenado com segurança).</li>
+        <li><strong>Google</strong> — API do Google Agenda (apenas se você conectar) e o modelo Gemini (quando você usa a IA).</li>
+        <li><strong>GitHub Pages</strong> — hospedagem do site.</li>
+      </ul>
+
+      <h2>5. Uso de dados do Google</h2>
+      <p>O uso e a transferência de informações recebidas das APIs do Google pelo Foco GeriClass seguem a <a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank" rel="noreferrer">Política de Dados do Usuário dos Serviços de API do Google</a>, incluindo os requisitos de <strong>Uso Limitado</strong>. Os dados da sua Google Agenda são usados <strong>somente</strong> para fornecer os recursos de agenda dentro do app, <strong>não</strong> são transferidos a terceiros e <strong>não</strong> são usados para publicidade ou treinamento de modelos.</p>
+
+      <h2>6. Armazenamento, segurança e retenção</h2>
+      <p>Seus dados trafegam por conexão segura (HTTPS) e são isolados por conta no banco (cada usuário só acessa o que é seu). Mantemos seus dados enquanto sua conta existir. Você pode desconectar o Google a qualquer momento nas configurações do app (o que revoga o acesso) e sair da conta para limpar os dados locais do dispositivo.</p>
+
+      <h2>7. Seus direitos (LGPD)</h2>
+      <p>Você tem direito a acessar, corrigir, exportar ou excluir seus dados. Para solicitar a exclusão da sua conta e de todos os dados associados, ou para qualquer dúvida sobre privacidade, entre em contato pelo e-mail abaixo.</p>
+
+      <h2>8. Crianças</h2>
+      <p>O app não é destinado a menores de 13 anos e não coletamos intencionalmente dados de crianças.</p>
+
+      <h2>9. Alterações nesta política</h2>
+      <p>Podemos atualizar esta política periodicamente. A data da última atualização é indicada no topo desta página.</p>
+
+      <h2>10. Contato</h2>
+      <p>Dúvidas ou solicitações sobre privacidade: <a href="mailto:rafaelduncanmeira@gmail.com">rafaelduncanmeira@gmail.com</a></p>
+    </div>
+
+    <a class="back" href="./">← Voltar ao app</a>
+
+    <footer>© 2026 Foco GeriClass</footer>
+  </div>
+</body>
+</html>
