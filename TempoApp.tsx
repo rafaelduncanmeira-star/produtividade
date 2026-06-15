@@ -900,14 +900,11 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
                 <span>Sair da conta</span>
                 <span className="ml-auto text-[10px] text-slate-300 truncate max-w-[120px]">{userEmail}</span>
               </button>
-              <a
-                href={`${import.meta.env.BASE_URL}privacidade.html`}
-                target="_blank"
-                rel="noreferrer"
-                className="block text-center text-[11px] text-slate-400 pt-2 hover:text-slate-600 transition-colors"
-              >
-                Política de Privacidade
-              </a>
+              <div className="flex items-center justify-center gap-2 text-[11px] text-slate-400 pt-2">
+                <a href={`${import.meta.env.BASE_URL}privacidade.html`} target="_blank" rel="noreferrer" className="hover:text-slate-600 transition-colors">Privacidade</a>
+                <span>·</span>
+                <a href={`${import.meta.env.BASE_URL}termos.html`} target="_blank" rel="noreferrer" className="hover:text-slate-600 transition-colors">Termos de Uso</a>
+              </div>
             </div>
           </div>
         </div>
