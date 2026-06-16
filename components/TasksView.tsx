@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback, useRef } from 'react';
-import { Plus, List, LayoutGrid, CheckSquare, Columns3, Search, X, Info } from 'lucide-react';
+import { Plus, List, LayoutGrid, CheckSquare, Columns3, Search, X, Info, ChevronDown, CheckCircle2 } from 'lucide-react';
 import { Task, TaskStatus, Project, QUADRANTS, QUADRANT_INFO, getQuadrant, getTaskStatus, KANBAN_COLUMNS, DEFAULT_TASK_CATEGORIES } from '../types';
 import { todayISO, getWeekDays, parseQuickTask } from '../utils';
 import { TaskItem } from './TaskItem';
@@ -79,6 +79,15 @@ export const TasksView: React.FC<TasksViewProps> = ({
   }, [src, filter, today, weekEnd]);
 
   const pending = useMemo(() => src.filter(t => !t.completed), [src]);
+
+  // "Concluídas hoje": o que foi feito hoje (respeitando busca/categoria), pra dar a sensação de progresso
+  const doneTodayTasks = useMemo(
+    () => src
+      .filter(t => t.completed && t.completedAt?.slice(0, 10) === today)
+      .sort((a, b) => (b.completedAt ?? '').localeCompare(a.completedAt ?? '')),
+    [src, today]
+  );
+  const [showDone, setShowDone] = useState(true);
 
   const handleQuickAdd = (e: React.FormEvent) => {
     e.preventDefault();
@@ -299,6 +308,34 @@ export const TasksView: React.FC<TasksViewProps> = ({
                 >
                   <Plus size={16} /> Nova tarefa
                 </button>
+              )}
+            </div>
+          )}
+          {filter !== 'concluidas' && doneTodayTasks.length > 0 && (
+            <div className="pt-2">
+              <button
+                onClick={() => setShowDone(s => !s)}
+                aria-expanded={showDone}
+                className="flex items-center justify-between w-full mb-2 px-1"
+              >
+                <span className="text-xs font-medium text-slate-400 flex items-center gap-1.5">
+                  <CheckCircle2 size={13} className="text-emerald-500" /> Concluídas hoje · {doneTodayTasks.length}
+                </span>
+                <ChevronDown size={15} className={`text-slate-400 transition-transform ${showDone ? 'rotate-180' : ''}`} />
+              </button>
+              {showDone && (
+                <div className="space-y-2">
+                  {doneTodayTasks.map(task => (
+                    <TaskItem
+                      key={task.id}
+                      task={task}
+                      onToggle={onToggleTask}
+                      onDelete={onDeleteTask}
+                      onEdit={openEdit}
+                      onUpdate={onUpdateTask}
+                    />
+                  ))}
+                </div>
               )}
             </div>
           )}
