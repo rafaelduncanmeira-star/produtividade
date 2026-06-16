@@ -400,15 +400,19 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
   // Celebra a conclusão de uma tarefa: vibração, aviso de recorrência e confete ao zerar o dia.
   const celebrateTaskDone = (target: Task) => {
     haptic();
+    const reopen = () => setTasks(prev => prev.map(x => x.id === target.id ? { ...x, completed: false, completedAt: undefined } : x));
     if (target.recurrence && !target.recurrenceSpawned) {
       const nextDue = nextRecurrenceISO(target.recurrence, target.dueDate ?? todayISO());
       toast(`🔁 Próxima criada para ${formatShortDate(nextDue)}`);
     }
     const t = todayISO();
     const openToday = tasks.filter(x => !x.completed && !!x.dueDate && x.dueDate <= t);
-    if (!!target.dueDate && target.dueDate <= t && openToday.length === 1 && openToday[0].id === target.id) {
+    const lastOfDay = !!target.dueDate && target.dueDate <= t && openToday.length === 1 && openToday[0].id === target.id;
+    if (lastOfDay) {
       fireConfetti();
-      toast('🎉 Tudo de hoje concluído!');
+      toast('🎉 Tudo de hoje concluído!', { action: { label: 'Desfazer', onClick: reopen } });
+    } else {
+      toast('✅ Tarefa concluída', { action: { label: 'Desfazer', onClick: reopen } });
     }
   };
 

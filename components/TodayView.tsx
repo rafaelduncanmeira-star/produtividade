@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Play, CalendarClock, ChevronRight, Check, Plus, Calendar } from 'lucide-react';
+import { Play, CalendarClock, ChevronRight, ChevronDown, CheckCircle2, Check, Plus, Calendar } from 'lucide-react';
 import { Task, Habit, TimeBlock, FocusSession, GoogleEvent, Project, DailyReview, GOOGLE_EVENT_COLOR, REVIEW_MOODS } from '../types';
 import { todayISO, getGreeting, formatLongDate, formatMinutes, focusMinutesOn, parseQuickTask } from '../utils';
 import { TaskItem } from './TaskItem';
@@ -45,10 +45,14 @@ export const TodayView: React.FC<TodayViewProps> = ({
     () => tasks.filter(t => !t.completed && !!t.dueDate && t.dueDate <= today),
     [tasks, today]
   );
-  const doneToday = useMemo(
-    () => tasks.filter(t => t.completed && t.completedAt?.slice(0, 10) === today).length,
+  const doneTodayTasks = useMemo(
+    () => tasks
+      .filter(t => t.completed && t.completedAt?.slice(0, 10) === today)
+      .sort((a, b) => (b.completedAt ?? '').localeCompare(a.completedAt ?? '')),
     [tasks, today]
   );
+  const doneToday = doneTodayTasks.length;
+  const [showDone, setShowDone] = useState(true);
 
   useEffect(() => {
     if (googleActive) onLoadGoogleEvents(today);
@@ -159,6 +163,37 @@ export const TodayView: React.FC<TodayViewProps> = ({
               <p className="text-sm text-slate-400 text-center py-6">Nada com prazo para hoje. 🎉</p>
             )}
           </div>
+
+          {/* Concluídas hoje — fica visível pra dar a sensação de "eu fiz isso" */}
+          {doneTodayTasks.length > 0 && (
+            <div className="mt-3 pt-3 border-t border-slate-100">
+              <button
+                onClick={() => setShowDone(s => !s)}
+                aria-expanded={showDone}
+                className="flex items-center justify-between w-full mb-2"
+              >
+                <span className="text-xs font-medium text-slate-400 flex items-center gap-1.5">
+                  <CheckCircle2 size={13} className="text-emerald-500" /> Concluídas hoje · {doneTodayTasks.length}
+                </span>
+                <ChevronDown size={15} className={`text-slate-400 transition-transform ${showDone ? 'rotate-180' : ''}`} />
+              </button>
+              {showDone && (
+                <div className="space-y-1.5">
+                  {doneTodayTasks.map(task => (
+                    <TaskItem
+                      key={task.id}
+                      task={task}
+                      compact
+                      onToggle={onToggleTask}
+                      onDelete={onDeleteTask}
+                      onEdit={setEditingTask}
+                      onUpdate={onUpdateTask}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="space-y-5">
