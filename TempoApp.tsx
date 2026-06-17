@@ -65,8 +65,8 @@ const NAV_ITEMS: { id: View; label: string; icon: React.ElementType }[] = [
   { id: 'reports', label: 'Relatórios', icon: BarChart3 },
 ];
 
-const MOBILE_NAV: View[] = ['today', 'tasks', 'focus', 'habits'];
-const MORE_NAV: View[] = ['metas', 'planner', 'reports'];
+const MOBILE_NAV: View[] = ['today', 'tasks', 'planner', 'habits'];
+const MORE_NAV: View[] = ['metas', 'focus', 'reports'];
 
 const phaseDurationMin = (phase: TimerPhase, settings: PomodoroSettings): number => {
   if (phase === 'focus') return settings.focusMinutes;
