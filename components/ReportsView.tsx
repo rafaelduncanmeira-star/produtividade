@@ -14,6 +14,12 @@ interface ReportsViewProps {
   reviews: DailyReview[];
 }
 
+const TRIADE = [
+  { id: 'importante' as const, label: 'Importante', color: '#10b981', ideal: 70 },
+  { id: 'urgente' as const, label: 'Urgente', color: '#f43f5e', ideal: 20 },
+  { id: 'circunstancial' as const, label: 'Circunstancial', color: '#94a3b8', ideal: 10 },
+];
+
 export const ReportsView: React.FC<ReportsViewProps> = ({ tasks, habits, sessions, reviews }) => {
   const today = todayISO();
   const week = getWeekDays();
@@ -154,6 +160,29 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ tasks, habits, session
     return `Seu foco foi parecido nos dias bons e ruins (${formatMinutes(g)}).`;
   }, [reviews, sessions]);
 
+  // --- Tríade do tempo (Christian Barbosa): esferas derivadas de urgente/importante ---
+  const triade = useMemo(() => {
+    const counts = { importante: 0, urgente: 0, circunstancial: 0 };
+    const pending = tasks.filter(t => !t.completed);
+    for (const t of pending) {
+      if (t.urgent) counts.urgente++;
+      else if (t.important) counts.importante++;
+      else counts.circunstancial++;
+    }
+    return { counts, total: pending.length };
+  }, [tasks]);
+  const triadeCoaching = useMemo(() => {
+    const { counts, total } = triade;
+    if (!total) return null;
+    const u = Math.round((counts.urgente / total) * 100);
+    const c = Math.round((counts.circunstancial / total) * 100);
+    const i = Math.round((counts.importante / total) * 100);
+    if (u >= 40) return '🔴 Muita urgência no seu prato. Planeje o importante com antecedência para ele não virar urgente.';
+    if (c >= 25) return '⚪ Bastante coisa circunstancial. Questione o que dá para eliminar ou delegar.';
+    if (i >= 60) return '🟢 Bom equilíbrio! A maior parte das suas tarefas está no que realmente importa.';
+    return 'Caminho razoável: tente aumentar o "Importante" e reduzir o "Urgente".';
+  }, [triade]);
+
   const summaryCards = [
     { label: 'Foco hoje', value: formatMinutes(focusToday), icon: Timer, color: 'text-teal-700 bg-teal-50' },
     { label: 'Foco na semana', value: formatMinutes(focusWeek), icon: CalendarRange, color: 'text-sky-600 bg-sky-50' },
@@ -179,6 +208,42 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ tasks, habits, session
             <p className="text-[11px] text-slate-400 font-medium">{card.label}</p>
           </div>
         ))}
+      </div>
+
+      {/* Tríade do tempo */}
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5">
+        <div className="flex items-center justify-between">
+          <h3 className="font-bold text-slate-800 text-sm">Tríade do tempo</h3>
+          <span className="text-[11px] text-slate-400">tarefas em aberto</span>
+        </div>
+        <p className="text-[11px] text-slate-400 mt-0.5 mb-4">Muito Importante, pouco Urgente, quase nada Circunstancial.</p>
+        {triade.total === 0 ? (
+          <p className="text-sm text-slate-400 text-center py-6">Marque urgência/importância nas suas tarefas para ver seu equilíbrio.</p>
+        ) : (
+          <>
+            <div className="flex h-3 rounded-full overflow-hidden mb-4 bg-slate-100">
+              {TRIADE.map(s => {
+                const w = Math.round((triade.counts[s.id] / triade.total) * 100);
+                return w > 0 ? <div key={s.id} style={{ width: `${w}%`, backgroundColor: s.color }} title={`${s.label} · ${w}%`} /> : null;
+              })}
+            </div>
+            <div className="space-y-2">
+              {TRIADE.map(s => {
+                const n = triade.counts[s.id];
+                const pct = Math.round((n / triade.total) * 100);
+                return (
+                  <div key={s.id} className="flex items-center gap-2.5 text-sm">
+                    <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: s.color }} />
+                    <span className="text-slate-600 flex-1">{s.label}</span>
+                    <span className="text-slate-500 font-medium text-xs tabular-nums">{n} · {pct}%</span>
+                    <span className="text-slate-300 text-[11px] w-16 text-right">ideal {s.ideal}%</span>
+                  </div>
+                );
+              })}
+            </div>
+            {triadeCoaching && <p className="text-xs text-slate-600 mt-3 bg-slate-50 rounded-lg px-3 py-2.5 leading-snug">{triadeCoaching}</p>}
+          </>
+        )}
       </div>
 
       {/* Humor / Revisão do dia */}
