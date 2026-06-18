@@ -50,7 +50,7 @@ export const getValidToken = (): string | null => {
   }
 };
 
-export const requestToken = async (clientId: string): Promise<string> => {
+export const requestToken = async (clientId: string, silent = false): Promise<string> => {
   await loadGis();
   return new Promise((resolve, reject) => {
     try {
@@ -73,7 +73,8 @@ export const requestToken = async (clientId: string): Promise<string> => {
           reject(new Error(err?.message || 'Conexão com o Google cancelada.'));
         },
       });
-      client.requestAccessToken();
+      // silent: tenta renovar sem popup (só funciona com sessão Google ativa + consentimento já dado)
+      client.requestAccessToken(silent ? { prompt: '' } : {});
     } catch (e) {
       reject(e as Error);
     }

@@ -141,7 +141,7 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
     if (!interactive && autoRenewTriedRef.current) return null;
     autoRenewTriedRef.current = true;
     try {
-      const fresh = await requestToken(clientId);
+      const fresh = await requestToken(clientId, !interactive); // segundo plano = silencioso (sem popup)
       autoRenewTriedRef.current = false;
       setGoogleConnected(true);
       return fresh;
