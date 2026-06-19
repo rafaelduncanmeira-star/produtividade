@@ -73,8 +73,8 @@ export const AuthView: React.FC = () => {
   const inputClass = 'w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-teal-200 outline-none text-sm';
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-sm">
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="w-full max-w-sm animate-rise">
         <div className="text-center mb-8">
           <img src={`${import.meta.env.BASE_URL}icon-192.png`} alt="Foco GeriClass" className="w-20 h-20 rounded-[1.4rem] mx-auto mb-4 shadow-lg shadow-teal-900/20" />
           <h1 className="text-3xl font-bold font-display bg-gradient-to-r from-teal-800 to-emerald-600 bg-clip-text text-transparent">Foco GeriClass</h1>

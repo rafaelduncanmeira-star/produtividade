@@ -220,7 +220,9 @@ export const TodayView: React.FC<TodayViewProps> = ({
             )}
             {agendaItems.length === 0 ? (
               <div className="flex flex-col items-center py-6 text-slate-400">
-                <CalendarClock size={32} className="opacity-20 mb-2" />
+                <div className="w-16 h-16 rounded-2xl bg-teal-50 flex items-center justify-center mb-4">
+                  <CalendarClock size={28} className="text-teal-600" />
+                </div>
                 <p className="text-sm">Nenhum compromisso hoje.</p>
               </div>
             ) : (

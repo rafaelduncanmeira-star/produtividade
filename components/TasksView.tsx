@@ -299,7 +299,9 @@ export const TasksView: React.FC<TasksViewProps> = ({
           ))}
           {filtered.length === 0 && (
             <div className="py-16 flex flex-col items-center justify-center text-slate-400 bg-white rounded-2xl border border-dashed border-slate-200">
-              <CheckSquare size={48} className="mb-4 opacity-20" />
+              <div className="w-16 h-16 rounded-2xl bg-teal-50 flex items-center justify-center mb-4">
+                <CheckSquare size={28} className="text-teal-600" />
+              </div>
               <p className="text-sm">{filter === 'concluidas' ? 'Nenhuma tarefa concluída ainda.' : 'Nenhuma tarefa por aqui. Aproveite! 🎉'}</p>
               {filter !== 'concluidas' && (
                 <button

@@ -730,6 +730,7 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
               </button>
             </div>
           )}
+          <div key={currentView} className="animate-view-in">
           {currentView === 'today' && (
             <TodayView
               tasks={tasks}
@@ -819,6 +820,7 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
           {currentView === 'reports' && (
             <ReportsView tasks={tasks} habits={habits} sessions={sessions} reviews={reviews} />
           )}
+          </div>
         </main>
       </div>
 

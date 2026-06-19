@@ -58,7 +58,9 @@ export const MetasView: React.FC<MetasViewProps> = ({
 
       {projects.length === 0 && (
         <div className="py-16 flex flex-col items-center justify-center text-center text-slate-400 bg-white rounded-2xl border border-dashed border-slate-200 px-6">
-          <Target size={48} className="mb-4 opacity-20" />
+          <div className="w-16 h-16 rounded-2xl bg-teal-50 flex items-center justify-center mb-4">
+            <Target size={28} className="text-teal-600" />
+          </div>
           <p className="text-sm">Nenhuma meta ainda. Crie uma ou peça à IA: <span className="text-slate-500">"organiza minha prova de anatomia"</span>.</p>
           <button
             onClick={openNewProject}
@@ -100,7 +102,7 @@ export const MetasView: React.FC<MetasViewProps> = ({
                 </div>
 
                 <div className="mt-3 h-2 rounded-full bg-slate-100 overflow-hidden">
-                  <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, backgroundColor: p.color }} />
+                  <div className="h-full rounded-full bar-sheen transition-all" style={{ width: `${pct}%`, backgroundColor: p.color }} />
                 </div>
 
                 <div className="flex items-center justify-between mt-3">

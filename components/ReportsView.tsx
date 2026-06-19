@@ -224,7 +224,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ tasks, habits, session
             <div className="flex h-3 rounded-full overflow-hidden mb-4 bg-slate-100">
               {TRIADE.map(s => {
                 const w = Math.round((triade.counts[s.id] / triade.total) * 100);
-                return w > 0 ? <div key={s.id} style={{ width: `${w}%`, backgroundColor: s.color }} title={`${s.label} · ${w}%`} /> : null;
+                return w > 0 ? <div key={s.id} className="bar-sheen" style={{ width: `${w}%`, backgroundColor: s.color }} title={`${s.label} · ${w}%`} /> : null;
               })}
             </div>
             <div className="space-y-2">
@@ -297,7 +297,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ tasks, habits, session
                 <div key={mood} className="flex items-center gap-2.5">
                   <span className="text-lg w-6 text-center shrink-0">{REVIEW_MOODS[mood - 1]}</span>
                   <div className="flex-1 bg-slate-100 h-2.5 rounded-full overflow-hidden">
-                    <div className="h-full rounded-full bg-teal-700 transition-all duration-700" style={{ width: `${moodFocus.maxAvg ? (avg / moodFocus.maxAvg) * 100 : 0}%` }} />
+                    <div className="h-full rounded-full bg-teal-700 bar-sheen transition-all duration-700" style={{ width: `${moodFocus.maxAvg ? (avg / moodFocus.maxAvg) * 100 : 0}%` }} />
                   </div>
                   <span className="text-xs font-bold text-slate-500 w-20 text-right shrink-0">{formatMinutes(avg)} <span className="text-slate-300 font-normal">·{days}d</span></span>
                 </div>
@@ -346,7 +346,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ tasks, habits, session
                   <span className="text-xs font-bold text-teal-700">{formatMinutes(minutes)}</span>
                 </div>
                 <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
-                  <div className="h-full rounded-full bg-teal-700 transition-all duration-700" style={{ width: `${focusCatMax ? (minutes / focusCatMax) * 100 : 0}%` }} />
+                  <div className="h-full rounded-full bg-teal-700 bar-sheen transition-all duration-700" style={{ width: `${focusCatMax ? (minutes / focusCatMax) * 100 : 0}%` }} />
                 </div>
               </div>
             ))}
@@ -360,6 +360,12 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ tasks, habits, session
         <div className="h-56">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={focusByDay} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
+              <defs>
+                <linearGradient id="gradFoco" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#0d9488" />
+                  <stop offset="100%" stopColor="#5eead4" />
+                </linearGradient>
+              </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
               <XAxis dataKey="name" tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} interval={1} />
               <YAxis tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
@@ -367,7 +373,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ tasks, habits, session
                 formatter={(value: number) => [formatMinutes(value), 'Foco']}
                 contentStyle={{ borderRadius: 12, border: '1px solid #e2e8f0', fontSize: 12 }}
               />
-              <Bar dataKey="Minutos" fill="#0f766e" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="Minutos" fill="url(#gradFoco)" radius={[6, 6, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -379,11 +385,17 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ tasks, habits, session
         <div className="h-56">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={tasksByWeek} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
+              <defs>
+                <linearGradient id="gradTarefas" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#059669" />
+                  <stop offset="100%" stopColor="#6ee7b7" />
+                </linearGradient>
+              </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
               <XAxis dataKey="name" tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
               <YAxis allowDecimals={false} tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
               <Tooltip contentStyle={{ borderRadius: 12, border: '1px solid #e2e8f0', fontSize: 12 }} />
-              <Bar dataKey="Tarefas" fill="#10b981" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="Tarefas" fill="url(#gradTarefas)" radius={[6, 6, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -408,7 +420,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ tasks, habits, session
                 </div>
                 <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
                   <div
-                    className="h-full rounded-full transition-all duration-700 ease-out"
+                    className="h-full rounded-full bar-sheen transition-all duration-700 ease-out"
                     style={{ width: `${rate * 100}%`, backgroundColor: habit.color }}
                   />
                 </div>
