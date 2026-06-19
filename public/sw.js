@@ -2,7 +2,7 @@
    Sempre tenta a rede (atualização instantânea quando online) e cai no cache
    apenas como fallback offline. Não intercepta chamadas externas
    (Supabase, Google, Gemini, Tailwind CDN). */
-const CACHE = 'tempo-ai-v24';
+const CACHE = 'tempo-ai-v25';
 const SHELL = ['./', './index.html', './index.js'];
 
 self.addEventListener('install', (event) => {

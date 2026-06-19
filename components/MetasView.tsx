@@ -45,7 +45,7 @@ export const MetasView: React.FC<MetasViewProps> = ({
     <div className="space-y-5">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-slate-800">Metas</h2>
+          <h2 className="text-2xl font-extrabold text-slate-800">Metas</h2>
           <p className="text-slate-500 text-sm">Agrupe tarefas rumo a um objetivo.</p>
         </div>
         <button
