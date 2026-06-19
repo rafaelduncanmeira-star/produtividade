@@ -54,7 +54,7 @@ export const FocusView: React.FC<FocusViewProps> = ({
     <div className="space-y-6">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-extrabold text-slate-800">Foco</h2>
+          <h2 className="text-2xl font-bold text-slate-800 font-display">Foco</h2>
           <p className="text-slate-500 text-sm">Técnica Pomodoro: foco total, uma tarefa de cada vez.</p>
         </div>
         <button

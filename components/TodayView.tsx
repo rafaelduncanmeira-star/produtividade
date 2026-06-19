@@ -102,7 +102,7 @@ export const TodayView: React.FC<TodayViewProps> = ({
       {/* Saudação + atalho discreto de foco */}
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h2 className="text-2xl font-extrabold text-slate-800">{getGreeting()}! 👋</h2>
+          <h2 className="text-2xl font-bold text-slate-800 font-display">{getGreeting()}! 👋</h2>
           <p className="text-slate-500 text-sm capitalize">{formatLongDate()}</p>
         </div>
         <button

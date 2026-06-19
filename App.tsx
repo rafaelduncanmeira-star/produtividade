@@ -22,7 +22,7 @@ const GLOBAL_KEYS = [
 const Splash: React.FC<{ message: string }> = ({ message }) => (
   <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center gap-3">
     <img src={`${import.meta.env.BASE_URL}icon-192.png`} alt="Foco GeriClass" className="w-16 h-16 rounded-2xl shadow-lg shadow-teal-900/20" />
-    <h1 className="text-2xl font-bold bg-gradient-to-r from-teal-800 to-emerald-600 bg-clip-text text-transparent">Foco GeriClass</h1>
+    <h1 className="text-2xl font-bold font-display bg-gradient-to-r from-teal-800 to-emerald-600 bg-clip-text text-transparent">Foco GeriClass</h1>
     <div className="flex items-center gap-2 text-slate-400 text-sm">
       <LoaderCircle size={16} className="animate-spin" /> {message}
     </div>

@@ -609,7 +609,7 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
         <div className="px-6 py-6">
           <div className="flex items-center gap-2.5">
             <img src={`${import.meta.env.BASE_URL}icon-192.png`} alt="" className="w-8 h-8 rounded-lg shadow-sm" />
-            <h1 className="text-xl font-bold bg-gradient-to-r from-teal-800 to-emerald-600 bg-clip-text text-transparent">Foco GeriClass</h1>
+            <h1 className="text-xl font-bold font-display bg-gradient-to-r from-teal-800 to-emerald-600 bg-clip-text text-transparent">Foco GeriClass</h1>
           </div>
           <p className="text-xs text-slate-400 mt-1">Gestão de tempo e produtividade</p>
         </div>
@@ -685,7 +685,7 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
         <header className="header-glass md:hidden sticky top-0 z-30 bg-white/90 backdrop-blur border-b border-slate-100 px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <img src={`${import.meta.env.BASE_URL}icon-192.png`} alt="" className="w-7 h-7 rounded-lg shadow-sm" />
-            <h1 className="text-lg font-bold bg-gradient-to-r from-teal-800 to-emerald-600 bg-clip-text text-transparent">Foco GeriClass</h1>
+            <h1 className="text-lg font-bold font-display bg-gradient-to-r from-teal-800 to-emerald-600 bg-clip-text text-transparent">Foco GeriClass</h1>
           </div>
           <div className="flex items-center gap-2">
             {timerActive && currentView !== 'focus' && (

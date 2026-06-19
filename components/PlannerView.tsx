@@ -431,7 +431,7 @@ export const PlannerView: React.FC<PlannerViewProps> = ({
     <div className="space-y-5">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-extrabold text-slate-800">Planejamento</h2>
+          <h2 className="text-2xl font-bold text-slate-800 font-display">Planejamento</h2>
           <p className="text-slate-500 text-sm">Organize seu tempo em blocos.</p>
         </div>
         <button

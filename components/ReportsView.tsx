@@ -193,7 +193,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ tasks, habits, session
   return (
     <div className="space-y-5">
       <div>
-        <h2 className="text-2xl font-extrabold text-slate-800">Relatórios</h2>
+        <h2 className="text-2xl font-bold text-slate-800 font-display">Relatórios</h2>
         <p className="text-slate-500 text-sm">Acompanhe sua produtividade ao longo do tempo.</p>
       </div>
 
@@ -323,7 +323,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ tasks, habits, session
           <h3 className="font-bold text-slate-800 text-sm mb-3">Seu melhor horário de foco</h3>
           {bestPeriod ? (
             <>
-              <p className="text-2xl font-extrabold text-slate-800">{bestPeriod.label}</p>
+              <p className="text-2xl font-bold text-slate-800 font-display">{bestPeriod.label}</p>
               <p className="text-[11px] text-slate-400">{bestPeriod.hint} · {formatMinutes(bestPeriod.minutes)} de foco no total</p>
             </>
           ) : (
