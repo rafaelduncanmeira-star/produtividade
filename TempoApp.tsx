@@ -8,7 +8,7 @@ import { uid, toISODate, todayISO, formatTimerMs, playBeep, nextRecurrenceISO, t
 import { haptic, fireConfetti } from './feedback';
 import { useToast } from './components/Toast';
 import { AppSnapshot } from './services/cloudStore';
-import { notifPermission, requestNotifPermission, sendNotification, updateBadge } from './services/notifications';
+import { notifPermission, sendNotification, updateBadge } from './services/notifications';
 import {
   getValidToken, requestToken, disconnectGoogle, fetchDayEvents,
   createEventFromBlock, updateEventFromBlock, deleteEventById,
@@ -28,6 +28,7 @@ import { HabitForm } from './components/HabitForm';
 import { TimeBlockForm } from './components/TimeBlockForm';
 import { ProjectForm } from './components/ProjectForm';
 import { CreateFab } from './components/CreateFab';
+import { ReminderModal } from './components/ReminderModal';
 import { usePwa } from './components/usePwa';
 
 // Dados iniciais de exemplo
@@ -88,6 +89,7 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
   const [moreOpen, setMoreOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isAIOpen, setIsAIOpen] = useState(false);
+  const [isReminderOpen, setIsReminderOpen] = useState(false);
   const [creating, setCreating] = useState<null | 'task' | 'habit' | 'block' | 'project'>(null);
   // Boas-vindas só no 1º acesso (e apenas quando ainda há dados de exemplo).
   const [showWelcome, setShowWelcome] = useState(() => {
@@ -598,14 +600,6 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
     setMoreOpen(false);
   };
 
-  const handleNotifClick = async () => {
-    if (notifPerm === 'granted') { sendNotification('Lembretes já estão ativos ✅'); return; }
-    if (notifPerm === 'denied' || notifPerm === 'unsupported') return;
-    const p = await requestNotifPermission();
-    setNotifPerm(p);
-    if (p === 'granted') sendNotification('Lembretes ativados ✅', 'Avisaremos dos blocos e do fim do Pomodoro.');
-  };
-
   const timerActive = timer.status === 'running' || timer.status === 'paused';
 
   return (
@@ -654,8 +648,8 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
           </button>
           {notifPerm !== 'unsupported' && (
             <button
-              onClick={handleNotifClick}
-              title={notifPerm === 'denied' ? 'Notificações bloqueadas no navegador' : 'Lembretes de blocos e Pomodoro'}
+              onClick={() => setIsReminderOpen(true)}
+              title={notifPerm === 'denied' ? 'Notificações bloqueadas no navegador' : 'Lembrete diário e avisos do Pomodoro'}
               className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-500 hover:bg-slate-50 hover:text-slate-700 transition-colors"
             >
               {notifPerm === 'granted' ? <BellRing size={18} className="text-teal-700" /> : notifPerm === 'denied' ? <BellOff size={18} /> : <Bell size={18} />}
@@ -704,7 +698,7 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
               </button>
             )}
             {notifPerm !== 'unsupported' && (
-              <button onClick={handleNotifClick} aria-label="Lembretes" className="p-1 text-slate-400">
+              <button onClick={() => setIsReminderOpen(true)} aria-label="Lembretes" className="p-1 text-slate-400">
                 {notifPerm === 'granted' ? <BellRing size={20} className="text-teal-700" /> : notifPerm === 'denied' ? <BellOff size={20} /> : <Bell size={20} />}
               </button>
             )}
@@ -952,6 +946,14 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
           onConnect={connectGoogle}
           onDisconnect={handleGoogleDisconnect}
           onClose={() => setIsGoogleOpen(false)}
+        />
+      )}
+
+      {isReminderOpen && (
+        <ReminderModal
+          notifPerm={notifPerm}
+          onPermChange={setNotifPerm}
+          onClose={() => setIsReminderOpen(false)}
         />
       )}
 
