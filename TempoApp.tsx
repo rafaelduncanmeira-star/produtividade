@@ -5,7 +5,7 @@ import {
   GoogleSettings, GoogleEvent, DEFAULT_POMODORO_SETTINGS, DEFAULT_TIMER_STATE, DEFAULT_GOOGLE_SETTINGS, GOOGLE_CLIENT_ID,
 } from './types';
 import { uid, toISODate, todayISO, formatTimerMs, playBeep, nextRecurrenceISO, timeToMinutes, formatShortDate } from './utils';
-import { haptic, fireConfetti } from './feedback';
+import { haptic, celebrateComplete } from './feedback';
 import { useToast } from './components/Toast';
 import { AppSnapshot } from './services/cloudStore';
 import { notifPermission, sendNotification, updateBadge } from './services/notifications';
@@ -423,7 +423,7 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
     const openToday = tasks.filter(x => !x.completed && !!x.dueDate && x.dueDate <= t);
     const lastOfDay = !!target.dueDate && target.dueDate <= t && openToday.length === 1 && openToday[0].id === target.id;
     if (lastOfDay) {
-      fireConfetti();
+      celebrateComplete();
       toast('🎉 Tudo de hoje concluído!', { action: { label: 'Desfazer', onClick: reopen } });
     } else {
       toast('✅ Tarefa concluída', { action: { label: 'Desfazer', onClick: reopen } });
@@ -523,7 +523,7 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
       const todays = habits.filter(h => h.targetDays.includes(weekday));
       const doneCount = todays.filter(h => h.id === habitId || h.completions.includes(isoDate)).length;
       if (todays.length > 0 && doneCount === todays.length) {
-        fireConfetti();
+        celebrateComplete();
         toast('🎉 Hábitos do dia completos!');
       }
     }

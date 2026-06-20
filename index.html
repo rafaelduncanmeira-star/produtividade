@@ -136,10 +136,6 @@
       /* ===== Animações de feedback (celebração + toast) ===== */
       @keyframes pop { 0% { transform: scale(1); } 45% { transform: scale(1.35); } 100% { transform: scale(1); } }
       .animate-pop { animation: pop 0.32s ease; }
-      @keyframes confetti-fall {
-        0% { opacity: 1; transform: translate3d(0, 0, 0) rotate(0deg); }
-        100% { opacity: 0; transform: translate3d(var(--drift, 0), 100vh, 0) rotate(720deg); }
-      }
       @keyframes toast-in {
         0% { opacity: 0; transform: translateY(12px) scale(0.98); }
         100% { opacity: 1; transform: translateY(0) scale(1); }
@@ -157,6 +153,12 @@
       @keyframes task-sheen { 0% { transform: translateX(-120%); } 100% { transform: translateX(360%); } }
       .task-sheen { animation: task-sheen 0.62s ease-out forwards; }
       @media (prefers-reduced-motion: reduce) { .task-ring, .task-strike, .task-sheen { animation: none; } }
+
+      /* "Dia concluído" — celebração sóbria (emblema + anéis + brilho), sem confete */
+      @keyframes celebrate-glow { 0% { opacity: 0; transform: scale(0.6); } 30% { opacity: 1; } 100% { opacity: 0; transform: scale(1.1); } }
+      @keyframes celebrate-ring { 0% { opacity: 0; transform: scale(0.3); } 25% { opacity: 1; } 100% { opacity: 0; transform: scale(2.6); } }
+      @keyframes celebrate-badge { 0% { opacity: 0; transform: scale(0.2); } 35% { opacity: 1; transform: scale(1.05); } 75% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(1); } }
+      @keyframes celebrate-check { to { stroke-dashoffset: 0; } }
 
       /* Evita o zoom automático do iOS ao focar campos (acontece quando a fonte < 16px).
          Vale só em telas de toque, preservando o visual compacto no desktop. */

@@ -2,7 +2,7 @@
    Sempre tenta a rede (atualização instantânea quando online) e cai no cache
    apenas como fallback offline. Não intercepta chamadas externas
    (Supabase, Google, Gemini, Tailwind CDN). */
-const CACHE = 'tempo-ai-v34';
+const CACHE = 'tempo-ai-v35';
 const SHELL = ['./', './index.html', './index.js'];
 
 // --- Push (lembretes diários que chegam mesmo com o app fechado) ---
