@@ -8,7 +8,7 @@ import { uid, toISODate, todayISO, formatTimerMs, playBeep, nextRecurrenceISO, t
 import { haptic, fireConfetti } from './feedback';
 import { useToast } from './components/Toast';
 import { AppSnapshot } from './services/cloudStore';
-import { notifPermission, requestNotifPermission, sendNotification } from './services/notifications';
+import { notifPermission, requestNotifPermission, sendNotification, updateBadge } from './services/notifications';
 import {
   getValidToken, requestToken, disconnectGoogle, fetchDayEvents,
   createEventFromBlock, updateEventFromBlock, deleteEventById,
@@ -118,6 +118,12 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
     tasks, sessions, habits, blocks, projects, reviews, pomodoroSettings: settings, timer, googleSettings,
   }), [tasks, sessions, habits, blocks, projects, reviews, settings, timer, googleSettings]);
   useEffect(() => { onSnapshotChange(snapshot); }, [snapshot, onSnapshotChange]);
+
+  // Selo no ícone do app (Badging API): nº de tarefas pendentes de hoje/atrasadas.
+  useEffect(() => {
+    const t = todayISO();
+    updateBadge(tasks.filter(x => !x.completed && !!x.dueDate && x.dueDate <= t).length);
+  }, [tasks]);
 
   // --- Google Agenda ---
   const [isGoogleOpen, setIsGoogleOpen] = useState(false);

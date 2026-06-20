@@ -6,6 +6,7 @@ import {
   AppSnapshot, loadSnapshot, saveSnapshot, fetchSnapshotVersion, legacyLocalSnapshot, cachedSnapshot, cacheSnapshot,
 } from './services/cloudStore';
 import { disconnectGoogle } from './services/googleCalendar';
+import { updateBadge } from './services/notifications';
 import { AuthView } from './components/AuthView';
 import { ToastProvider } from './components/Toast';
 import TempoApp from './TempoApp';
@@ -168,6 +169,7 @@ const App: React.FC = () => {
     }
     // Privacidade em aparelho compartilhado: revoga o Google e limpa resíduos globais do localStorage
     try { disconnectGoogle(); } catch { /* ignore */ }
+    try { updateBadge(0); } catch { /* ignore */ }
     GLOBAL_KEYS.forEach(k => { try { localStorage.removeItem(k); } catch { /* ignore */ } });
     await supabase.auth.signOut();
     setInitial(null);
