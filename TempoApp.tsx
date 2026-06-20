@@ -121,12 +121,6 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
   }), [tasks, sessions, habits, blocks, projects, reviews, settings, timer, googleSettings]);
   useEffect(() => { onSnapshotChange(snapshot); }, [snapshot, onSnapshotChange]);
 
-  // Selo no ícone do app (Badging API): nº de tarefas pendentes de hoje/atrasadas.
-  useEffect(() => {
-    const t = todayISO();
-    updateBadge(tasks.filter(x => !x.completed && !!x.dueDate && x.dueDate <= t).length);
-  }, [tasks]);
-
   // --- Google Agenda ---
   const [isGoogleOpen, setIsGoogleOpen] = useState(false);
   const [googleConnected, setGoogleConnected] = useState<boolean>(() => getValidToken() !== null);
@@ -213,6 +207,18 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
   const [nowTick, setNowTick] = useState(Date.now());
   const [notifPerm, setNotifPerm] = useState<NotificationPermission | 'unsupported'>(notifPermission());
   const notifiedRef = useRef<Set<string>>(new Set());
+
+  // Selo no ícone do app (Badging API): nº de tarefas pendentes de hoje/atrasadas.
+  // Reaplica ao mudar tarefas, ao conceder a permissão (o iOS exige) e ao voltar ao app.
+  useEffect(() => {
+    const refresh = () => {
+      const t = todayISO();
+      updateBadge(tasks.filter(x => !x.completed && !!x.dueDate && x.dueDate <= t).length);
+    };
+    refresh();
+    document.addEventListener('visibilitychange', refresh);
+    return () => document.removeEventListener('visibilitychange', refresh);
+  }, [tasks, notifPerm]);
 
   const completePhase = useCallback(() => {
     const t = timerRef.current;
