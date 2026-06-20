@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Check, Edit2, Trash2, Play, Timer, Calendar, Clock, Repeat, ListChecks, ChevronDown } from 'lucide-react';
+import { Check, Edit2, Trash2, Play, Timer, Calendar, Clock, Repeat, ListChecks, ChevronDown, MoreVertical } from 'lucide-react';
 import { Task, QUADRANT_INFO, getQuadrant } from '../types';
 import { todayISO, formatShortDate } from '../utils';
 
@@ -19,6 +19,35 @@ export const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, onDelete, on
   const subs = task.subtasks ?? [];
   const doneSubs = subs.filter(s => s.done).length;
   const [open, setOpen] = useState(false);
+
+  // Menu de ações (⋯): posição fixa calculada a partir do botão.
+  const [menuPos, setMenuPos] = useState<{ top: number; left: number } | null>(null);
+  useEffect(() => {
+    if (!menuPos) return;
+    const close = () => setMenuPos(null);
+    const onKey = (ev: KeyboardEvent) => { if (ev.key === 'Escape') setMenuPos(null); };
+    // Captura o scroll de qualquer container (3º arg true) para não "descolar" o menu.
+    window.addEventListener('scroll', close, true);
+    window.addEventListener('resize', close);
+    window.addEventListener('keydown', onKey);
+    return () => {
+      window.removeEventListener('scroll', close, true);
+      window.removeEventListener('resize', close);
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [menuPos]);
+
+  const openMenu = (e: React.MouseEvent) => {
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    const W = 192; // w-48
+    const items = (onFocus && !task.completed ? 1 : 0) + (onEdit ? 1 : 0) + 1;
+    const H = items * 46 + 16;
+    const left = Math.min(Math.max(8, rect.right - W), window.innerWidth - W - 8);
+    let top = rect.bottom + 6;
+    if (top + H > window.innerHeight - 8) top = rect.top - H - 6; // abre pra cima se não couber
+    if (top < 8) top = 8;
+    setMenuPos({ top, left });
+  };
 
   // "Pop" no check ao concluir
   const [pop, setPop] = useState(false);
@@ -80,6 +109,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, onDelete, on
   };
 
   return (
+    <>
     <div className="relative overflow-hidden rounded-xl">
       {/* Fundo revelado ao deslizar */}
       {dx !== 0 && (
@@ -145,25 +175,16 @@ export const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, onDelete, on
             </div>
           </div>
 
-          <div className="flex gap-0.5 shrink-0 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
-            {onFocus && !task.completed && (
-              <button
-                onClick={() => onFocus(task.id)}
-                title="Focar nesta tarefa"
-                className="p-2 text-slate-300 hover:text-teal-700 hover:bg-teal-50 rounded-lg"
-              >
-                <Play size={16} />
-              </button>
-            )}
-            {onEdit && (
-              <button onClick={() => onEdit(task)} aria-label="Editar tarefa" className="p-2 text-slate-300 hover:text-teal-700 hover:bg-teal-50 rounded-lg">
-                <Edit2 size={16} />
-              </button>
-            )}
-            <button onClick={() => onDelete(task.id)} aria-label="Excluir tarefa" className="p-2 text-slate-300 hover:text-rose-600 hover:bg-rose-50 rounded-lg">
-              <Trash2 size={16} />
-            </button>
-          </div>
+          <button
+            onClick={openMenu}
+            aria-label="Mais ações"
+            aria-haspopup="menu"
+            className={`shrink-0 -mr-1 p-2.5 rounded-lg transition active:scale-90 md:opacity-0 md:group-hover:opacity-100 ${
+              menuPos ? 'text-slate-600 bg-slate-100 md:opacity-100' : 'text-slate-400 hover:text-slate-700 hover:bg-slate-100'
+            }`}
+          >
+            <MoreVertical size={18} />
+          </button>
         </div>
 
         {open && onUpdate && subs.length > 0 && (
@@ -185,5 +206,43 @@ export const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, onDelete, on
         )}
       </div>
     </div>
+
+    {menuPos && (
+      <>
+        <div className="fixed inset-0 z-[60]" onClick={() => setMenuPos(null)} aria-hidden />
+        <div
+          role="menu"
+          className="fixed z-[61] w-48 bg-white rounded-2xl shadow-xl border border-slate-100 py-1.5 overflow-hidden animate-rise"
+          style={{ top: menuPos.top, left: menuPos.left }}
+        >
+          {onFocus && !task.completed && (
+            <button
+              role="menuitem"
+              onClick={() => { setMenuPos(null); onFocus(task.id); }}
+              className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50 active:bg-slate-100"
+            >
+              <Play size={17} className="text-teal-700 shrink-0" /> Focar agora
+            </button>
+          )}
+          {onEdit && (
+            <button
+              role="menuitem"
+              onClick={() => { setMenuPos(null); onEdit(task); }}
+              className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50 active:bg-slate-100"
+            >
+              <Edit2 size={17} className="text-teal-700 shrink-0" /> Editar
+            </button>
+          )}
+          <button
+            role="menuitem"
+            onClick={() => { setMenuPos(null); onDelete(task.id); }}
+            className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-rose-600 hover:bg-rose-50 active:bg-rose-100"
+          >
+            <Trash2 size={17} className="shrink-0" /> Excluir
+          </button>
+        </div>
+      </>
+    )}
+    </>
   );
 };
