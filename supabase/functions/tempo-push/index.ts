@@ -2,11 +2,11 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient, type SupabaseClient } from "npm:@supabase/supabase-js@2";
 import webpush from "npm:web-push@3.6.7";
 
-// Lembretes diários por Web Push (funcionam com o app fechado). Dois modos:
+// Lembretes por Web Push (funcionam com o app fechado). Dois modos:
 //  - CRON: chamado pelo agendador (pg_cron) com o header x-cron-secret. Varre as
-//    inscrições cuja hora local == hora escolhida e que ainda não receberam hoje.
+//    inscrições devidas agora (manhã e/ou noite) e envia.
 //  - TESTE: chamado pelo app com o JWT do usuário e body {test:true}; envia um
-//    push imediato para os aparelhos daquele usuário (botão "Enviar teste").
+//    push imediato (formato da manhã) para os aparelhos daquele usuário.
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -30,7 +30,7 @@ interface SubRow {
   p256dh: string;
   auth: string;
   tz: string;
-  reminder_hour: number;
+  kind?: string;
   local_date?: string;
 }
 
@@ -42,21 +42,49 @@ const localDateISO = (tz: string): string => {
   }
 };
 
-// Mesma regra do selo no app: pendentes com data de hoje ou atrasadas.
-const countTodayTasks = (data: unknown, localDate: string): number => {
-  const tasks = (data as { tasks?: Array<{ completed?: boolean; dueDate?: string }> })?.tasks;
-  if (!Array.isArray(tasks)) return 0;
-  return tasks.filter((t) => t && !t.completed && !!t.dueDate && t.dueDate <= localDate).length;
+const clip = (s: string, n = 40): string => (s.length > n ? s.slice(0, n - 1) + "…" : s);
+
+// Lê as tarefas do usuário (mesma regra do selo) e resume o dia.
+const analyze = (data: unknown, localDate: string) => {
+  const tasks = (data as { tasks?: Array<{ title?: string; completed?: boolean; dueDate?: string }> })?.tasks;
+  if (!Array.isArray(tasks)) return { pending: 0, firstTitle: "", todayTotal: 0, todayDone: 0 };
+  const pendingList = tasks.filter((t) => t && !t.completed && !!t.dueDate && t.dueDate <= localDate);
+  const todays = tasks.filter((t) => t && t.dueDate === localDate);
+  return {
+    pending: pendingList.length,
+    firstTitle: (pendingList[0]?.title ?? "").trim(),
+    todayTotal: todays.length,
+    todayDone: todays.filter((t) => t.completed).length,
+  };
 };
 
-const buildPayload = (count: number) => ({
-  title: count > 0 ? "Bom dia! ☀️" : "Tudo certo por hoje 🎉",
-  body: count > 0
-    ? `Você tem ${count} ${count === 1 ? "tarefa" : "tarefas"} para hoje. Bora começar?`
-    : "Nenhuma tarefa pendente para hoje. Aproveite!",
-  count,
-  url: "./",
-});
+type Analysis = ReturnType<typeof analyze>;
+
+const morningPayload = (a: Analysis) => {
+  const n = a.pending;
+  const body = a.firstTitle
+    ? `Você tem ${n} ${n === 1 ? "tarefa" : "tarefas"} hoje. Bora começar por “${clip(a.firstTitle)}”?`
+    : `Você tem ${n} ${n === 1 ? "tarefa" : "tarefas"} para hoje. Bora começar?`;
+  return { title: "Bom dia! ☀️", body, count: n, url: "./" };
+};
+
+const eveningPayload = (a: Analysis) => {
+  const done = a.todayDone;
+  const total = a.todayTotal;
+  if (total === 0) {
+    return { title: "Como foi seu dia? 🌙", body: "Toque para registrar como foi e planejar o de amanhã.", count: a.pending, url: "./" };
+  }
+  const left = total - done;
+  const allDone = left <= 0;
+  return {
+    title: allDone ? "Mandou bem! 🎉" : "Como foi seu dia? 🌙",
+    body: allDone
+      ? `Você concluiu todas as ${total} ${total === 1 ? "tarefa" : "tarefas"} de hoje. 👏`
+      : `Você concluiu ${done} de ${total}. ${left === 1 ? "Falta 1" : `Faltam ${left}`} — bora fechar o dia?`,
+    count: a.pending,
+    url: "./",
+  };
+};
 
 const sendTo = async (admin: SupabaseClient, sub: SubRow, payload: unknown): Promise<boolean> => {
   try {
@@ -106,18 +134,18 @@ Deno.serve(async (req: Request) => {
       if (!user) return json({ error: "Não autenticado." }, 401);
 
       const { data: subs } = await admin
-        .from("push_subscriptions").select("*").eq("user_id", user.id).eq("enabled", true);
+        .from("push_subscriptions").select("*").eq("user_id", user.id).or("enabled.eq.true,evening_enabled.eq.true");
       if (!subs || subs.length === 0) return json({ sent: 0, reason: "sem inscrições neste aparelho" });
 
       const { data: stateRow } = await admin
         .from("tempo_app_state").select("data").eq("user_id", user.id).maybeSingle();
-      const count = countTodayTasks(stateRow?.data, localDateISO((subs[0] as SubRow).tz));
-      const payload = { ...buildPayload(count), title: "🔔 Teste de lembrete" };
+      const a = analyze(stateRow?.data, localDateISO((subs[0] as SubRow).tz));
+      const payload = { ...morningPayload(a), title: "🔔 Teste de lembrete" };
       const results = await Promise.all(subs.map((s) => sendTo(admin, s as SubRow, payload)));
       return json({ sent: results.filter(Boolean).length });
     }
 
-    // ---- Modo CRON: varre as inscrições devidas agora ----
+    // ---- Modo CRON: varre as inscrições devidas agora (manhã/noite) ----
     const { data: due, error } = await admin.rpc("due_push_subscriptions");
     if (error) {
       console.error("rpc error", error.message);
@@ -129,10 +157,15 @@ Deno.serve(async (req: Request) => {
       const localDate = sub.local_date ?? localDateISO(sub.tz);
       const { data: stateRow } = await admin
         .from("tempo_app_state").select("data").eq("user_id", sub.user_id).maybeSingle();
-      const count = countTodayTasks(stateRow?.data, localDate);
-      if (count > 0 && await sendTo(admin, sub, buildPayload(count))) sent++;
-      // Marca o dia como processado (evita reenvio nas próximas execuções do cron)
-      await admin.from("push_subscriptions").update({ last_sent_on: localDate }).eq("id", sub.id);
+      const a = analyze(stateRow?.data, localDate);
+      if (sub.kind === "evening") {
+        if (await sendTo(admin, sub, eveningPayload(a))) sent++;
+        await admin.from("push_subscriptions").update({ last_evening_on: localDate }).eq("id", sub.id);
+      } else {
+        // De manhã, só avisa se houver pendências (não enche o saco em dia livre).
+        if (a.pending > 0 && await sendTo(admin, sub, morningPayload(a))) sent++;
+        await admin.from("push_subscriptions").update({ last_sent_on: localDate }).eq("id", sub.id);
+      }
     }
     return json({ processed: rows.length, sent });
   } catch (e) {

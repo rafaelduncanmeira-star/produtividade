@@ -39,14 +39,23 @@ const deviceTz = (): string => {
   catch { return 'America/Sao_Paulo'; }
 };
 
-// Liga o lembrete diário: cria a inscrição de push (se ainda não existir) e a
-// guarda no Supabase com a hora escolhida e o fuso do aparelho.
-export const enableDailyPush = async (hour: number): Promise<boolean> => {
+export interface ReminderPrefs {
+  morningEnabled: boolean;
+  morningHour: number;
+  eveningEnabled: boolean;
+  eveningHour: number;
+}
+
+// Salva as preferências de lembrete deste aparelho. Cria a inscrição de push na
+// primeira vez que algo é ligado; depois só atualiza horários e flags.
+// Omite last_sent_on/last_evening_on de propósito: trocar a hora não reenvia hoje.
+export const saveReminderPrefs = async (p: ReminderPrefs): Promise<boolean> => {
   if (!pushSupported()) return false;
   const reg = await getRegistration();
   if (!reg) return false;
   let sub = await reg.pushManager.getSubscription();
   if (!sub) {
+    if (!p.morningEnabled && !p.eveningEnabled) return true; // nada a inscrever ainda
     sub = await reg.pushManager.subscribe({
       userVisibleOnly: true,
       applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC),
@@ -56,27 +65,19 @@ export const enableDailyPush = async (hour: number): Promise<boolean> => {
   if (!user) return false;
   const j = sub.toJSON();
   if (!j.keys?.p256dh || !j.keys?.auth) return false;
-  // Omite last_sent_on de propósito: trocar a hora não deve reenviar hoje.
   const { error } = await supabase.from('push_subscriptions').upsert({
     user_id: user.id,
     endpoint: sub.endpoint,
     p256dh: j.keys.p256dh,
     auth: j.keys.auth,
     tz: deviceTz(),
-    reminder_hour: hour,
-    enabled: true,
+    enabled: p.morningEnabled,
+    reminder_hour: p.morningHour,
+    evening_enabled: p.eveningEnabled,
+    evening_hour: p.eveningHour,
     updated_at: new Date().toISOString(),
   }, { onConflict: 'endpoint' });
   return !error;
-};
-
-// Desliga o lembrete neste aparelho (mantém o registro, só marca inativo).
-export const disableDailyPush = async (): Promise<void> => {
-  const reg = await getRegistration();
-  const sub = reg ? await reg.pushManager.getSubscription() : null;
-  if (!sub) return;
-  try { await supabase.from('push_subscriptions').update({ enabled: false }).eq('endpoint', sub.endpoint); }
-  catch { /* ignore */ }
 };
 
 // Dispara um push de teste imediato para os aparelhos deste usuário.
