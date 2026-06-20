@@ -1,9 +1,10 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Play, CalendarClock, ChevronRight, ChevronDown, CheckCircle2, Check, Plus, Calendar } from 'lucide-react';
+import { Play, CalendarClock, ChevronRight, ChevronDown, CheckCircle2, Check, Plus, Calendar, Sparkles } from 'lucide-react';
 import { Task, Habit, TimeBlock, FocusSession, GoogleEvent, Project, DailyReview, GOOGLE_EVENT_COLOR, REVIEW_MOODS } from '../types';
-import { todayISO, getGreeting, formatLongDate, formatMinutes, focusMinutesOn, parseQuickTask } from '../utils';
+import { todayISO, getGreeting, formatLongDate, formatMinutes, focusMinutesOn, parseQuickTask, addDaysISO } from '../utils';
 import { TaskItem } from './TaskItem';
 import { TaskForm } from './TaskForm';
+import { useToast } from './Toast';
 
 type AgendaItem = { key: string; title: string; start: string; end: string; color: string; fromGoogle: boolean; taskId?: string; completed?: boolean };
 
@@ -53,6 +54,23 @@ export const TodayView: React.FC<TodayViewProps> = ({
   );
   const doneToday = doneTodayTasks.length;
   const [showDone, setShowDone] = useState(true);
+
+  const { toast } = useToast();
+  const tomorrow = addDaysISO(today, 1);
+  // Sugestões: tarefas sem data (priorizando as de metas) para puxar pro dia
+  const suggestions = useMemo(() => {
+    const projMap = new Map((projects ?? []).map(p => [p.id, p]));
+    return tasks
+      .filter(t => !t.completed && !t.dueDate)
+      .sort((a, b) => (Number(!!b.projectId) - Number(!!a.projectId)) || (Number(b.important) - Number(a.important)))
+      .slice(0, 5)
+      .map(t => ({ task: t, project: t.projectId ? projMap.get(t.projectId) : undefined }));
+  }, [tasks, projects]);
+  const [showSug, setShowSug] = useState(() => todayTasks.length === 0);
+  const scheduleFor = (task: Task, dateISO: string, msg: string) => {
+    onUpdateTask({ ...task, dueDate: dateISO });
+    toast(msg);
+  };
 
   useEffect(() => {
     if (googleActive) onLoadGoogleEvents(today);
@@ -163,6 +181,36 @@ export const TodayView: React.FC<TodayViewProps> = ({
               <p className="text-sm text-slate-400 text-center py-6">Nada com prazo para hoje. 🎉</p>
             )}
           </div>
+
+          {/* Sugestões: tarefas sem data (priorizando metas) para puxar pro dia */}
+          {suggestions.length > 0 && (
+            <div className="mt-3 pt-3 border-t border-slate-100">
+              <button
+                onClick={() => setShowSug(s => !s)}
+                aria-expanded={showSug}
+                className="flex items-center justify-between w-full mb-2"
+              >
+                <span className="text-xs font-medium text-slate-500 flex items-center gap-1.5">
+                  <Sparkles size={13} className="text-teal-600" /> Sugestões pro seu dia · {suggestions.length}
+                </span>
+                <ChevronDown size={15} className={`text-slate-400 transition-transform ${showSug ? 'rotate-180' : ''}`} />
+              </button>
+              {showSug && (
+                <div className="space-y-1.5">
+                  {suggestions.map(({ task, project }) => (
+                    <div key={task.id} className="flex items-center gap-2 px-2.5 py-2 rounded-lg bg-slate-50">
+                      {project
+                        ? <span className="text-sm shrink-0" title={project.name}>{project.emoji}</span>
+                        : <span className="w-1.5 h-1.5 rounded-full bg-slate-300 shrink-0" />}
+                      <span className="text-sm text-slate-600 flex-1 truncate">{task.title}</span>
+                      <button onClick={() => scheduleFor(task, today, '✅ Adicionada ao seu dia')} className="text-[11px] font-bold text-teal-700 px-2 py-1 rounded-md hover:bg-teal-50 active:scale-95 transition">Hoje</button>
+                      <button onClick={() => scheduleFor(task, tomorrow, '📅 Agendada para amanhã')} className="text-[11px] font-medium text-slate-500 px-2 py-1 rounded-md hover:bg-slate-100 active:scale-95 transition">Amanhã</button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Concluídas hoje — fica visível pra dar a sensação de "eu fiz isso" */}
           {doneTodayTasks.length > 0 && (
