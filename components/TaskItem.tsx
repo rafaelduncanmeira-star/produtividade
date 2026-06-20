@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Check, Edit2, Trash2, Play, Timer, Calendar, Clock, Repeat, ListChecks, ChevronDown, MoreVertical } from 'lucide-react';
 import { Task, QUADRANT_INFO, getQuadrant } from '../types';
-import { todayISO, formatShortDate } from '../utils';
+import { todayISO, formatShortDate, addDaysISO } from '../utils';
 
 interface TaskItemProps {
   task: Task;
@@ -15,7 +15,18 @@ interface TaskItemProps {
 
 export const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, onDelete, onEdit, onFocus, onUpdate, compact }) => {
   const quadrant = QUADRANT_INFO[getQuadrant(task)];
-  const overdue = !task.completed && !!task.dueDate && task.dueDate < todayISO();
+  const today = todayISO();
+  const overdue = !task.completed && !!task.dueDate && task.dueDate < today;
+  // Prazo legível: "Hoje" / "Atrasada" / "Amanhã" / data curta, com cor por urgência.
+  const dueInfo = task.dueDate
+    ? overdue
+      ? { text: 'Atrasada', cls: 'bg-rose-50 text-rose-700' }
+      : task.dueDate === today
+        ? { text: 'Hoje', cls: 'bg-teal-50 text-teal-700' }
+        : task.dueDate === addDaysISO(today, 1)
+          ? { text: 'Amanhã', cls: 'bg-slate-100 text-slate-500' }
+          : { text: formatShortDate(task.dueDate), cls: 'bg-slate-100 text-slate-500' }
+    : null;
   const subs = task.subtasks ?? [];
   const doneSubs = subs.filter(s => s.done).length;
   const [open, setOpen] = useState(false);
@@ -125,8 +136,9 @@ export const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, onDelete, on
         onPointerMove={onPointerMove}
         onPointerUp={endSwipe}
         onPointerCancel={endSwipe}
-        style={{ transform: `translateX(${dx}px)`, transition: dragging ? 'none' : 'transform 0.2s ease', touchAction: 'pan-y' }}
-        className={`relative bg-white rounded-xl border border-slate-100 hover:border-slate-200 ${compact ? 'px-3 py-2.5' : 'px-4 py-3'}`}
+        style={{ transform: `translateX(${dx}px)`, transition: dragging ? 'none' : 'transform 0.2s ease', touchAction: 'pan-y', borderLeftWidth: task.completed ? undefined : 4, borderLeftColor: task.completed ? undefined : quadrant.color }}
+        title={task.completed ? undefined : quadrant.hint}
+        className={`relative bg-white rounded-xl border border-slate-100 hover:border-slate-200 ${compact ? 'pl-3 pr-2 py-2.5' : 'pl-4 pr-3 py-3'}`}
       >
         <div className="group flex items-center gap-3">
           <button
@@ -140,11 +152,22 @@ export const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, onDelete, on
           </button>
 
           <div className="flex-1 min-w-0">
-            <p className={`text-sm font-medium truncate ${task.completed ? 'text-slate-400 line-through' : 'text-slate-700'}`}>
+            <p className={`text-[15px] font-semibold leading-snug truncate ${task.completed ? 'text-slate-400 line-through' : 'text-slate-800'}`}>
               {task.title}
             </p>
-            <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-              <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${quadrant.badgeClass}`}>{quadrant.label}</span>
+            <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+              {dueInfo && (
+                <span className={`flex items-center gap-0.5 text-[10px] font-semibold px-1.5 py-0.5 rounded ${task.completed ? 'bg-slate-100 text-slate-400' : dueInfo.cls}`}>
+                  <Calendar size={10} /> {dueInfo.text}
+                </span>
+              )}
+              {task.dueTime && (
+                <span className="flex items-center gap-0.5 text-[10px] font-semibold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">
+                  <Clock size={10} /> {task.dueTime}
+                </span>
+              )}
+              {!compact && <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${quadrant.badgeClass}`}>{quadrant.label}</span>}
+              {!compact && <span className="text-[10px] text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded">{task.category}</span>}
               {task.recurrence && <Repeat size={11} className="text-slate-400 shrink-0" />}
               {subs.length > 0 && (onUpdate ? (
                 <button type="button" onClick={() => setOpen(o => !o)} className="flex items-center gap-0.5 text-[10px] font-medium text-slate-400 hover:text-teal-700">
@@ -154,18 +177,6 @@ export const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, onDelete, on
               ) : (
                 <span className="flex items-center gap-0.5 text-[10px] font-medium text-slate-400"><ListChecks size={11} /> {doneSubs}/{subs.length}</span>
               ))}
-              {!compact && <span className="text-[10px] text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded">{task.category}</span>}
-              {task.dueDate && (
-                <span className={`flex items-center gap-0.5 text-[10px] font-medium ${overdue ? 'text-rose-600' : 'text-slate-400'}`}>
-                  <Calendar size={10} />
-                  {overdue ? `Atrasada ${formatShortDate(task.dueDate)}` : formatShortDate(task.dueDate)}
-                </span>
-              )}
-              {task.dueTime && (
-                <span className="flex items-center gap-0.5 text-[10px] font-medium text-slate-400">
-                  <Clock size={10} /> {task.dueTime}
-                </span>
-              )}
               {task.estimatedPomodoros > 0 && (
                 <span className="flex items-center gap-0.5 text-[10px] text-slate-400 font-medium">
                   <Timer size={10} />
