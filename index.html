@@ -149,6 +149,15 @@
       @keyframes fab-in { 0% { opacity: 0; transform: translateY(8px) scale(0.9); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
       @media (prefers-reduced-motion: reduce) { .animate-float { animation: none; } }
 
+      /* Conclusão de tarefa — microanimação elegante (sem confete) */
+      @keyframes task-ring { 0% { transform: scale(0.5); opacity: 0.45; } 100% { transform: scale(2.4); opacity: 0; } }
+      .task-ring { animation: task-ring 0.5s ease-out forwards; }
+      @keyframes task-strike { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+      .task-strike { transform-origin: left center; animation: task-strike 0.34s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+      @keyframes task-sheen { 0% { transform: translateX(-120%); } 100% { transform: translateX(360%); } }
+      .task-sheen { animation: task-sheen 0.62s ease-out forwards; }
+      @media (prefers-reduced-motion: reduce) { .task-ring, .task-strike, .task-sheen { animation: none; } }
+
       /* Evita o zoom automático do iOS ao focar campos (acontece quando a fonte < 16px).
          Vale só em telas de toque, preservando o visual compacto no desktop. */
       @media (pointer: coarse) {

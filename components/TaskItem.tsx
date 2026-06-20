@@ -30,6 +30,19 @@ export const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, onDelete, on
   const subs = task.subtasks ?? [];
   const doneSubs = subs.filter(s => s.done).length;
   const [open, setOpen] = useState(false);
+  const [completing, setCompleting] = useState(false);
+  const [collapsing, setCollapsing] = useState(false);
+  const timers = useRef<number[]>([]);
+  useEffect(() => () => { timers.current.forEach(clearTimeout); }, []);
+  const reduceMotion = () => typeof window !== 'undefined' && !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  // Conclui com uma microanimação (check + risco + brilho) e só então recolhe a linha.
+  const completeWithAnim = () => {
+    if (task.completed || reduceMotion()) { onToggle(task.id); return; } // reabrir/baixa-animação: direto
+    if (completing) return;
+    setCompleting(true);
+    timers.current.push(window.setTimeout(() => setCollapsing(true), 460));
+    timers.current.push(window.setTimeout(() => onToggle(task.id), 720));
+  };
 
   // Menu de ações (⋯): posição fixa calculada a partir do botão.
   const [menuPos, setMenuPos] = useState<{ top: number; left: number } | null>(null);
@@ -115,12 +128,16 @@ export const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, onDelete, on
     const wasH = dir.current === 'h';
     dir.current = null;
     if (!wasH) return;
-    if (d > 75) onToggle(task.id);
+    if (d > 75) completeWithAnim();
     else if (d < -100) onDelete(task.id); // excluir exige um arrasto mais deliberado
   };
 
   return (
     <>
+    <div
+      style={{ display: 'grid', gridTemplateRows: collapsing ? '0fr' : '1fr', opacity: collapsing ? 0 : 1, transition: 'grid-template-rows 0.26s ease, opacity 0.26s ease' }}
+    >
+      <div className="overflow-hidden">
     <div className="relative overflow-hidden rounded-xl">
       {/* Fundo revelado ao deslizar */}
       {dx !== 0 && (
@@ -138,22 +155,29 @@ export const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, onDelete, on
         onPointerCancel={endSwipe}
         style={{ transform: `translateX(${dx}px)`, transition: dragging ? 'none' : 'transform 0.2s ease', touchAction: 'pan-y', borderLeftWidth: task.completed ? undefined : 4, borderLeftColor: task.completed ? undefined : quadrant.color }}
         title={task.completed ? undefined : quadrant.hint}
-        className={`relative bg-white rounded-xl border border-slate-100 hover:border-slate-200 ${compact ? 'pl-3 pr-2 py-2.5' : 'pl-4 pr-3 py-3'}`}
+        className={`relative rounded-xl border transition-colors ${completing ? 'bg-emerald-50 border-emerald-200' : 'bg-white border-slate-100 hover:border-slate-200'} ${compact ? 'pl-3 pr-2 py-2.5' : 'pl-4 pr-3 py-3'}`}
       >
+        {completing && (
+          <span className="pointer-events-none absolute inset-0 overflow-hidden rounded-xl">
+            <span className="absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-transparent via-emerald-200/70 to-transparent task-sheen" />
+          </span>
+        )}
         <div className="group flex items-center gap-3">
           <button
-            onClick={() => onToggle(task.id)}
+            onClick={completeWithAnim}
             aria-label={task.completed ? 'Reabrir tarefa' : 'Concluir tarefa'}
-            className={`shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${pop ? 'animate-pop' : ''} ${
-              task.completed ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-slate-300 text-transparent hover:border-emerald-400'
+            className={`relative shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${(pop || completing) ? 'animate-pop' : ''} ${
+              (task.completed || completing) ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-slate-300 text-transparent hover:border-emerald-400'
             }`}
           >
-            <Check size={14} strokeWidth={3} />
+            {completing && <span className="absolute inset-0 rounded-full bg-emerald-400 task-ring" />}
+            <Check size={14} strokeWidth={3} className="relative" />
           </button>
 
           <div className="flex-1 min-w-0">
-            <p className={`text-[15px] font-semibold leading-snug truncate ${task.completed ? 'text-slate-400 line-through' : 'text-slate-800'}`}>
+            <p className={`relative text-[15px] font-semibold leading-snug truncate transition-colors ${task.completed ? 'text-slate-400 line-through' : completing ? 'text-slate-400' : 'text-slate-800'}`}>
               {task.title}
+              {completing && <span className="absolute left-0 top-1/2 -translate-y-1/2 h-[2px] w-full rounded-full bg-slate-400 task-strike" />}
             </p>
             <div className="flex items-center gap-1.5 mt-1 flex-wrap">
               {dueInfo && (
@@ -215,6 +239,8 @@ export const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, onDelete, on
             ))}
           </div>
         )}
+      </div>
+    </div>
       </div>
     </div>
 
