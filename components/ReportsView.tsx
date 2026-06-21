@@ -232,7 +232,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ tasks, habits, session
       </div>
 
       {/* Leitura da semana */}
-      <div className="bg-gradient-to-br from-teal-50/60 to-white rounded-2xl border border-teal-100 shadow-sm p-5">
+      <div className="bg-white rounded-2xl border border-teal-100 shadow-sm p-5">
         <h3 className="font-bold text-slate-800 text-sm flex items-center gap-1.5"><Sparkles size={15} className="text-teal-600" /> Leitura da semana</h3>
         {weeklyReading.length === 0 ? (
           <p className="text-sm text-slate-400 mt-2">Registre tarefas, foco e hábitos durante a semana — aqui vira um diagnóstico do que melhorar amanhã.</p>
