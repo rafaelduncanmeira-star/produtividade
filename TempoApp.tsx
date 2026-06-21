@@ -756,6 +756,7 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
               onNavigate={(v) => navigate(v as View)}
               review={reviews.find(r => r.date === todayISO()) ?? null}
               onSaveReview={(mood, note) => saveDailyReview(todayISO(), mood, note)}
+              focusMinutes={settings.focusMinutes}
             />
           )}
           {currentView === 'tasks' && (

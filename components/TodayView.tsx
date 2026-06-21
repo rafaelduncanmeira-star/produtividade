@@ -1,12 +1,15 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Play, CalendarClock, ChevronRight, ChevronDown, CheckCircle2, Check, Plus, Calendar, Sparkles } from 'lucide-react';
-import { Task, Habit, TimeBlock, FocusSession, GoogleEvent, Project, DailyReview, GOOGLE_EVENT_COLOR, REVIEW_MOODS } from '../types';
+import { Play, CalendarClock, ChevronRight, ChevronDown, CheckCircle2, Check, Plus, Calendar, Sparkles, Clock } from 'lucide-react';
+import { Task, Habit, TimeBlock, FocusSession, GoogleEvent, Project, DailyReview, GOOGLE_EVENT_COLOR, REVIEW_MOODS, getQuadrant } from '../types';
 import { todayISO, getGreeting, formatLongDate, formatMinutes, focusMinutesOn, parseQuickTask, addDaysISO, timeToMinutes } from '../utils';
 import { TaskItem } from './TaskItem';
 import { TaskForm } from './TaskForm';
 import { useToast } from './Toast';
 
 type AgendaItem = { key: string; title: string; start: string; end: string; color: string; fromGoogle: boolean; taskId?: string; completed?: boolean };
+
+// Prioridade pra sugerir a "melhor tarefa agora": Fazer agora > Agendar > Delegar > Eliminar.
+const QUAD_RANK: Record<string, number> = { q1: 0, q2: 1, q3: 2, q4: 3 };
 
 interface TodayViewProps {
   tasks: Task[];
@@ -26,12 +29,13 @@ interface TodayViewProps {
   onNavigate: (view: string) => void;
   review?: DailyReview | null;
   onSaveReview: (mood: number, note: string) => void;
+  focusMinutes?: number;
 }
 
 export const TodayView: React.FC<TodayViewProps> = ({
   tasks, habits, blocks, sessions, googleActive, googleEvents, onLoadGoogleEvents,
   onToggleTask, onDeleteTask, onUpdateTask, onQuickAddTask, onToggleHabitDay, onStartFocusTask, onNavigate,
-  review, onSaveReview, projects,
+  review, onSaveReview, projects, focusMinutes = 25,
 }) => {
   const [quickTitle, setQuickTitle] = useState('');
   const [editingTask, setEditingTask] = useState<Task | null>(null);
@@ -46,6 +50,17 @@ export const TodayView: React.FC<TodayViewProps> = ({
     () => tasks.filter(t => !t.completed && !!t.dueDate && t.dueDate <= today),
     [tasks, today]
   );
+  // Tarefas de hoje em ordem de prioridade (Fazendo > quadrante > prazo) para o bloco "Agora" e a lista.
+  const sortedToday = useMemo(() => [...todayTasks].sort((a, b) => {
+    const ad = a.status === 'doing' ? 0 : 1, bd = b.status === 'doing' ? 0 : 1;
+    if (ad !== bd) return ad - bd;
+    const aq = QUAD_RANK[getQuadrant(a)], bq = QUAD_RANK[getQuadrant(b)];
+    if (aq !== bq) return aq - bq;
+    const ada = a.dueDate ?? '9999-99-99', bda = b.dueDate ?? '9999-99-99';
+    if (ada !== bda) return ada < bda ? -1 : 1;
+    return (a.dueTime ?? '99:99').localeCompare(b.dueTime ?? '99:99');
+  }), [todayTasks]);
+  const bestTask = sortedToday[0] ?? null;
   const doneTodayTasks = useMemo(
     () => tasks
       .filter(t => t.completed && t.completedAt?.slice(0, 10) === today)
@@ -105,6 +120,20 @@ export const TodayView: React.FC<TodayViewProps> = ({
   const isOngoing = (item: AgendaItem) => !!item.end && timeToMinutes(item.start) <= nowMin && nowMin < timeToMinutes(item.end);
   const pastAgenda = useMemo(() => agendaItems.filter(isPast), [agendaItems, nowMin]); // eslint-disable-line react-hooks/exhaustive-deps
   const liveAgenda = useMemo(() => agendaItems.filter(i => !isPast(i)), [agendaItems, nowMin]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Texto do bloco "Agora": o que está em curso / quanto tempo livre até o próximo compromisso.
+  const agendaNow = useMemo(() => {
+    const ongoing = liveAgenda.find(isOngoing);
+    if (ongoing) return ongoing.end ? `Agora: ${ongoing.title} · até ${ongoing.end}` : `Agora: ${ongoing.title}`;
+    const next = liveAgenda.find(i => timeToMinutes(i.start) > nowMin);
+    if (!next) return null;
+    const diff = timeToMinutes(next.start) - nowMin;
+    if (diff <= 120) {
+      const free = diff >= 60 ? `${Math.floor(diff / 60)}h${diff % 60 ? ' ' + (diff % 60) + 'min' : ''}` : `${diff} min`;
+      return `${free} livres até ${next.title} (${next.start})`;
+    }
+    return `Próximo: ${next.title} às ${next.start}`;
+  }, [liveAgenda, nowMin]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const todayHabits = useMemo(
     () => habits.filter(h => h.targetDays.includes(weekday)),
@@ -188,6 +217,32 @@ export const TodayView: React.FC<TodayViewProps> = ({
         <span><b className="text-sm font-bold text-orange-500">{habitsDone}/{todayHabits.length}</b> hábitos</span>
       </div>
 
+      {/* Bloco "Agora": responde "o que faço agora?" */}
+      <div className="rounded-2xl p-4 bg-gradient-to-br from-teal-800 to-emerald-700 text-white shadow-md shadow-teal-200/50">
+        <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-teal-100/80">
+          <Clock size={12} /> Agora
+        </div>
+        <p className="text-sm text-teal-50 mt-1.5 leading-snug">
+          {agendaNow ?? 'Sem compromissos próximos — bom momento para avançar numa tarefa importante.'}
+        </p>
+        {bestTask ? (
+          <div className="mt-3 bg-white/10 rounded-xl p-2.5 pl-3 flex items-center gap-3">
+            <div className="flex-1 min-w-0">
+              <div className="text-[10px] font-medium text-teal-100/70">Sugestão para focar</div>
+              <div className="font-bold truncate text-[15px]">{bestTask.title}</div>
+            </div>
+            <button
+              onClick={() => onStartFocusTask(bestTask.id)}
+              className="shrink-0 bg-white text-teal-800 font-bold text-sm px-3 py-2 rounded-lg flex items-center gap-1.5 active:scale-95 transition shadow-sm"
+            >
+              <Play size={15} /> Focar {focusMinutes} min
+            </button>
+          </div>
+        ) : (
+          <p className="mt-2 text-sm text-teal-50/80">Nada pendente para hoje. 🎉 Que tal puxar algo das sugestões?</p>
+        )}
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         {/* Tarefas de hoje */}
         <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4">
@@ -215,7 +270,7 @@ export const TodayView: React.FC<TodayViewProps> = ({
             </button>
           </form>
           <div className="space-y-1.5">
-            {todayTasks.map(task => (
+            {sortedToday.slice(0, 3).map(task => (
               <TaskItem
                 key={task.id}
                 task={task}
@@ -229,6 +284,11 @@ export const TodayView: React.FC<TodayViewProps> = ({
             ))}
             {todayTasks.length === 0 && (
               <p className="text-sm text-slate-400 text-center py-6">Nada com prazo para hoje. 🎉</p>
+            )}
+            {todayTasks.length > 3 && (
+              <button onClick={() => onNavigate('tasks')} className="w-full text-center text-xs font-medium text-teal-700 hover:underline py-1.5">
+                +{todayTasks.length - 3} {todayTasks.length - 3 === 1 ? 'tarefa' : 'tarefas'} · ver todas
+              </button>
             )}
           </div>
 
