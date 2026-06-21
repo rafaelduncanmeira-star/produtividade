@@ -140,6 +140,7 @@ export interface Project {
   emoji: string;
   color: string;
   dueDate?: string;            // 'YYYY-MM-DD' (prazo opcional)
+  notes?: string;              // anotações livres da meta (contexto, links, ideias)
   createdAt: string;           // ISO datetime
 }
 

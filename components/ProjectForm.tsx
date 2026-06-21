@@ -16,6 +16,7 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({ initialProject, onSave
   const [emoji, setEmoji] = useState(initialProject?.emoji ?? PROJECT_EMOJIS[0]);
   const [color, setColor] = useState(initialProject?.color ?? HABIT_COLORS[0]);
   const [dueDate, setDueDate] = useState(initialProject?.dueDate ?? '');
+  const [notes, setNotes] = useState(initialProject?.notes ?? '');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,6 +26,7 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({ initialProject, onSave
       emoji,
       color,
       dueDate: dueDate || undefined,
+      notes: notes.trim() || undefined,
       createdAt: initialProject?.createdAt ?? new Date().toISOString(),
     }, initialProject?.id);
   };
@@ -93,6 +95,17 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({ initialProject, onSave
               value={dueDate}
               onChange={e => setDueDate(e.target.value)}
               className={fieldCls}
+            />
+          </div>
+
+          <div>
+            <label className={labelCls}>Anotações (opcional)</label>
+            <textarea
+              value={notes}
+              onChange={e => setNotes(e.target.value)}
+              rows={3}
+              placeholder="Contexto, links, decisões, ideias…"
+              className={`${fieldCls} resize-none leading-relaxed`}
             />
           </div>
 

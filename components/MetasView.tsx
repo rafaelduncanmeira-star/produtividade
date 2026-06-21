@@ -1,10 +1,43 @@
-import React, { useState } from 'react';
-import { Plus, Target, Pencil, Trash2, Calendar, ChevronDown } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Plus, Target, Pencil, Trash2, Calendar, ChevronDown, StickyNote } from 'lucide-react';
 import { Project, Task } from '../types';
 import { todayISO, formatShortDate } from '../utils';
 import { TaskItem } from './TaskItem';
 import { TaskForm } from './TaskForm';
 import { ProjectForm } from './ProjectForm';
+
+// Anotações livres da meta: textarea que cresce sozinha e salva ao sair do campo.
+const MetaNotes: React.FC<{ project: Project; onSave: (p: Project) => void }> = ({ project, onSave }) => {
+  const [value, setValue] = useState(project.notes ?? '');
+  const ref = useRef<HTMLTextAreaElement>(null);
+  // Re-seed só quando troca de meta (não atropela a digitação).
+  useEffect(() => { setValue(project.notes ?? ''); }, [project.id]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    const el = ref.current;
+    if (el) { el.style.height = 'auto'; el.style.height = `${el.scrollHeight}px`; }
+  }, [value]);
+  const commit = () => {
+    const next = value.trim();
+    if (next === (project.notes ?? '')) return;
+    onSave({ ...project, notes: next || undefined });
+  };
+  return (
+    <div className="rounded-xl border border-slate-100 bg-white p-3">
+      <div className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-500 mb-1.5">
+        <StickyNote size={13} className="text-teal-600" /> Anotações
+      </div>
+      <textarea
+        ref={ref}
+        value={value}
+        onChange={e => setValue(e.target.value)}
+        onBlur={commit}
+        rows={2}
+        placeholder="Contexto, links, decisões, ideias…"
+        className="w-full text-sm text-slate-700 placeholder:text-slate-300 outline-none resize-none bg-transparent leading-relaxed min-h-[2.5rem]"
+      />
+    </div>
+  );
+};
 
 interface MetasViewProps {
   projects: Project[];
@@ -93,6 +126,9 @@ export const MetasView: React.FC<MetasViewProps> = ({
                           <Calendar size={11} /> {overdue ? `Atrasada ${formatShortDate(p.dueDate)}` : formatShortDate(p.dueDate)}
                         </span>
                       )}
+                      {p.notes && (
+                        <span className="flex items-center gap-0.5 text-[11px] font-medium text-teal-700"><StickyNote size={11} /> nota</span>
+                      )}
                     </div>
                   </div>
                   <div className="flex gap-0.5 shrink-0">
@@ -117,20 +153,23 @@ export const MetasView: React.FC<MetasViewProps> = ({
               </div>
 
               {isOpen && (
-                <div className="px-4 pb-4 space-y-1.5 bg-slate-50/50">
-                  {pTasks.length === 0 && <p className="text-xs text-slate-400 py-2">Nenhuma tarefa nesta meta ainda.</p>}
-                  {pTasks.map(t => (
-                    <TaskItem
-                      key={t.id}
-                      task={t}
-                      compact
-                      onToggle={onToggleTask}
-                      onDelete={onDeleteTask}
-                      onEdit={(task) => setTaskForm({ projectId: p.id, task })}
-                      onFocus={onStartFocusTask}
-                      onUpdate={onUpdateTask}
-                    />
-                  ))}
+                <div className="px-4 pb-4 space-y-3 bg-slate-50/50">
+                  <MetaNotes project={p} onSave={onUpdateProject} />
+                  <div className="space-y-1.5">
+                    {pTasks.length === 0 && <p className="text-xs text-slate-400 py-1">Nenhuma tarefa nesta meta ainda.</p>}
+                    {pTasks.map(t => (
+                      <TaskItem
+                        key={t.id}
+                        task={t}
+                        compact
+                        onToggle={onToggleTask}
+                        onDelete={onDeleteTask}
+                        onEdit={(task) => setTaskForm({ projectId: p.id, task })}
+                        onFocus={onStartFocusTask}
+                        onUpdate={onUpdateTask}
+                      />
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
