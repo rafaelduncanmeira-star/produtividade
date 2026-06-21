@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Check, Edit2, Trash2, Play, Timer, Calendar, Clock, Repeat, ListChecks, ChevronDown, MoreVertical } from 'lucide-react';
+import { Check, Edit2, Trash2, Play, Timer, Calendar, Clock, Repeat, ListChecks, ChevronDown, MoreVertical, Plus } from 'lucide-react';
 import { Task, QUADRANT_INFO, getQuadrant, QUADRANTS, Quadrant } from '../types';
 import { todayISO, formatShortDate, addDaysISO } from '../utils';
 
@@ -186,6 +186,15 @@ export const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, onDelete, on
                 <span className={`flex items-center gap-0.5 text-[10px] font-semibold px-1.5 py-0.5 rounded ${task.completed ? 'bg-slate-100 text-slate-400' : dueInfo.cls}`}>
                   <Calendar size={10} /> {dueInfo.text}
                 </span>
+              )}
+              {!task.dueDate && !task.completed && onUpdate && (
+                <button
+                  onClick={() => onUpdate({ ...task, dueDate: today })}
+                  title="Fazer hoje"
+                  className="flex items-center gap-0.5 text-[10px] font-bold text-teal-700 bg-teal-50 hover:bg-teal-100 active:scale-95 px-1.5 py-0.5 rounded transition"
+                >
+                  <Plus size={10} /> Hoje
+                </button>
               )}
               {task.dueTime && (
                 <span className="flex items-center gap-0.5 text-[10px] font-semibold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">
