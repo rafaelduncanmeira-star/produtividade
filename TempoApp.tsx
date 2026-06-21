@@ -714,7 +714,7 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
           </div>
         </header>
 
-        <main className="p-4 md:p-8 pb-28 md:pb-8 max-w-5xl mx-auto">
+        <main className="p-4 md:p-8 pb-[calc(9.5rem+env(safe-area-inset-bottom))] md:pb-8 max-w-5xl mx-auto">
           {pwa.showInstall && (
             <div className="mb-4 flex items-center gap-3 bg-white rounded-xl border border-teal-100 shadow-sm p-3">
               <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-teal-800 to-emerald-700 text-white flex items-center justify-center shrink-0">

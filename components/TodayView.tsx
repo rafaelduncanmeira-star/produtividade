@@ -171,7 +171,7 @@ export const TodayView: React.FC<TodayViewProps> = ({
       <div className="flex items-start justify-between gap-3">
         <div>
           <h2 className="text-2xl font-bold text-slate-800 font-display">{getGreeting()}! 👋</h2>
-          <p className="text-slate-500 text-sm capitalize">{formatLongDate()}</p>
+          <p className="text-slate-500 text-sm first-letter:capitalize">{formatLongDate()}</p>
         </div>
         <button
           onClick={() => onNavigate('focus')}
@@ -183,8 +183,8 @@ export const TodayView: React.FC<TodayViewProps> = ({
 
       {/* Resumo do dia em uma linha enxuta */}
       <div className="flex items-center gap-5 px-1 text-xs text-slate-400">
-        <span><b className="text-sm font-bold text-teal-700">{formatMinutes(focusToday)}</b> focado</span>
-        <span><b className="text-sm font-bold text-emerald-600">{doneToday}</b> feitas</span>
+        <span><b className="text-sm font-bold text-teal-700">{formatMinutes(focusToday)}</b> de foco</span>
+        <span><b className="text-sm font-bold text-emerald-600">{doneToday}</b> concluídas</span>
         <span><b className="text-sm font-bold text-orange-500">{habitsDone}/{todayHabits.length}</b> hábitos</span>
       </div>
 
@@ -241,7 +241,7 @@ export const TodayView: React.FC<TodayViewProps> = ({
                 className="flex items-center justify-between w-full mb-2"
               >
                 <span className="text-xs font-medium text-slate-500 flex items-center gap-1.5">
-                  <Sparkles size={13} className="text-teal-600" /> Sugestões pro seu dia · {suggestions.length}
+                  <Sparkles size={13} className="text-teal-600" /> Sugestões para hoje · {suggestions.length}
                 </span>
                 <ChevronDown size={15} className={`text-slate-400 transition-transform ${showSug ? 'rotate-180' : ''}`} />
               </button>
@@ -300,7 +300,7 @@ export const TodayView: React.FC<TodayViewProps> = ({
             <div className="flex items-center justify-between mb-3">
               <h3 className="font-bold text-slate-800 text-sm">Agenda de hoje</h3>
               <button onClick={() => onNavigate('planner')} className="text-xs text-teal-700 font-medium flex items-center gap-0.5 hover:underline">
-                Abrir agenda <ChevronRight size={12} />
+                Ver agenda <ChevronRight size={12} />
               </button>
             </div>
             {allDayEvents.length > 0 && (

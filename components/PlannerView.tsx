@@ -254,7 +254,7 @@ const WeekAgenda: React.FC<WeekAgendaProps> = ({ days, blocks, tasks, eventsForD
           <div key={d} className={`bg-white rounded-2xl border p-3 ${isToday ? 'border-teal-200' : 'border-slate-100'}`}>
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
-                <span className={`text-sm font-bold capitalize ${isToday ? 'text-teal-700' : 'text-slate-700'}`}>
+                <span className={`text-sm font-bold first-letter:capitalize ${isToday ? 'text-teal-700' : 'text-slate-700'}`}>
                   {WEEKDAY_SHORT[dt.getDay()]}, {dt.getDate()}/{String(dt.getMonth() + 1).padStart(2, '0')}
                 </span>
                 {isToday && <span className="text-[10px] font-bold text-teal-700 bg-teal-50 px-1.5 py-0.5 rounded">hoje</span>}
@@ -458,7 +458,7 @@ export const PlannerView: React.FC<PlannerViewProps> = ({
       {/* Navegação */}
       <div className="flex items-center justify-between bg-white rounded-xl border border-slate-100 px-3 py-2">
         <button onClick={() => step(-1)} aria-label="Anterior" className="p-2 text-slate-400 hover:text-teal-700 rounded-lg"><ChevronLeft size={18} /></button>
-        <button onClick={() => setAnchor(todayISO())} className="text-sm font-medium capitalize text-slate-700 hover:text-teal-700">{navLabel()}</button>
+        <button onClick={() => setAnchor(todayISO())} className="text-sm font-medium first-letter:capitalize text-slate-700 hover:text-teal-700">{navLabel()}</button>
         <button onClick={() => step(1)} aria-label="Próximo" className="p-2 text-slate-400 hover:text-teal-700 rounded-lg"><ChevronRight size={18} /></button>
       </div>
 
@@ -512,7 +512,7 @@ export const PlannerView: React.FC<PlannerViewProps> = ({
                 const isToday = d === todayISO();
                 return (
                   <div key={d} className="flex-1 min-w-0 text-center py-1.5 border-l border-slate-100 first:border-l-0">
-                    <p className={`text-[11px] font-semibold capitalize ${isToday ? 'text-teal-700' : 'text-slate-500'}`}>
+                    <p className={`text-[11px] font-semibold first-letter:capitalize ${isToday ? 'text-teal-700' : 'text-slate-500'}`}>
                       {WEEKDAY_SHORT[dt.getDay()]} {dt.getDate()}
                     </p>
                   </div>

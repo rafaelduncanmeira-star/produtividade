@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Plus, ChevronLeft, ChevronRight, Flame, Trophy, Check, Edit2, Trash2, Repeat } from 'lucide-react';
-import { Habit, WEEKDAY_LETTERS } from '../types';
+import { Habit, WEEKDAY_SHORT } from '../types';
 import { todayISO, getWeekDays, calcStreaks, parseISODate, formatShortDate } from '../utils';
 import { HabitForm } from './HabitForm';
 
@@ -84,9 +84,15 @@ export const HabitsView: React.FC<HabitsViewProps> = ({
                 <div className="flex-1 min-w-0">
                   <h3 className="font-bold text-slate-800 text-sm truncate">{habit.name}</h3>
                   <div className="flex items-center gap-3 text-xs text-slate-400">
-                    <span className="flex items-center gap-1 font-bold text-orange-500">
-                      <Flame size={12} /> {streaks.current} {streaks.current === 1 ? 'dia' : 'dias'}
-                    </span>
+                    {streaks.current > 0 ? (
+                      <span className="flex items-center gap-1 font-bold text-orange-500">
+                        <Flame size={12} /> {streaks.current} {streaks.current === 1 ? 'dia' : 'dias'} seguidos
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-1 font-medium text-slate-400">
+                        <Flame size={12} /> Sequência: 0
+                      </span>
+                    )}
                     <span className="flex items-center gap-1">
                       <Trophy size={12} /> recorde: {streaks.best}
                     </span>
@@ -130,7 +136,7 @@ export const HabitsView: React.FC<HabitsViewProps> = ({
                       } ${isToday && !done ? 'ring-2 ring-teal-200' : ''}`}
                       style={done ? { backgroundColor: habit.color } : undefined}
                     >
-                      <span className="text-[10px] font-bold opacity-70">{WEEKDAY_LETTERS[i]}</span>
+                      <span className={`text-[10px] font-bold ${isToday && !done ? 'text-teal-700' : 'opacity-70'}`}>{WEEKDAY_SHORT[i]}</span>
                       {done
                         ? <Check size={16} strokeWidth={3} />
                         : <span className="text-xs font-medium">{parseISODate(iso).getDate()}</span>
