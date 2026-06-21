@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Play, CalendarClock, ChevronRight, ChevronDown, CheckCircle2, Check, Plus, Calendar, Sparkles } from 'lucide-react';
 import { Task, Habit, TimeBlock, FocusSession, GoogleEvent, Project, DailyReview, GOOGLE_EVENT_COLOR, REVIEW_MOODS } from '../types';
-import { todayISO, getGreeting, formatLongDate, formatMinutes, focusMinutesOn, parseQuickTask, addDaysISO } from '../utils';
+import { todayISO, getGreeting, formatLongDate, formatMinutes, focusMinutesOn, parseQuickTask, addDaysISO, timeToMinutes } from '../utils';
 import { TaskItem } from './TaskItem';
 import { TaskForm } from './TaskForm';
 import { useToast } from './Toast';
@@ -54,6 +54,13 @@ export const TodayView: React.FC<TodayViewProps> = ({
   );
   const doneToday = doneTodayTasks.length;
   const [showDone, setShowDone] = useState(true);
+  const [showPast, setShowPast] = useState(false);
+  const [nowMin, setNowMin] = useState(() => { const d = new Date(); return d.getHours() * 60 + d.getMinutes(); });
+  // Relógio leve: reavalia a agenda (passado / agora / a seguir) a cada minuto.
+  useEffect(() => {
+    const iv = setInterval(() => { const d = new Date(); setNowMin(d.getHours() * 60 + d.getMinutes()); }, 60000);
+    return () => clearInterval(iv);
+  }, []);
 
   const { toast } = useToast();
   const tomorrow = addDaysISO(today, 1);
@@ -93,6 +100,12 @@ export const TodayView: React.FC<TodayViewProps> = ({
 
   const allDayEvents = useMemo(() => googleEvents.filter(ev => ev.allDay), [googleEvents]);
 
+  // Agenda dinâmica: o que já passou recolhe; o que está em curso ganha destaque.
+  const isPast = (item: AgendaItem) => (item.end ? timeToMinutes(item.end) : timeToMinutes(item.start)) < nowMin;
+  const isOngoing = (item: AgendaItem) => !!item.end && timeToMinutes(item.start) <= nowMin && nowMin < timeToMinutes(item.end);
+  const pastAgenda = useMemo(() => agendaItems.filter(isPast), [agendaItems, nowMin]); // eslint-disable-line react-hooks/exhaustive-deps
+  const liveAgenda = useMemo(() => agendaItems.filter(i => !isPast(i)), [agendaItems, nowMin]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const todayHabits = useMemo(
     () => habits.filter(h => h.targetDays.includes(weekday)),
     [habits, weekday]
@@ -113,6 +126,43 @@ export const TodayView: React.FC<TodayViewProps> = ({
   const handleSaveTask = (data: Omit<Task, 'id'>, id?: string) => {
     if (id) onUpdateTask({ ...data, id });
     setEditingTask(null);
+  };
+
+  // Uma linha da agenda (tarefa com horário, evento Google ou bloco), com estado passado/agora.
+  const renderAgenda = (item: AgendaItem, past: boolean, ongoing: boolean) => {
+    const base = `flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors ${ongoing ? 'bg-teal-50 ring-1 ring-teal-200' : past ? 'bg-slate-50/60 opacity-60' : 'bg-slate-50'}`;
+    const tag = ongoing ? <span className="text-[10px] font-bold text-teal-700 bg-teal-100 px-1.5 py-0.5 rounded shrink-0">agora</span> : null;
+    if (item.taskId) {
+      return (
+        <div key={item.key} className={base}>
+          <button
+            onClick={() => onToggleTask(item.taskId!)}
+            aria-label={item.completed ? 'Reabrir tarefa' : 'Concluir tarefa'}
+            className={`shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${item.completed ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-slate-300 text-transparent hover:border-emerald-400'}`}
+          >
+            <Check size={12} strokeWidth={3} />
+          </button>
+          <button
+            onClick={() => { const t = tasks.find(x => x.id === item.taskId); if (t) setEditingTask(t); }}
+            className={`text-sm flex-1 truncate font-medium text-left ${item.completed ? 'text-slate-400 line-through' : 'text-slate-600'}`}
+          >
+            {item.title}
+          </button>
+          {tag}
+          <span className="text-xs text-slate-400 tabular-nums">{item.start}</span>
+        </div>
+      );
+    }
+    return (
+      <div key={item.key} className={base}>
+        {item.fromGoogle
+          ? <Calendar size={12} className="shrink-0" style={{ color: item.color }} />
+          : <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: item.color }} />}
+        <span className="text-sm text-slate-600 flex-1 truncate font-medium">{item.title}</span>
+        {tag}
+        <span className="text-xs text-slate-400 tabular-nums">{item.start}{item.end ? `–${item.end}` : ''}</span>
+      </div>
+    );
   };
 
   return (
@@ -275,33 +325,23 @@ export const TodayView: React.FC<TodayViewProps> = ({
               </div>
             ) : (
               <div className="space-y-1.5">
-                {agendaItems.map(item => (item.taskId ? (
-                  <div key={item.key} className="flex items-center gap-2.5 px-3 py-2 rounded-lg bg-slate-50">
+                {pastAgenda.length > 0 && (
+                  <>
                     <button
-                      onClick={() => onToggleTask(item.taskId!)}
-                      aria-label={item.completed ? 'Reabrir tarefa' : 'Concluir tarefa'}
-                      className={`shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${item.completed ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-slate-300 text-transparent hover:border-emerald-400'}`}
+                      onClick={() => setShowPast(s => !s)}
+                      aria-expanded={showPast}
+                      className="flex items-center gap-1 text-[11px] font-medium text-slate-400 hover:text-slate-600 px-1 py-0.5"
                     >
-                      <Check size={12} strokeWidth={3} />
+                      <ChevronDown size={13} className={`transition-transform ${showPast ? 'rotate-180' : ''}`} />
+                      {showPast ? 'Ocultar anteriores' : `Mostrar anteriores · ${pastAgenda.length}`}
                     </button>
-                    <button
-                      onClick={() => { const t = tasks.find(x => x.id === item.taskId); if (t) setEditingTask(t); }}
-                      className={`text-sm flex-1 truncate font-medium text-left ${item.completed ? 'text-slate-400 line-through' : 'text-slate-600'}`}
-                    >
-                      {item.title}
-                    </button>
-                    <span className="text-xs text-slate-400 tabular-nums">{item.start}</span>
-                  </div>
-                ) : (
-                  <div key={item.key} className="flex items-center gap-3 px-3 py-2 rounded-lg bg-slate-50">
-                    {item.fromGoogle
-                      ? <Calendar size={12} className="shrink-0" style={{ color: item.color }} />
-                      : <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: item.color }} />
-                    }
-                    <span className="text-sm text-slate-600 flex-1 truncate font-medium">{item.title}</span>
-                    <span className="text-xs text-slate-400 tabular-nums">{item.start}–{item.end}</span>
-                  </div>
-                )))}
+                    {showPast && pastAgenda.map(item => renderAgenda(item, true, false))}
+                  </>
+                )}
+                {liveAgenda.map(item => renderAgenda(item, false, isOngoing(item)))}
+                {liveAgenda.length === 0 && (
+                  <p className="text-sm text-slate-400 text-center py-3">Compromissos de hoje encerrados. 🌙</p>
+                )}
               </div>
             )}
           </div>
