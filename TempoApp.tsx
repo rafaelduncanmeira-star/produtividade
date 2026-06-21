@@ -59,15 +59,15 @@ type View = 'today' | 'tasks' | 'metas' | 'focus' | 'habits' | 'planner' | 'repo
 const NAV_ITEMS: { id: View; label: string; icon: React.ElementType }[] = [
   { id: 'today', label: 'Hoje', icon: LayoutDashboard },
   { id: 'tasks', label: 'Tarefas', icon: CheckSquare },
-  { id: 'metas', label: 'Metas', icon: Target },
-  { id: 'focus', label: 'Foco', icon: Timer },
+  { id: 'focus', label: 'Focar', icon: Timer },
+  { id: 'planner', label: 'Planejar', icon: CalendarClock },
   { id: 'habits', label: 'Hábitos', icon: Repeat },
-  { id: 'planner', label: 'Agenda', icon: CalendarClock },
+  { id: 'metas', label: 'Metas', icon: Target },
   { id: 'reports', label: 'Relatórios', icon: BarChart3 },
 ];
 
-const MOBILE_NAV: View[] = ['today', 'tasks', 'planner', 'habits'];
-const MORE_NAV: View[] = ['metas', 'focus', 'reports'];
+const MOBILE_NAV: View[] = ['today', 'tasks', 'focus', 'planner'];
+const MORE_NAV: View[] = ['habits', 'metas', 'reports'];
 
 const phaseDurationMin = (phase: TimerPhase, settings: PomodoroSettings): number => {
   if (phase === 'focus') return settings.focusMinutes;
