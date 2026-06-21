@@ -61,6 +61,13 @@ export const TodayView: React.FC<TodayViewProps> = ({
     return (a.dueTime ?? '99:99').localeCompare(b.dueTime ?? '99:99');
   }), [todayTasks]);
   const bestTask = sortedToday[0] ?? null;
+  const [pickedId, setPickedId] = useState<string | null>(null);
+  const [picking, setPicking] = useState(false);
+  // Sugestão do "Agora": a melhor por padrão, mas o usuário pode trocar manualmente.
+  const chosen = useMemo(() => {
+    if (pickedId) { const t = todayTasks.find(x => x.id === pickedId); if (t) return t; }
+    return bestTask;
+  }, [pickedId, todayTasks, bestTask]);
   const doneTodayTasks = useMemo(
     () => tasks
       .filter(t => t.completed && t.completedAt?.slice(0, 10) === today)
@@ -225,18 +232,42 @@ export const TodayView: React.FC<TodayViewProps> = ({
         <p className="text-sm text-teal-50 mt-1.5 leading-snug">
           {agendaNow ?? 'Sem compromissos próximos — bom momento para avançar numa tarefa importante.'}
         </p>
-        {bestTask ? (
-          <div className="mt-3 bg-white/10 rounded-xl p-2.5 pl-3 flex items-center gap-3">
-            <div className="flex-1 min-w-0">
-              <div className="text-[10px] font-medium text-teal-100/70">Sugestão para focar</div>
-              <div className="font-bold truncate text-[15px]">{bestTask.title}</div>
+        {chosen ? (
+          <div className="mt-3">
+            <div className="bg-white/10 rounded-xl p-2.5 pl-3 flex items-center gap-2.5">
+              <button
+                onClick={() => sortedToday.length > 1 && setPicking(p => !p)}
+                className="flex-1 min-w-0 text-left"
+                aria-expanded={picking}
+              >
+                <div className="text-[10px] font-medium text-teal-100/70 flex items-center gap-1">
+                  Sugestão para focar
+                  {sortedToday.length > 1 && <ChevronDown size={11} className={`transition-transform ${picking ? 'rotate-180' : ''}`} />}
+                </div>
+                <div className="font-bold truncate text-[15px]">{chosen.title}</div>
+              </button>
+              <button
+                onClick={() => onStartFocusTask(chosen.id)}
+                className="shrink-0 bg-white text-teal-800 font-bold text-sm px-3 py-2 rounded-lg flex items-center gap-1.5 active:scale-95 transition shadow-sm"
+              >
+                <Play size={15} /> Focar {focusMinutes} min
+              </button>
             </div>
-            <button
-              onClick={() => onStartFocusTask(bestTask.id)}
-              className="shrink-0 bg-white text-teal-800 font-bold text-sm px-3 py-2 rounded-lg flex items-center gap-1.5 active:scale-95 transition shadow-sm"
-            >
-              <Play size={15} /> Focar {focusMinutes} min
-            </button>
+            {picking && sortedToday.length > 1 && (
+              <div className="mt-1.5 bg-white/10 rounded-xl p-1.5 space-y-0.5 max-h-44 overflow-y-auto">
+                <div className="px-2.5 pt-1 pb-1.5 text-[10px] font-medium text-teal-100/70">Focar em outra tarefa de hoje:</div>
+                {sortedToday.map(t => (
+                  <button
+                    key={t.id}
+                    onClick={() => { setPickedId(t.id); setPicking(false); }}
+                    className={`w-full text-left px-2.5 py-2 rounded-lg text-sm flex items-center gap-2 transition-colors ${t.id === chosen.id ? 'bg-white/20 font-bold' : 'hover:bg-white/10'}`}
+                  >
+                    {t.id === chosen.id ? <Check size={13} className="shrink-0" /> : <span className="w-[13px] shrink-0" />}
+                    <span className="truncate">{t.title}</span>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         ) : (
           <p className="mt-2 text-sm text-teal-50/80">Nada pendente para hoje. 🎉 Que tal puxar algo das sugestões?</p>
