@@ -10,7 +10,7 @@ import { useToast } from './components/Toast';
 import { AppSnapshot } from './services/cloudStore';
 import { notifPermission, sendNotification, updateBadge } from './services/notifications';
 import {
-  getValidToken, requestToken, disconnectGoogle, fetchDayEvents,
+  getValidToken, requestToken, disconnectGoogle, fetchDayEvents, isGoogleLinked,
   createEventFromBlock, updateEventFromBlock, deleteEventById,
 } from './services/googleCalendar';
 import { TodayView } from './components/TodayView';
@@ -123,7 +123,7 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
 
   // --- Google Agenda ---
   const [isGoogleOpen, setIsGoogleOpen] = useState(false);
-  const [googleConnected, setGoogleConnected] = useState<boolean>(() => getValidToken() !== null);
+  const [googleConnected, setGoogleConnected] = useState<boolean>(() => isGoogleLinked() || getValidToken() !== null);
   const [googleEvents, setGoogleEvents] = useState<Record<string, GoogleEvent[]>>({});
   const googleEventsRef = useRef(googleEvents);
   useEffect(() => { googleEventsRef.current = googleEvents; }, [googleEvents]);
@@ -148,8 +148,7 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
       setGoogleConnected(true);
       return fresh;
     } catch {
-      setGoogleConnected(false);
-      return null;
+      return null; // renovação silenciosa falhou; mantém o vínculo (sem CTA piscando)
     }
   }, []);
 
@@ -178,7 +177,7 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
       const events = await fetchDayEvents(dateISO, token);
       setGoogleEvents(prev => ({ ...prev, [dateISO]: events }));
     } catch {
-      setGoogleConnected(getValidToken() !== null);
+      /* sem conexão no momento: mantém o vínculo e tenta de novo depois */
     }
   }, [ensureToken]);
 
@@ -194,7 +193,6 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
       setGoogleEvents({});
     } catch (e) {
       toast((e as Error).message || 'Não foi possível enviar para o Google Agenda.');
-      setGoogleConnected(getValidToken() !== null);
     }
   };
 

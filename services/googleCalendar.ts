@@ -39,12 +39,22 @@ interface StoredToken {
   expiresAt: number;
 }
 
+// Marca persistente de "usuário vinculou o Google" — sobrevive à expiração do
+// token (que dura ~1h). Decide se mostra o CTA de conectar, sem piscar quando o
+// token só precisa ser renovado em silêncio.
+const LINKED_KEY = 'tempo_google_linked';
+const markLinked = () => { try { localStorage.setItem(LINKED_KEY, '1'); } catch { /* ignore */ } };
+export const isGoogleLinked = (): boolean => {
+  try { return localStorage.getItem(LINKED_KEY) === '1'; } catch { return false; }
+};
+
 export const getValidToken = (): string | null => {
   try {
     const raw = localStorage.getItem(TOKEN_KEY);
     if (!raw) return null;
     const t: StoredToken = JSON.parse(raw);
-    return Date.now() < t.expiresAt ? t.accessToken : null;
+    if (Date.now() < t.expiresAt) { markLinked(); return t.accessToken; }
+    return null;
   } catch {
     return null;
   }
@@ -67,6 +77,7 @@ export const requestToken = async (clientId: string, silent = false): Promise<st
             expiresAt: Date.now() + (Number(resp.expires_in || 3600) - 60) * 1000,
           };
           localStorage.setItem(TOKEN_KEY, JSON.stringify(stored));
+          markLinked();
           resolve(resp.access_token);
         },
         error_callback: (err: any) => {
@@ -88,6 +99,7 @@ export const disconnectGoogle = () => {
     try { window.google.accounts.oauth2.revoke(token, () => {}); } catch { /* melhor esforço */ }
   }
   localStorage.removeItem(TOKEN_KEY);
+  try { localStorage.removeItem(LINKED_KEY); } catch { /* ignore */ }
 };
 
 const pad = (n: number) => String(n).padStart(2, '0');
