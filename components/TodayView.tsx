@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Play, CalendarClock, ChevronRight, ChevronDown, CheckCircle2, Check, Plus, Calendar, Sparkles, Clock, ArrowLeftRight } from 'lucide-react';
+import { Play, CalendarClock, ChevronRight, ChevronDown, CheckCircle2, Check, Plus, Calendar, Sparkles, Clock, AlertTriangle } from 'lucide-react';
 import { Task, Habit, TimeBlock, FocusSession, GoogleEvent, Project, DailyReview, GOOGLE_EVENT_COLOR, REVIEW_MOODS, getQuadrant } from '../types';
 import { todayISO, getGreeting, formatLongDate, formatMinutes, focusMinutesOn, parseQuickTask, addDaysISO, timeToMinutes } from '../utils';
 import { TaskItem } from './TaskItem';
@@ -142,6 +142,23 @@ export const TodayView: React.FC<TodayViewProps> = ({
     return `Próximo: ${next.title} às ${next.start}`;
   }, [liveAgenda, nowMin]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Conflitos de horário: itens com intervalo que se sobrepõem (aviso, sem deduplicar nada).
+  const conflictKeys = useMemo(() => {
+    const ranged = agendaItems.filter(i => i.end);
+    const set = new Set<string>();
+    for (let i = 0; i < ranged.length; i++) {
+      for (let j = i + 1; j < ranged.length; j++) {
+        const a = ranged[i], b = ranged[j];
+        if (timeToMinutes(a.start) < timeToMinutes(b.end) && timeToMinutes(b.start) < timeToMinutes(a.end)) {
+          set.add(a.key); set.add(b.key);
+        }
+      }
+    }
+    return set;
+  }, [agendaItems]);
+  // Legenda de origem só quando há mistura (ex.: evento do Google + bloco/tarefa).
+  const mixedSources = agendaItems.some(i => i.fromGoogle) && agendaItems.some(i => !i.fromGoogle);
+
   const todayHabits = useMemo(
     () => habits.filter(h => h.targetDays.includes(weekday)),
     [habits, weekday]
@@ -168,6 +185,11 @@ export const TodayView: React.FC<TodayViewProps> = ({
   const renderAgenda = (item: AgendaItem, past: boolean, ongoing: boolean) => {
     const base = `flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors ${ongoing ? 'bg-teal-50 ring-1 ring-teal-200' : past ? 'bg-slate-50/60 opacity-60' : 'bg-slate-50'}`;
     const tag = ongoing ? <span className="text-[10px] font-bold text-teal-700 bg-teal-100 px-1.5 py-0.5 rounded shrink-0">agora</span> : null;
+    const conflictTag = conflictKeys.has(item.key) ? (
+      <span className="flex items-center gap-0.5 text-[10px] font-bold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded shrink-0" title="Sobreposição de horário">
+        <AlertTriangle size={10} /> conflito
+      </span>
+    ) : null;
     if (item.taskId) {
       return (
         <div key={item.key} className={base}>
@@ -184,6 +206,7 @@ export const TodayView: React.FC<TodayViewProps> = ({
           >
             {item.title}
           </button>
+          {conflictTag}
           {tag}
           <span className="text-xs text-slate-400 tabular-nums">{item.start}</span>
         </div>
@@ -195,6 +218,7 @@ export const TodayView: React.FC<TodayViewProps> = ({
           ? <Calendar size={12} className="shrink-0" style={{ color: item.color }} />
           : <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: item.color }} />}
         <span className="text-sm text-slate-600 flex-1 truncate font-medium">{item.title}</span>
+        {conflictTag}
         {tag}
         <span className="text-xs text-slate-400 tabular-nums">{item.start}{item.end ? `–${item.end}` : ''}</span>
       </div>
@@ -233,21 +257,19 @@ export const TodayView: React.FC<TodayViewProps> = ({
           {agendaNow ?? 'Sem compromissos próximos — bom momento para avançar numa tarefa importante.'}
         </p>
         {chosen ? (
-          <div className="mt-3 bg-white/10 rounded-xl p-3">
-            <div className="flex items-center justify-between gap-2 mb-1.5">
-              <span className="text-[10px] font-bold uppercase tracking-wide text-teal-100/70">Sugestão para focar</span>
-              {sortedToday.length > 1 && (
-                <button
-                  onClick={() => setPicking(p => !p)}
-                  aria-expanded={picking}
-                  className="flex items-center gap-1 text-[11px] font-bold text-white bg-white/20 hover:bg-white/30 px-2 py-1 rounded-full active:scale-95 transition"
-                >
-                  <ArrowLeftRight size={11} /> Trocar
-                </button>
-              )}
-            </div>
-            <div className="flex items-center gap-2.5">
-              <div className="font-bold truncate text-[15px] flex-1 min-w-0">{chosen.title}</div>
+          <div className="mt-3">
+            <div className="bg-white/10 rounded-xl p-2.5 pl-3 flex items-center gap-2.5">
+              <button
+                onClick={() => sortedToday.length > 1 && setPicking(p => !p)}
+                className="flex-1 min-w-0 text-left"
+                aria-expanded={picking}
+              >
+                <div className="text-[10px] font-medium text-teal-100/70 flex items-center gap-1">
+                  Sugestão para focar
+                  {sortedToday.length > 1 && <ChevronDown size={11} className={`transition-transform ${picking ? 'rotate-180' : ''}`} />}
+                </div>
+                <div className="font-bold truncate text-[15px]">{chosen.title}</div>
+              </button>
               <button
                 onClick={() => onStartFocusTask(chosen.id)}
                 className="shrink-0 bg-white text-teal-800 font-bold text-sm px-3 py-2 rounded-lg flex items-center gap-1.5 active:scale-95 transition shadow-sm"
@@ -256,7 +278,8 @@ export const TodayView: React.FC<TodayViewProps> = ({
               </button>
             </div>
             {picking && sortedToday.length > 1 && (
-              <div className="mt-2 pt-2 border-t border-white/15 space-y-0.5 max-h-44 overflow-y-auto">
+              <div className="mt-1.5 bg-white/10 rounded-xl p-1.5 space-y-0.5 max-h-44 overflow-y-auto">
+                <div className="px-2.5 pt-1 pb-1.5 text-[10px] font-medium text-teal-100/70">Focar em outra tarefa de hoje:</div>
                 {sortedToday.map(t => (
                   <button
                     key={t.id}
@@ -395,6 +418,13 @@ export const TodayView: React.FC<TodayViewProps> = ({
                 Ver agenda <ChevronRight size={12} />
               </button>
             </div>
+            {mixedSources && (
+              <div className="flex items-center gap-3 text-[10px] text-slate-400 mb-2.5">
+                <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-teal-700" /> Bloco</span>
+                <span className="flex items-center gap-1"><Calendar size={10} /> Google</span>
+                <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full border-2 border-slate-300" /> Tarefa</span>
+              </div>
+            )}
             {allDayEvents.length > 0 && (
               <div className="flex flex-wrap gap-1.5 mb-2">
                 {allDayEvents.map(ev => (
