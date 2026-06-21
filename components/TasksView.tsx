@@ -31,6 +31,20 @@ const FILTERS: { id: Filter; label: string }[] = [
 const QUADRANT_ORDER: Record<string, number> = { q1: 0, q2: 1, q3: 2, q4: 3 };
 const STATUS_ORDER: TaskStatus[] = ['todo', 'doing', 'done'];
 
+// Mover de quadrante = ajustar urgência/importância da tarefa.
+const QUADRANT_FLAGS: Record<string, { urgent: boolean; important: boolean }> = {
+  q1: { urgent: true, important: true },
+  q2: { urgent: false, important: true },
+  q3: { urgent: true, important: false },
+  q4: { urgent: false, important: false },
+};
+const EMPTY_QUADRANT: Record<string, string> = {
+  q1: 'Nada pegando fogo agora. 👏',
+  q2: 'Nada agendado ainda — bom lugar pra investir.',
+  q3: 'Nada para delegar.',
+  q4: 'Nada para eliminar. 🧹',
+};
+
 // normaliza p/ busca (minúsculas, sem acentos)
 const norm = (s: string) => s.toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '');
 
@@ -367,10 +381,11 @@ export const TasksView: React.FC<TasksViewProps> = ({
                       onEdit={openEdit}
                       onFocus={onStartFocusTask}
                       onUpdate={onUpdateTask}
+                      onMoveQuadrant={(quadrant) => onUpdateTask({ ...task, ...QUADRANT_FLAGS[quadrant] })}
                     />
                   ))}
                   {qTasks.length === 0 && (
-                    <p className="text-xs text-slate-300 text-center py-4">Vazio</p>
+                    <p className="text-xs text-slate-400 text-center py-4">{EMPTY_QUADRANT[q]}</p>
                   )}
                 </div>
               </div>

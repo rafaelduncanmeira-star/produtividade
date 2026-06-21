@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Check, Edit2, Trash2, Play, Timer, Calendar, Clock, Repeat, ListChecks, ChevronDown, MoreVertical } from 'lucide-react';
-import { Task, QUADRANT_INFO, getQuadrant } from '../types';
+import { Task, QUADRANT_INFO, getQuadrant, QUADRANTS, Quadrant } from '../types';
 import { todayISO, formatShortDate, addDaysISO } from '../utils';
 
 interface TaskItemProps {
@@ -10,10 +10,11 @@ interface TaskItemProps {
   onEdit?: (task: Task) => void;
   onFocus?: (id: string) => void;
   onUpdate?: (task: Task) => void;
+  onMoveQuadrant?: (quadrant: Quadrant) => void;
   compact?: boolean;
 }
 
-export const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, onDelete, onEdit, onFocus, onUpdate, compact }) => {
+export const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, onDelete, onEdit, onFocus, onUpdate, onMoveQuadrant, compact }) => {
   const quadrant = QUADRANT_INFO[getQuadrant(task)];
   const today = todayISO();
   const overdue = !task.completed && !!task.dueDate && task.dueDate < today;
@@ -64,8 +65,9 @@ export const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, onDelete, on
   const openMenu = (e: React.MouseEvent) => {
     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
     const W = 192; // w-48
-    const items = (onFocus && !task.completed ? 1 : 0) + (onEdit ? 1 : 0) + 1;
-    const H = items * 46 + 16;
+    const moveItems = onMoveQuadrant ? QUADRANTS.length - 1 : 0;
+    const items = (onFocus && !task.completed ? 1 : 0) + (onEdit ? 1 : 0) + 1 + moveItems;
+    const H = items * 44 + 16 + (onMoveQuadrant ? 28 : 0);
     const left = Math.min(Math.max(8, rect.right - W), window.innerWidth - W - 8);
     let top = rect.bottom + 6;
     if (top + H > window.innerHeight - 8) top = rect.top - H - 6; // abre pra cima se não couber
@@ -269,6 +271,22 @@ export const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, onDelete, on
             >
               <Edit2 size={17} className="text-teal-700 shrink-0" /> Editar
             </button>
+          )}
+          {onMoveQuadrant && (
+            <div className="border-y border-slate-100 my-1 py-1">
+              <p className="px-4 py-1 text-[10px] font-bold uppercase tracking-wide text-slate-400">Mover para</p>
+              {QUADRANTS.filter(q => q !== getQuadrant(task)).map(q => (
+                <button
+                  key={q}
+                  role="menuitem"
+                  onClick={() => { setMenuPos(null); onMoveQuadrant(q); }}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 active:bg-slate-100"
+                >
+                  <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: QUADRANT_INFO[q].color }} />
+                  {QUADRANT_INFO[q].label}
+                </button>
+              ))}
+            </div>
           )}
           <button
             role="menuitem"
