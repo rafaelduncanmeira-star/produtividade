@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Timer, CheckCircle2, Flame, CalendarRange } from 'lucide-react';
+import { Timer, CheckCircle2, Flame, CalendarRange, Sparkles, Lightbulb, AlertTriangle } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Task, Habit, FocusSession, DailyReview, REVIEW_MOODS } from '../types';
 import {
@@ -183,6 +183,27 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ tasks, habits, session
     return 'Caminho razoável: tente aumentar o "Importante" e reduzir o "Urgente".';
   }, [triade]);
 
+  // --- Leitura da semana: diagnóstico em frases acionáveis (regras, sem IA) ---
+  const weeklyReading = useMemo(() => {
+    const lostStreak = habits.filter(h => { const s = calcStreaks(h, today); return s.best >= 2 && s.current === 0; });
+    const total = triade.total;
+    const urgPct = total ? Math.round((triade.counts.urgente / total) * 100) : 0;
+    const impPct = total ? Math.round((triade.counts.importante / total) * 100) : 0;
+    const out: { kind: 'tip' | 'warn' | 'good'; text: string }[] = [];
+    if (tasksWeek > 0 && focusWeek === 0)
+      out.push({ kind: 'tip', text: `Você concluiu ${tasksWeek} ${tasksWeek === 1 ? 'tarefa' : 'tarefas'} esta semana, mas sem foco registrado. Experimente blocos de 25 min nas tarefas que mais importam.` });
+    if (total >= 3 && urgPct >= 40)
+      out.push({ kind: 'warn', text: `${urgPct}% das tarefas em aberto estão urgentes. Planeje o importante com antecedência pra ele não virar urgência.` });
+    if (lostStreak.length > 0)
+      out.push({ kind: 'tip', text: `${lostStreak.length === 1 ? 'Um hábito perdeu' : `${lostStreak.length} hábitos perderam`} a sequência. Escolha só 1 pra retomar amanhã — consistência vale mais que volume.` });
+    if (out.length > 0) return out.slice(0, 3);
+    if (focusWeek > 0 && tasksWeek > 0 && impPct >= 50)
+      return [{ kind: 'good' as const, text: `Boa semana: ${formatMinutes(focusWeek)} de foco, ${tasksWeek} ${tasksWeek === 1 ? 'tarefa concluída' : 'tarefas concluídas'} e prioridades no lugar. Mantenha o ritmo. 👏` }];
+    if (focusWeek > 0 || tasksWeek > 0)
+      return [{ kind: 'good' as const, text: `Semana em movimento: ${formatMinutes(focusWeek)} de foco e ${tasksWeek} ${tasksWeek === 1 ? 'tarefa' : 'tarefas'}. Que tal proteger 1 bloco de foco amanhã?` }];
+    return [];
+  }, [tasksWeek, focusWeek, habits, triade, today]);
+
   const summaryCards = [
     { label: 'Foco hoje', value: formatMinutes(focusToday), icon: Timer, color: 'text-teal-700 bg-teal-50' },
     { label: 'Foco na semana', value: formatMinutes(focusWeek), icon: CalendarRange, color: 'text-sky-600 bg-sky-50' },
@@ -208,6 +229,27 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ tasks, habits, session
             <p className="text-[11px] text-slate-400 font-medium">{card.label}</p>
           </div>
         ))}
+      </div>
+
+      {/* Leitura da semana */}
+      <div className="bg-gradient-to-br from-teal-50/60 to-white rounded-2xl border border-teal-100 shadow-sm p-5">
+        <h3 className="font-bold text-slate-800 text-sm flex items-center gap-1.5"><Sparkles size={15} className="text-teal-600" /> Leitura da semana</h3>
+        {weeklyReading.length === 0 ? (
+          <p className="text-sm text-slate-400 mt-2">Registre tarefas, foco e hábitos durante a semana — aqui vira um diagnóstico do que melhorar amanhã.</p>
+        ) : (
+          <div className="mt-3 space-y-2">
+            {weeklyReading.map((ins, i) => {
+              const tone = ins.kind === 'warn' ? 'bg-amber-50 text-amber-800' : ins.kind === 'good' ? 'bg-emerald-50 text-emerald-800' : 'bg-sky-50 text-sky-800';
+              const Icon = ins.kind === 'warn' ? AlertTriangle : ins.kind === 'good' ? CheckCircle2 : Lightbulb;
+              return (
+                <div key={i} className={`flex items-start gap-2.5 text-sm rounded-xl px-3 py-2.5 ${tone}`}>
+                  <Icon size={16} className="shrink-0 mt-0.5" />
+                  <span className="leading-snug">{ins.text}</span>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* Tríade do tempo */}
