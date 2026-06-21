@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Play, CalendarClock, ChevronRight, ChevronDown, CheckCircle2, Check, Plus, Calendar, Sparkles, Clock } from 'lucide-react';
+import { Play, CalendarClock, ChevronRight, ChevronDown, CheckCircle2, Check, Plus, Calendar, Sparkles, Clock, ArrowLeftRight } from 'lucide-react';
 import { Task, Habit, TimeBlock, FocusSession, GoogleEvent, Project, DailyReview, GOOGLE_EVENT_COLOR, REVIEW_MOODS, getQuadrant } from '../types';
 import { todayISO, getGreeting, formatLongDate, formatMinutes, focusMinutesOn, parseQuickTask, addDaysISO, timeToMinutes } from '../utils';
 import { TaskItem } from './TaskItem';
@@ -233,19 +233,21 @@ export const TodayView: React.FC<TodayViewProps> = ({
           {agendaNow ?? 'Sem compromissos próximos — bom momento para avançar numa tarefa importante.'}
         </p>
         {chosen ? (
-          <div className="mt-3">
-            <div className="bg-white/10 rounded-xl p-2.5 pl-3 flex items-center gap-2.5">
-              <button
-                onClick={() => sortedToday.length > 1 && setPicking(p => !p)}
-                className="flex-1 min-w-0 text-left"
-                aria-expanded={picking}
-              >
-                <div className="text-[10px] font-medium text-teal-100/70 flex items-center gap-1">
-                  Sugestão para focar
-                  {sortedToday.length > 1 && <ChevronDown size={11} className={`transition-transform ${picking ? 'rotate-180' : ''}`} />}
-                </div>
-                <div className="font-bold truncate text-[15px]">{chosen.title}</div>
-              </button>
+          <div className="mt-3 bg-white/10 rounded-xl p-3">
+            <div className="flex items-center justify-between gap-2 mb-1.5">
+              <span className="text-[10px] font-bold uppercase tracking-wide text-teal-100/70">Sugestão para focar</span>
+              {sortedToday.length > 1 && (
+                <button
+                  onClick={() => setPicking(p => !p)}
+                  aria-expanded={picking}
+                  className="flex items-center gap-1 text-[11px] font-bold text-white bg-white/20 hover:bg-white/30 px-2 py-1 rounded-full active:scale-95 transition"
+                >
+                  <ArrowLeftRight size={11} /> Trocar
+                </button>
+              )}
+            </div>
+            <div className="flex items-center gap-2.5">
+              <div className="font-bold truncate text-[15px] flex-1 min-w-0">{chosen.title}</div>
               <button
                 onClick={() => onStartFocusTask(chosen.id)}
                 className="shrink-0 bg-white text-teal-800 font-bold text-sm px-3 py-2 rounded-lg flex items-center gap-1.5 active:scale-95 transition shadow-sm"
@@ -254,8 +256,7 @@ export const TodayView: React.FC<TodayViewProps> = ({
               </button>
             </div>
             {picking && sortedToday.length > 1 && (
-              <div className="mt-1.5 bg-white/10 rounded-xl p-1.5 space-y-0.5 max-h-44 overflow-y-auto">
-                <div className="px-2.5 pt-1 pb-1.5 text-[10px] font-medium text-teal-100/70">Focar em outra tarefa de hoje:</div>
+              <div className="mt-2 pt-2 border-t border-white/15 space-y-0.5 max-h-44 overflow-y-auto">
                 {sortedToday.map(t => (
                   <button
                     key={t.id}
