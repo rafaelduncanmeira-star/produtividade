@@ -293,9 +293,14 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
       const label = timer.phase === 'focus' ? 'Foco' : 'Pausa';
       document.title = `${formatTimerMs(remainingMs)} — ${label} | Foco GeriClass`;
     } else {
-      document.title = 'Foco GeriClass';
+      const view = NAV_ITEMS.find(n => n.id === currentView);
+      document.title = view ? `${view.label} · Foco GeriClass` : 'Foco GeriClass';
     }
-  }, [remainingMs, timer.status, timer.phase]);
+  }, [remainingMs, timer.status, timer.phase, currentView]);
+
+  // Acessibilidade: ao trocar de aba, move o foco para o conteúdo (leitores de tela anunciam a seção).
+  const viewRef = useRef<HTMLDivElement>(null);
+  useEffect(() => { viewRef.current?.focus(); }, [currentView]);
 
   // Lembretes (app aberto): avisa quando um bloco ou tarefa de hoje está prestes a começar
   useEffect(() => {
@@ -744,7 +749,13 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
               </button>
             </div>
           )}
-          <div key={currentView} className="animate-view-in">
+          <div
+            key={currentView}
+            ref={viewRef}
+            tabIndex={-1}
+            aria-label={`Seção ${NAV_ITEMS.find(n => n.id === currentView)?.label ?? ''}`}
+            className="animate-view-in outline-none"
+          >
           {currentView === 'today' && (
             <TodayView
               tasks={tasks}

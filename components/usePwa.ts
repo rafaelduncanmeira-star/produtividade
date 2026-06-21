@@ -49,7 +49,7 @@ export function usePwa() {
       notified = true;
       toast('✨ Nova versão disponível', {
         action: { label: 'Atualizar', onClick: () => window.location.reload() },
-        duration: 60000,
+        duration: 8000,
       });
     };
 
