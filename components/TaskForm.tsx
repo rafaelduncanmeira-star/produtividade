@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { X, Save, Zap, Star, Plus, Check, Calendar } from 'lucide-react';
 import { Task, Subtask, Project, RecurrenceFreq, QUADRANT_INFO, getQuadrant, DEFAULT_TASK_CATEGORIES, RECURRENCE_OPTIONS } from '../types';
-import { uid, todayISO } from '../utils';
+import { uid, todayISO, addDaysISO } from '../utils';
 import { googleAllDayUrl } from '../services/googleCalendar';
 
 interface TaskFormProps {
@@ -29,6 +29,12 @@ export const TaskForm: React.FC<TaskFormProps> = ({ initialTask, projects, defau
   const [projectId, setProjectId] = useState(initialTask?.projectId ?? defaultProjectId ?? '');
 
   const quadrant = QUADRANT_INFO[getQuadrant({ urgent, important })];
+  const today = todayISO();
+  const dateChips = [
+    { label: 'Hoje', date: today },
+    { label: 'Amanhã', date: addDaysISO(today, 1) },
+    { label: 'Próx. semana', date: addDaysISO(today, 7) },
+  ];
 
   const addSub = () => {
     const t = newSub.trim();
@@ -131,27 +137,37 @@ export const TaskForm: React.FC<TaskFormProps> = ({ initialTask, projects, defau
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className={labelCls}>Prazo</label>
-              <input
-                type="date"
-                value={dueDate}
-                onChange={e => setDueDate(e.target.value)}
-                className={`${fieldCls} appearance-none`}
-              />
+          <div>
+            <label className={labelCls}>Prazo</label>
+            <div className="flex flex-wrap gap-2 mb-2">
+              {dateChips.map(opt => (
+                <button
+                  key={opt.label}
+                  type="button"
+                  onClick={() => setDueDate(dueDate === opt.date ? '' : opt.date)}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition active:scale-95 ${dueDate === opt.date ? 'bg-teal-700 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+                >
+                  {opt.label}
+                </button>
+              ))}
             </div>
-            <div>
-              <label className={labelCls}>Hora <span className="font-normal text-slate-300">(opcional)</span></label>
-              <input
-                type="time"
-                value={dueTime}
-                onChange={e => setDueTime(e.target.value)}
-                className={`${fieldCls} appearance-none`}
-              />
-            </div>
+            <input
+              type="date"
+              value={dueDate}
+              onChange={e => setDueDate(e.target.value)}
+              className={`${fieldCls} appearance-none`}
+            />
           </div>
-          {dueTime && <p className="text-[11px] text-slate-400 -mt-3">Com horário, a tarefa também aparece na sua Agenda do dia.</p>}
+          <div>
+            <label className={labelCls}>Hora <span className="font-normal text-slate-400">(opcional)</span></label>
+            <input
+              type="time"
+              value={dueTime}
+              onChange={e => setDueTime(e.target.value)}
+              className={`${fieldCls} appearance-none`}
+            />
+            {dueTime && <p className="text-[11px] text-slate-400 mt-1.5">Com horário, a tarefa também aparece na sua Agenda do dia.</p>}
+          </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
