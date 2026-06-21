@@ -177,7 +177,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, onDelete, on
           </button>
 
           <div className="flex-1 min-w-0">
-            <p className={`relative text-[15px] font-semibold leading-snug truncate transition-colors ${task.completed ? 'text-slate-400 line-through' : completing ? 'text-slate-400' : 'text-slate-800'}`}>
+            <p title={task.title} className={`relative text-[15px] font-semibold leading-snug line-clamp-2 transition-colors ${task.completed ? 'text-slate-400 line-through' : completing ? 'text-slate-400' : 'text-slate-800'}`}>
               {task.title}
               {completing && <span className="absolute left-0 top-1/2 -translate-y-1/2 h-[2px] w-full rounded-full bg-slate-400 task-strike" />}
             </p>

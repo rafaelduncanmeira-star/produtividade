@@ -166,6 +166,18 @@
       @keyframes boot-spin { to { transform: rotate(360deg); } }
       html.dark #boot { background: #0f172a !important; }
 
+      /* Acessibilidade: contraste AA dos textos secundários no tema claro
+         (slate-400 -> slate-500, slate-300 -> slate-400); o tema escuro mantém o seu. */
+      html:not(.dark) .text-slate-400 { color: #64748b; }
+      html:not(.dark) .text-slate-300 { color: #94a3b8; }
+      /* Foco visível por teclado em qualquer controle (navegação por Tab) */
+      button:focus-visible, a:focus-visible, [role="button"]:focus-visible,
+      select:focus-visible, input:focus-visible, textarea:focus-visible {
+        outline: 2px solid #14b8a6;
+        outline-offset: 2px;
+        border-radius: 8px;
+      }
+
       /* Evita o zoom automático do iOS ao focar campos (acontece quando a fonte < 16px).
          Vale só em telas de toque, preservando o visual compacto no desktop. */
       @media (pointer: coarse) {

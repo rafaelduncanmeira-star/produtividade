@@ -51,7 +51,7 @@ export const HabitsView: React.FC<HabitsViewProps> = ({
 
       {/* Navegação de semana */}
       <div className="flex items-center justify-between bg-white rounded-xl border border-slate-100 px-3 py-2">
-        <button onClick={() => setWeekOffset(weekOffset - 1)} className="p-2 text-slate-400 hover:text-teal-700 rounded-lg">
+        <button onClick={() => setWeekOffset(weekOffset - 1)} aria-label="Semana anterior" className="p-2 text-slate-400 hover:text-teal-700 rounded-lg">
           <ChevronLeft size={18} />
         </button>
         <button
@@ -63,6 +63,7 @@ export const HabitsView: React.FC<HabitsViewProps> = ({
         <button
           onClick={() => setWeekOffset(weekOffset + 1)}
           disabled={weekOffset >= 0}
+          aria-label="Próxima semana"
           className="p-2 text-slate-400 hover:text-teal-700 rounded-lg disabled:opacity-30 disabled:hover:text-slate-400"
         >
           <ChevronRight size={18} />
@@ -101,12 +102,14 @@ export const HabitsView: React.FC<HabitsViewProps> = ({
                 <div className="flex gap-0.5 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                   <button
                     onClick={() => { setEditingHabit(habit); setIsFormOpen(true); }}
+                    aria-label={`Editar hábito ${habit.name}`}
                     className="p-2 text-slate-300 hover:text-teal-700 hover:bg-teal-50 rounded-lg"
                   >
                     <Edit2 size={16} />
                   </button>
                   <button
                     onClick={() => onDeleteHabit(habit.id)}
+                    aria-label={`Excluir hábito ${habit.name}`}
                     className="p-2 text-slate-300 hover:text-rose-600 hover:bg-rose-50 rounded-lg"
                   >
                     <Trash2 size={16} />
@@ -127,6 +130,8 @@ export const HabitsView: React.FC<HabitsViewProps> = ({
                       key={iso}
                       onClick={() => !disabled && onToggleDay(habit.id, iso)}
                       disabled={disabled}
+                      aria-pressed={done}
+                      aria-label={`${done ? 'Desmarcar' : 'Marcar'} ${habit.name} — ${formatShortDate(iso)}`}
                       className={`flex flex-col items-center gap-1 py-2 rounded-xl border transition-colors min-h-[58px] ${
                         done
                           ? 'border-transparent text-white'

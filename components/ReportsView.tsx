@@ -23,6 +23,11 @@ const TRIADE = [
 export const ReportsView: React.FC<ReportsViewProps> = ({ tasks, habits, sessions, reviews }) => {
   const today = todayISO();
   const week = getWeekDays();
+  // Cores dos gráficos legíveis nos dois temas (recharts usa cor fixa, então escolhemos pelo tema).
+  const isDark = typeof document !== 'undefined' && document.documentElement.classList.contains('dark');
+  const tickColor = isDark ? '#94a3b8' : '#64748b';
+  const gridStroke = isDark ? '#334155' : '#e2e8f0';
+  const tooltipStyle = { borderRadius: 12, border: `1px solid ${gridStroke}`, fontSize: 12, background: isDark ? '#1e293b' : '#ffffff', color: isDark ? '#e2e8f0' : '#334155' };
 
   // --- Cards de resumo ---
   const focusToday = useMemo(() => focusMinutesOn(sessions, today), [sessions, today]);
@@ -408,12 +413,12 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ tasks, habits, session
                   <stop offset="100%" stopColor="#5eead4" />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
-              <XAxis dataKey="name" tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} interval={1} />
-              <YAxis tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} vertical={false} />
+              <XAxis dataKey="name" tick={{ fontSize: 11, fill: tickColor }} axisLine={false} tickLine={false} interval={1} />
+              <YAxis tick={{ fontSize: 11, fill: tickColor }} axisLine={false} tickLine={false} />
               <Tooltip
                 formatter={(value: number) => [formatMinutes(value), 'Foco']}
-                contentStyle={{ borderRadius: 12, border: '1px solid #e2e8f0', fontSize: 12 }}
+                contentStyle={tooltipStyle}
               />
               <Bar dataKey="Minutos" fill="url(#gradFoco)" radius={[6, 6, 0, 0]} />
             </BarChart>
@@ -433,10 +438,10 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ tasks, habits, session
                   <stop offset="100%" stopColor="#6ee7b7" />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
-              <XAxis dataKey="name" tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
-              <YAxis allowDecimals={false} tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
-              <Tooltip contentStyle={{ borderRadius: 12, border: '1px solid #e2e8f0', fontSize: 12 }} />
+              <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} vertical={false} />
+              <XAxis dataKey="name" tick={{ fontSize: 11, fill: tickColor }} axisLine={false} tickLine={false} />
+              <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: tickColor }} axisLine={false} tickLine={false} />
+              <Tooltip contentStyle={tooltipStyle} />
               <Bar dataKey="Tarefas" fill="url(#gradTarefas)" radius={[6, 6, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
