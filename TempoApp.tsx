@@ -712,11 +712,11 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
               </button>
             )}
             {notifPerm !== 'unsupported' && (
-              <button onClick={() => setIsReminderOpen(true)} aria-label="Lembretes" className="p-1 text-slate-400">
+              <button onClick={() => setIsReminderOpen(true)} aria-label="Lembretes" className="p-2 -mr-0.5 text-slate-500">
                 {notifPerm === 'granted' ? <BellRing size={20} className="text-teal-700" /> : notifPerm === 'denied' ? <BellOff size={20} /> : <Bell size={20} />}
               </button>
             )}
-            <button onClick={toggleTheme} aria-label="Alternar tema" className="p-1 text-slate-400">
+            <button onClick={toggleTheme} aria-label="Alternar tema" className="p-2 -mr-0.5 text-slate-500">
               {dark ? <Sun size={20} /> : <Moon size={20} />}
             </button>
           </div>

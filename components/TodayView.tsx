@@ -77,6 +77,7 @@ export const TodayView: React.FC<TodayViewProps> = ({
   const doneToday = doneTodayTasks.length;
   const [showDone, setShowDone] = useState(true);
   const [showPast, setShowPast] = useState(false);
+  const [reviewOpenOverride, setReviewOpenOverride] = useState<boolean | null>(null);
   const [nowMin, setNowMin] = useState(() => { const d = new Date(); return d.getHours() * 60 + d.getMinutes(); });
   // Relógio leve: reavalia a agenda (passado / agora / a seguir) a cada minuto.
   useEffect(() => {
@@ -166,6 +167,18 @@ export const TodayView: React.FC<TodayViewProps> = ({
   const habitsDone = todayHabits.filter(h => h.completions.includes(today)).length;
 
   const focusToday = focusMinutesOn(sessions, today);
+
+  // Fechamento do dia: uma sugestão para amanhã + revisão recolhida durante o dia.
+  const tomorrowTip = useMemo(() => {
+    if (doneToday > 0 && focusToday === 0) return 'Amanhã, proteja 1 bloco de 25 min de foco para a tarefa mais importante.';
+    if (todayTasks.length > 0 && bestTask) {
+      const t = bestTask.title.length > 38 ? bestTask.title.slice(0, 37) + '…' : bestTask.title;
+      return `Amanhã, comece por “${t}”.`;
+    }
+    if (doneToday > 0 || focusToday > 0) return 'Dia redondo! Amanhã, escolha 1 prioridade logo cedo.';
+    return 'Amanhã, defina sua tarefa mais importante antes de começar.';
+  }, [doneToday, focusToday, todayTasks, bestTask]);
+  const reviewOpen = reviewOpenOverride ?? (Math.floor(nowMin / 60) >= 18 || mood > 0 || !!note.trim());
 
   const handleQuickAdd = (e: React.FormEvent) => {
     e.preventDefault();
@@ -512,36 +525,52 @@ export const TodayView: React.FC<TodayViewProps> = ({
         </div>
       </div>
 
-      {/* Revisão do dia */}
+      {/* Revisão do dia — recolhida durante o dia, abre sozinha à noite */}
       <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4">
-        <h3 className="font-bold text-slate-800 text-sm mb-1">Revisão do dia</h3>
-        <p className="text-[11px] text-slate-400 mb-3">
-          Hoje: {doneToday} {doneToday === 1 ? 'tarefa' : 'tarefas'} · {formatMinutes(focusToday)} de foco · {habitsDone}/{todayHabits.length} hábitos
-        </p>
-        <div className="flex items-center justify-between gap-2">
-          {REVIEW_MOODS.map((emoji, i) => {
-            const val = i + 1;
-            return (
-              <button
-                key={val}
-                onClick={() => pickMood(val)}
-                aria-label={`Humor ${val} de 5`}
-                className={`flex-1 h-11 rounded-xl text-xl transition-all ${mood === val ? 'bg-teal-50 ring-2 ring-teal-300 scale-105' : 'bg-slate-50 hover:bg-slate-100'}`}
-              >
-                {emoji}
-              </button>
-            );
-          })}
-        </div>
-        <textarea
-          value={note}
-          onChange={e => setNote(e.target.value)}
-          onBlur={saveNote}
-          rows={2}
-          placeholder="Como foi seu dia? (opcional)"
-          className="w-full mt-3 px-3 py-2 rounded-xl border border-slate-200 focus:ring-2 focus:ring-teal-200 outline-none text-sm resize-none"
-        />
-        {mood > 0 && <p className="text-[11px] text-emerald-600 mt-1.5">Revisão salva ✓</p>}
+        <button onClick={() => setReviewOpenOverride(!reviewOpen)} aria-expanded={reviewOpen} className="w-full flex items-center justify-between gap-3 text-left">
+          <div className="min-w-0">
+            <h3 className="font-bold text-slate-800 text-sm">Revisão do dia</h3>
+            <p className="text-[11px] text-slate-500">
+              {doneToday} {doneToday === 1 ? 'tarefa' : 'tarefas'} · {formatMinutes(focusToday)} de foco · {habitsDone}/{todayHabits.length} hábitos
+            </p>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            {mood > 0 && <span className="text-lg leading-none">{REVIEW_MOODS[mood - 1]}</span>}
+            <ChevronDown size={18} className={`text-slate-400 transition-transform ${reviewOpen ? 'rotate-180' : ''}`} />
+          </div>
+        </button>
+
+        {reviewOpen && (
+          <div className="mt-3">
+            <div className="flex items-center justify-between gap-2">
+              {REVIEW_MOODS.map((emoji, i) => {
+                const val = i + 1;
+                return (
+                  <button
+                    key={val}
+                    onClick={() => pickMood(val)}
+                    aria-label={`Humor ${val} de 5`}
+                    className={`flex-1 h-11 rounded-xl text-xl transition-all ${mood === val ? 'bg-teal-50 ring-2 ring-teal-300 scale-105' : 'bg-slate-50 hover:bg-slate-100'}`}
+                  >
+                    {emoji}
+                  </button>
+                );
+              })}
+            </div>
+            <textarea
+              value={note}
+              onChange={e => setNote(e.target.value)}
+              onBlur={saveNote}
+              rows={2}
+              placeholder="O que vale manter amanhã? O que atrapalhou o foco? (opcional)"
+              className="w-full mt-3 px-3 py-2 rounded-xl border border-slate-200 focus:ring-2 focus:ring-teal-200 outline-none text-sm resize-none"
+            />
+            {mood > 0 && <p className="text-[11px] text-emerald-600 mt-1.5">Revisão salva ✓</p>}
+            <div className="mt-2 flex items-start gap-2 text-xs text-teal-800 bg-teal-50 rounded-lg px-3 py-2">
+              <Sparkles size={13} className="text-teal-600 shrink-0 mt-0.5" /> {tomorrowTip}
+            </div>
+          </div>
+        )}
       </div>
 
       {editingTask && (
