@@ -67,6 +67,23 @@ export const FocusView: React.FC<FocusViewProps> = ({
       </div>
 
       <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 md:p-8 flex flex-col items-center">
+        {/* Vincular tarefa no topo: escolha a tarefa ANTES de iniciar o foco */}
+        <div className="w-full max-w-sm mb-6">
+          <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5 text-center">
+            Vincular foco a uma tarefa
+          </label>
+          <select
+            value={timer.linkedTaskId ?? ''}
+            onChange={e => onLinkTask(e.target.value || null)}
+            className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-teal-200 outline-none bg-white text-sm text-slate-600"
+          >
+            <option value="">Nenhuma tarefa selecionada</option>
+            {pendingTasks.map(t => (
+              <option key={t.id} value={t.id}>{t.title}</option>
+            ))}
+          </select>
+        </div>
+
         <span className={`text-xs font-bold uppercase tracking-widest ${colors.text}`}>
           {TIMER_PHASE_LABELS[timer.phase]}
         </span>
@@ -132,23 +149,6 @@ export const FocusView: React.FC<FocusViewProps> = ({
           >
             <SkipForward size={20} />
           </button>
-        </div>
-
-        {/* Vincular tarefa */}
-        <div className="w-full max-w-sm mt-6">
-          <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5 text-center">
-            Focar em qual tarefa?
-          </label>
-          <select
-            value={timer.linkedTaskId ?? ''}
-            onChange={e => onLinkTask(e.target.value || null)}
-            className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-teal-200 outline-none bg-white text-sm text-slate-600"
-          >
-            <option value="">Sem tarefa vinculada</option>
-            {pendingTasks.map(t => (
-              <option key={t.id} value={t.id}>{t.title}</option>
-            ))}
-          </select>
         </div>
       </div>
 

@@ -29,6 +29,7 @@ import { TimeBlockForm } from './components/TimeBlockForm';
 import { ProjectForm } from './components/ProjectForm';
 import { CreateFab } from './components/CreateFab';
 import { ReminderModal } from './components/ReminderModal';
+import { SessionDoneModal } from './components/SessionDoneModal';
 import { usePwa } from './components/usePwa';
 
 // Dados iniciais de exemplo
@@ -90,6 +91,7 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isAIOpen, setIsAIOpen] = useState(false);
   const [isReminderOpen, setIsReminderOpen] = useState(false);
+  const [pomodoroDone, setPomodoroDone] = useState<{ taskId: string; minutes: number } | null>(null);
   const [creating, setCreating] = useState<null | 'task' | 'habit' | 'block' | 'project'>(null);
   // Boas-vindas só no 1º acesso (e apenas quando ainda há dados de exemplo).
   const [showWelcome, setShowWelcome] = useState(() => {
@@ -239,6 +241,7 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
         setTasks(prev => prev.map(task =>
           (task.id === t.linkedTaskId && !task.completed) ? { ...task, completedPomodoros: task.completedPomodoros + 1 } : task
         ));
+        setPomodoroDone({ taskId: t.linkedTaskId, minutes }); // oferece registrar progresso/concluir
       }
       const cycles = t.cyclesCompleted + 1;
       const nextPhase: TimerPhase = cycles % s.sessionsUntilLongBreak === 0 ? 'long_break' : 'short_break';
@@ -397,6 +400,13 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
   // --- Handlers de entidades ---
   const addTask = (data: Omit<Task, 'id'>) => setTasks(prev => [{ ...data, id: uid() }, ...prev]);
   const updateTask = (task: Task) => setTasks(prev => prev.map(t => t.id === task.id ? task : t));
+  // Marca a próxima subtarefa pendente (usado no aviso de fim de pomodoro)
+  const markNextSubtask = (taskId: string) => setTasks(prev => prev.map(t => {
+    if (t.id !== taskId || !t.subtasks?.length) return t;
+    const idx = t.subtasks.findIndex(s => !s.done);
+    if (idx < 0) return t;
+    return { ...t, subtasks: t.subtasks.map((s, i) => i === idx ? { ...s, done: true } : s) };
+  }));
   const deleteTask = (id: string) => {
     const idx = tasks.findIndex(t => t.id === id);
     const target = tasks[idx];
@@ -961,6 +971,20 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
           onClose={() => setIsReminderOpen(false)}
         />
       )}
+
+      {pomodoroDone && (() => {
+        const t = tasks.find(x => x.id === pomodoroDone.taskId);
+        if (!t || t.completed) return null;
+        return (
+          <SessionDoneModal
+            task={t}
+            minutes={pomodoroDone.minutes}
+            onComplete={() => { setTaskStatusById(t.id, 'done'); setPomodoroDone(null); }}
+            onMarkSubtask={() => markNextSubtask(t.id)}
+            onClose={() => setPomodoroDone(null)}
+          />
+        );
+      })()}
 
       {creating === 'task' && (
         <TaskForm
