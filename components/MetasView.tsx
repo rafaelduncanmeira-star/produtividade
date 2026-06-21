@@ -1,10 +1,19 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Plus, Target, Pencil, Trash2, Calendar, ChevronDown, StickyNote } from 'lucide-react';
-import { Project, Task } from '../types';
+import { Plus, Target, Pencil, Trash2, Calendar, ChevronDown, ChevronRight, StickyNote } from 'lucide-react';
+import { Project, Task, getQuadrant } from '../types';
 import { todayISO, formatShortDate } from '../utils';
 import { TaskItem } from './TaskItem';
 import { TaskForm } from './TaskForm';
 import { ProjectForm } from './ProjectForm';
+
+// Prioridade da próxima ação: Fazer agora > Agendar > Delegar > Eliminar.
+const QUAD_RANK: Record<string, number> = { q1: 0, q2: 1, q3: 2, q4: 3 };
+const STATUS_INFO = {
+  done: { label: 'Concluída', cls: 'bg-emerald-50 text-emerald-700' },
+  late: { label: 'Atrasada', cls: 'bg-rose-50 text-rose-700' },
+  idle: { label: 'Sem ação', cls: 'bg-amber-50 text-amber-700' },
+  ontrack: { label: 'Em dia', cls: 'bg-teal-50 text-teal-700' },
+} as const;
 
 // Anotações livres da meta: textarea que cresce sozinha e salva ao sair do campo.
 const MetaNotes: React.FC<{ project: Project; onSave: (p: Project) => void }> = ({ project, onSave }) => {
@@ -112,6 +121,19 @@ export const MetasView: React.FC<MetasViewProps> = ({
           const pct = total ? Math.round((done / total) * 100) : 0;
           const overdue = !!p.dueDate && p.dueDate < today && done < total;
           const isOpen = expanded === p.id;
+          const openTasks = pTasks.filter(t => !t.completed);
+          const allDone = total > 0 && done === total;
+          const status: keyof typeof STATUS_INFO = allDone ? 'done' : overdue ? 'late' : openTasks.length === 0 ? 'idle' : 'ontrack';
+          // Próxima ação: Fazendo > prazo mais próximo > prioridade.
+          const nextAction = openTasks.length > 0
+            ? [...openTasks].sort((a, b) => {
+                const ad = a.status === 'doing' ? 0 : 1, bd = b.status === 'doing' ? 0 : 1;
+                if (ad !== bd) return ad - bd;
+                const ada = a.dueDate ?? '9999-99-99', bda = b.dueDate ?? '9999-99-99';
+                if (ada !== bda) return ada < bda ? -1 : 1;
+                return QUAD_RANK[getQuadrant(a)] - QUAD_RANK[getQuadrant(b)];
+              })[0]
+            : null;
           return (
             <div key={p.id} className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
               <div className="p-4">
@@ -120,10 +142,11 @@ export const MetasView: React.FC<MetasViewProps> = ({
                   <div className="flex-1 min-w-0">
                     <h3 className="font-bold text-slate-800 truncate">{p.name}</h3>
                     <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-                      <span className="text-[11px] text-slate-400">{done}/{total} concluídas · {pct}%</span>
+                      <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${STATUS_INFO[status].cls}`}>{STATUS_INFO[status].label}</span>
+                      <span className="text-[11px] text-slate-400">{done}/{total} · {pct}%</span>
                       {p.dueDate && (
                         <span className={`flex items-center gap-0.5 text-[11px] font-medium ${overdue ? 'text-rose-600' : 'text-slate-400'}`}>
-                          <Calendar size={11} /> {overdue ? `Atrasada ${formatShortDate(p.dueDate)}` : formatShortDate(p.dueDate)}
+                          <Calendar size={11} /> {formatShortDate(p.dueDate)}
                         </span>
                       )}
                       {p.notes && (
@@ -140,6 +163,29 @@ export const MetasView: React.FC<MetasViewProps> = ({
                 <div className="mt-3 h-2 rounded-full bg-slate-100 overflow-hidden">
                   <div className="h-full rounded-full bar-sheen transition-all" style={{ width: `${pct}%`, backgroundColor: p.color }} />
                 </div>
+
+                {/* Ponte com a execução: próxima ação ou CTA */}
+                {status === 'idle' ? (
+                  <button onClick={() => setTaskForm({ projectId: p.id, task: null })} className="mt-3 w-full flex items-center justify-center gap-1.5 text-xs font-bold text-teal-700 border border-dashed border-teal-200 rounded-lg py-2 hover:bg-teal-50 transition">
+                    <Plus size={13} /> Definir próxima ação
+                  </button>
+                ) : status === 'late' ? (
+                  <div className="mt-3 flex items-center gap-2 text-xs">
+                    {nextAction ? (
+                      <button onClick={() => setTaskForm({ projectId: p.id, task: nextAction })} className="flex items-center gap-1.5 min-w-0 text-left flex-1">
+                        <ChevronRight size={13} className="text-rose-500 shrink-0" />
+                        <span className="truncate text-slate-700 font-medium">{nextAction.title}</span>
+                      </button>
+                    ) : <span className="flex-1 text-slate-400">Prazo vencido</span>}
+                    <button onClick={() => { setEditingProject(p); setIsProjectFormOpen(true); }} className="shrink-0 font-bold text-teal-700 hover:underline">Replanejar</button>
+                  </div>
+                ) : nextAction ? (
+                  <button onClick={() => setTaskForm({ projectId: p.id, task: nextAction })} className="mt-3 w-full flex items-center gap-1.5 text-xs text-left">
+                    <ChevronRight size={13} className="text-teal-600 shrink-0" />
+                    <span className="shrink-0 font-semibold text-slate-500">{nextAction.dueDate === today ? 'Ação de hoje:' : 'Próxima:'}</span>
+                    <span className="truncate text-slate-700 font-medium">{nextAction.title}</span>
+                  </button>
+                ) : null}
 
                 <div className="flex items-center justify-between mt-3">
                   <button onClick={() => setExpanded(isOpen ? null : p.id)} className="flex items-center gap-1 text-xs font-medium text-slate-500 hover:text-teal-700">
