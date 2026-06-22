@@ -186,6 +186,14 @@
       }
       html:not(.dark) .border-slate-100 { border-color: #e6ebf2; }
 
+      /* ===== Passe 3 — cantos mais sóbrios (visual mais sério) =====
+         Baixa o raio das superfícies ~um passo: cartões/modais 16->10px e
+         botões/campos/abas 12->8px. Pílulas (rounded-full) seguem redondas. */
+      html .rounded-2xl { border-radius: 0.625rem; }
+      html .rounded-t-2xl { border-top-left-radius: 0.625rem; border-top-right-radius: 0.625rem; }
+      html .rounded-xl { border-radius: 0.5rem; }
+      @media (min-width: 768px) { html .md\:rounded-2xl { border-radius: 0.625rem; } }
+
       /* Foco visível por teclado em qualquer controle (navegação por Tab) */
       button:focus-visible, a:focus-visible, [role="button"]:focus-visible,
       select:focus-visible, input:focus-visible, textarea:focus-visible {
