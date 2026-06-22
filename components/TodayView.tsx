@@ -262,7 +262,7 @@ export const TodayView: React.FC<TodayViewProps> = ({
       </div>
 
       {/* Bloco "Agora": responde "o que faço agora?" */}
-      <div className="rounded-2xl p-4 bg-teal-800 text-white shadow-md shadow-teal-200/50">
+      <div className="rounded-2xl p-4 bg-teal-800 text-white shadow-md">
         <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-teal-100/80">
           <Clock size={12} /> Agora
         </div>
@@ -313,7 +313,7 @@ export const TodayView: React.FC<TodayViewProps> = ({
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         {/* Tarefas de hoje */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4">
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4 md:p-5">
           <div className="flex items-center justify-between mb-3">
             <h3 className="font-bold text-slate-800 text-sm">Tarefas de hoje</h3>
             <button onClick={() => onNavigate('tasks')} className="text-xs text-teal-700 font-medium flex items-center gap-0.5 hover:underline">
@@ -424,7 +424,7 @@ export const TodayView: React.FC<TodayViewProps> = ({
 
         <div className="space-y-5">
           {/* Blocos de hoje */}
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4">
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4 md:p-5">
             <div className="flex items-center justify-between mb-3">
               <h3 className="font-bold text-slate-800 text-sm">Agenda de hoje</h3>
               <button onClick={() => onNavigate('planner')} className="text-xs text-teal-700 font-medium flex items-center gap-0.5 hover:underline">
@@ -482,7 +482,7 @@ export const TodayView: React.FC<TodayViewProps> = ({
           </div>
 
           {/* Hábitos de hoje */}
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4">
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4 md:p-5">
             <div className="flex items-center justify-between mb-3">
               <h3 className="font-bold text-slate-800 text-sm">Hábitos de hoje</h3>
               <button onClick={() => onNavigate('habits')} className="text-xs text-teal-700 font-medium flex items-center gap-0.5 hover:underline">
@@ -526,7 +526,7 @@ export const TodayView: React.FC<TodayViewProps> = ({
       </div>
 
       {/* Revisão do dia — recolhida durante o dia, abre sozinha à noite */}
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4">
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4 md:p-5">
         <button onClick={() => setReviewOpenOverride(!reviewOpen)} aria-expanded={reviewOpen} className="w-full flex items-center justify-between gap-3 text-left">
           <div className="min-w-0">
             <h3 className="font-bold text-slate-800 text-sm">Revisão do dia</h3>

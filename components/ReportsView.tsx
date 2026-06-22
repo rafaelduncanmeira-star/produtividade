@@ -226,7 +226,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ tasks, habits, session
       {/* Cards de resumo */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {summaryCards.map(card => (
-          <div key={card.label} className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4">
+          <div key={card.label} className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4 md:p-5">
             <div className={`w-9 h-9 rounded-xl flex items-center justify-center mb-2 ${card.color}`}>
               <card.icon size={18} />
             </div>
@@ -258,7 +258,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ tasks, habits, session
       </div>
 
       {/* Tríade do tempo */}
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5">
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 md:p-6">
         <div className="flex items-center justify-between">
           <h3 className="font-bold text-slate-800 text-sm">Tríade do tempo</h3>
           <span className="text-[11px] text-slate-400">tarefas em aberto</span>
@@ -294,7 +294,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ tasks, habits, session
       </div>
 
       {/* Humor / Revisão do dia */}
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5">
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 md:p-6">
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-bold text-slate-800 text-sm">Humor — últimos 14 dias</h3>
           {avgMood > 0 && (
@@ -333,7 +333,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ tasks, habits, session
       </div>
 
       {/* Humor × foco */}
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5">
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 md:p-6">
         <h3 className="font-bold text-slate-800 text-sm mb-4">Humor × foco</h3>
         {moodFocus.rows.length === 0 ? (
           <p className="text-sm text-slate-400 text-center py-6">Faça a “Revisão do dia” e sessões de foco para ver a relação entre humor e produtividade.</p>
@@ -357,7 +357,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ tasks, habits, session
 
       {/* Insights: estimativa + melhor horário */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5">
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 md:p-6">
           <h3 className="font-bold text-slate-800 text-sm mb-3">Estimativa de pomodoros</h3>
           <div className="flex items-end gap-3">
             <div><p className="text-2xl font-bold text-teal-700">{pomo.real}</p><p className="text-[11px] text-slate-400">reais 🍅</p></div>
@@ -366,7 +366,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ tasks, habits, session
           </div>
           <p className="text-xs text-slate-500 mt-2">{pomoVerdict}</p>
         </div>
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5">
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 md:p-6">
           <h3 className="font-bold text-slate-800 text-sm mb-3">Seu melhor horário de foco</h3>
           {bestPeriod ? (
             <>
@@ -380,7 +380,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ tasks, habits, session
       </div>
 
       {/* Foco por matéria */}
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5">
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 md:p-6">
         <h3 className="font-bold text-slate-800 text-sm mb-4">Foco por matéria — últimos 30 dias</h3>
         {focusByCategory.length === 0 ? (
           <p className="text-sm text-slate-400 text-center py-6">Nenhuma sessão de foco nos últimos 30 dias.</p>
@@ -402,7 +402,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ tasks, habits, session
       </div>
 
       {/* Foco por dia */}
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5">
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 md:p-6">
         <h3 className="font-bold text-slate-800 text-sm mb-4">Minutos de foco — últimos 14 dias</h3>
         <div className="h-56">
           <ResponsiveContainer width="100%" height="100%">
@@ -427,7 +427,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ tasks, habits, session
       </div>
 
       {/* Tarefas por semana */}
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5">
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 md:p-6">
         <h3 className="font-bold text-slate-800 text-sm mb-4">Tarefas concluídas por semana</h3>
         <div className="h-56">
           <ResponsiveContainer width="100%" height="100%">
@@ -449,7 +449,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ tasks, habits, session
       </div>
 
       {/* Taxa de conclusão de hábitos */}
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5">
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 md:p-6">
         <h3 className="font-bold text-slate-800 text-sm mb-4">Hábitos — taxa de conclusão (30 dias)</h3>
         {habitRates.length === 0 ? (
           <p className="text-sm text-slate-400 text-center py-6">Nenhum hábito criado ainda.</p>

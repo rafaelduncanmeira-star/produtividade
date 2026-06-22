@@ -19,9 +19,9 @@ interface FocusViewProps {
 }
 
 const PHASE_COLORS: Record<TimerState['phase'], { stroke: string; text: string; bg: string }> = {
-  focus: { stroke: '#0f766e', text: 'text-teal-700', bg: 'bg-teal-800 hover:bg-teal-900 shadow-teal-200' },
-  short_break: { stroke: '#10b981', text: 'text-emerald-600', bg: 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-200' },
-  long_break: { stroke: '#0ea5e9', text: 'text-sky-600', bg: 'bg-sky-600 hover:bg-sky-700 shadow-sky-200' },
+  focus: { stroke: '#0f766e', text: 'text-teal-700', bg: 'bg-teal-800 hover:bg-teal-900' },
+  short_break: { stroke: '#10b981', text: 'text-emerald-600', bg: 'bg-emerald-600 hover:bg-emerald-700' },
+  long_break: { stroke: '#0ea5e9', text: 'text-sky-600', bg: 'bg-sky-600 hover:bg-sky-700' },
 };
 
 const RADIUS = 110;
@@ -153,7 +153,7 @@ export const FocusView: React.FC<FocusViewProps> = ({
       </div>
 
       {/* Sessões de hoje */}
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5">
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 md:p-6">
         <div className="flex items-center justify-between mb-3">
           <h3 className="font-bold text-slate-800 text-sm">Sessões de hoje</h3>
           <span className="text-xs font-bold text-teal-700 bg-teal-50 px-2.5 py-1 rounded-full">

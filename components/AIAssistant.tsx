@@ -163,8 +163,8 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ tasks, blocks, project
                     disabled={busy}
                     className={`w-20 h-20 rounded-full flex items-center justify-center transition-all active:scale-95 ${
                       listening
-                        ? 'bg-rose-500 text-white shadow-lg shadow-rose-200 animate-pulse'
-                        : 'bg-teal-800 text-white shadow-lg shadow-teal-200 hover:bg-teal-900'
+                        ? 'bg-rose-500 text-white shadow-lg animate-pulse'
+                        : 'bg-teal-800 text-white shadow-lg hover:bg-teal-900'
                     }`}
                   >
                     {listening ? <MicOff size={32} /> : <Mic size={32} />}

@@ -112,7 +112,7 @@ export const HabitForm: React.FC<HabitFormProps> = ({ initialHabit, onSave, onCl
             )}
           </div>
 
-          <button type="submit" className="w-full py-3 rounded-xl font-bold text-white bg-teal-800 hover:brightness-110 active:scale-[0.98] transition flex items-center justify-center gap-2 shadow-md shadow-teal-200">
+          <button type="submit" className="w-full py-3 rounded-xl font-bold text-white bg-teal-800 hover:brightness-110 active:scale-[0.98] transition flex items-center justify-center gap-2 shadow-md">
             <Save size={18} /> Salvar Hábito
           </button>
         </form>

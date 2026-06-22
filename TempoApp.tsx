@@ -652,7 +652,7 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
         <div className="px-3 pb-2 space-y-1">
           <button
             onClick={() => setIsAIOpen(true)}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-white bg-teal-800 hover:brightness-110 transition-all shadow-md shadow-teal-200"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-white bg-teal-800 hover:brightness-110 transition-all shadow-md"
           >
             <Sparkles size={18} />
             <span>Assistente IA</span>

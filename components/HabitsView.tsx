@@ -42,7 +42,7 @@ export const HabitsView: React.FC<HabitsViewProps> = ({
         </div>
         <button
           onClick={() => { setEditingHabit(null); setIsFormOpen(true); }}
-          className="hidden md:flex items-center gap-2 bg-teal-800 hover:bg-teal-900 text-white px-4 py-2 rounded-lg font-medium transition-all shadow-md shadow-teal-200 active:scale-95"
+          className="hidden md:flex items-center gap-2 bg-teal-800 hover:bg-teal-900 text-white px-4 py-2 rounded-lg font-medium transition-all shadow-md active:scale-95"
         >
           <Plus size={18} />
           <span>Novo Hábito</span>
@@ -74,7 +74,7 @@ export const HabitsView: React.FC<HabitsViewProps> = ({
         {habits.map(habit => {
           const streaks = calcStreaks(habit, today);
           return (
-            <div key={habit.id} className="group bg-white rounded-2xl shadow-sm border border-slate-100 p-4">
+            <div key={habit.id} className="group bg-white rounded-2xl shadow-sm border border-slate-100 p-4 md:p-5">
               <div className="flex items-center gap-3 mb-3">
                 <div
                   className="w-10 h-10 rounded-xl flex items-center justify-center text-lg shrink-0"

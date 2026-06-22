@@ -46,7 +46,7 @@ export const SessionDoneModal: React.FC<SessionDoneModalProps> = ({ task, minute
           )}
           <button
             onClick={onComplete}
-            className="w-full flex items-center justify-center gap-2 p-3 rounded-xl font-bold text-white bg-teal-800 hover:brightness-110 active:scale-[0.98] transition shadow-md shadow-teal-200"
+            className="w-full flex items-center justify-center gap-2 p-3 rounded-xl font-bold text-white bg-teal-800 hover:brightness-110 active:scale-[0.98] transition shadow-md"
           >
             <Check size={18} /> Concluir tarefa
           </button>

@@ -204,7 +204,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
         </div>
         <button
           onClick={() => { setEditingTask(null); setAddStatus(null); setIsFormOpen(true); }}
-          className="hidden md:flex items-center gap-2 bg-teal-800 hover:bg-teal-900 text-white px-4 py-2 rounded-lg font-medium transition-all shadow-md shadow-teal-200 active:scale-95"
+          className="hidden md:flex items-center gap-2 bg-teal-800 hover:bg-teal-900 text-white px-4 py-2 rounded-lg font-medium transition-all shadow-md active:scale-95"
         >
           <Plus size={18} />
           <span>Nova Tarefa</span>
