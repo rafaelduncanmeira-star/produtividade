@@ -22,7 +22,7 @@ export const SessionDoneModal: React.FC<SessionDoneModalProps> = ({ task, minute
         onClick={e => e.stopPropagation()}
       >
         <div className="flex items-start justify-between">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-teal-800 to-emerald-700 text-white flex items-center justify-center text-2xl">🍅</div>
+          <div className="w-12 h-12 rounded-2xl bg-teal-800 text-white flex items-center justify-center text-2xl">🍅</div>
           <button onClick={onClose} aria-label="Fechar" className="p-2 text-slate-400 hover:text-slate-600 -mr-2 -mt-1"><X size={20} /></button>
         </div>
         <h2 className="text-lg font-bold text-slate-800 mt-3 font-display">Foco concluído!</h2>
@@ -46,7 +46,7 @@ export const SessionDoneModal: React.FC<SessionDoneModalProps> = ({ task, minute
           )}
           <button
             onClick={onComplete}
-            className="w-full flex items-center justify-center gap-2 p-3 rounded-xl font-bold text-white bg-gradient-to-r from-teal-800 to-emerald-700 hover:brightness-110 active:scale-[0.98] transition shadow-md shadow-teal-200"
+            className="w-full flex items-center justify-center gap-2 p-3 rounded-xl font-bold text-white bg-teal-800 hover:brightness-110 active:scale-[0.98] transition shadow-md shadow-teal-200"
           >
             <Check size={18} /> Concluir tarefa
           </button>

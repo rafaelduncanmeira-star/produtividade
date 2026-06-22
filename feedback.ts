@@ -30,7 +30,7 @@ export const celebrateComplete = () => {
 
   // Emblema central com check desenhando
   const badge = document.createElement('div');
-  badge.style.cssText = 'position:relative;width:84px;height:84px;border-radius:50%;background:linear-gradient(135deg,#0f766e,#10b981);box-shadow:0 12px 30px rgba(13,148,136,0.45);display:flex;align-items:center;justify-content:center;animation:celebrate-badge 1.35s cubic-bezier(0.34,1.56,0.64,1) forwards';
+  badge.style.cssText = 'position:relative;width:84px;height:84px;border-radius:50%;background:#0f766e;box-shadow:0 12px 30px rgba(13,148,136,0.45);display:flex;align-items:center;justify-content:center;animation:celebrate-badge 1.35s cubic-bezier(0.34,1.56,0.64,1) forwards';
   badge.innerHTML = '<svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7" style="stroke-dasharray:30;stroke-dashoffset:30;animation:celebrate-check 0.45s 0.25s ease forwards"/></svg>';
   root.appendChild(badge);
 

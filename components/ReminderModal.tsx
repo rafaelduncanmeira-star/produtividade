@@ -126,7 +126,7 @@ export const ReminderModal: React.FC<ReminderModalProps> = ({ notifPerm, onPermC
       >
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3">
-            <span className="w-10 h-10 rounded-2xl bg-gradient-to-br from-teal-800 to-emerald-700 text-white flex items-center justify-center shrink-0">
+            <span className="w-10 h-10 rounded-2xl bg-teal-800 text-white flex items-center justify-center shrink-0">
               <BellRing size={20} />
             </span>
             <div>

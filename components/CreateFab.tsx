@@ -44,7 +44,7 @@ export const CreateFab: React.FC<CreateFabProps> = ({ onTask, onHabit, onBlock, 
           onClick={() => setOpen(o => !o)}
           aria-label={open ? 'Fechar menu' : 'Criar ou usar a IA'}
           aria-expanded={open}
-          className={`w-14 h-14 rounded-full bg-gradient-to-r from-teal-800 to-emerald-700 text-white shadow-lg shadow-teal-300 flex items-center justify-center active:scale-90 transition-transform ${open ? 'rotate-45' : 'animate-float'}`}
+          className={`w-14 h-14 rounded-full bg-teal-800 text-white shadow-lg shadow-teal-300 flex items-center justify-center active:scale-90 transition-transform ${open ? 'rotate-45' : 'animate-float'}`}
         >
           <Plus size={26} />
         </button>

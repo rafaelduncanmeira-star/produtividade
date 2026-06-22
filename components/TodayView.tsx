@@ -243,7 +243,7 @@ export const TodayView: React.FC<TodayViewProps> = ({
       {/* Saudação + atalho discreto de foco */}
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h2 className="text-2xl font-bold text-slate-800 font-display">{getGreeting()}! 👋</h2>
+          <h2 className="text-2xl font-bold text-slate-800 font-display">{getGreeting()}</h2>
           <p className="text-slate-500 text-sm first-letter:capitalize">{formatLongDate()}</p>
         </div>
         <button
@@ -262,7 +262,7 @@ export const TodayView: React.FC<TodayViewProps> = ({
       </div>
 
       {/* Bloco "Agora": responde "o que faço agora?" */}
-      <div className="rounded-2xl p-4 bg-gradient-to-br from-teal-800 to-emerald-700 text-white shadow-md shadow-teal-200/50">
+      <div className="rounded-2xl p-4 bg-teal-800 text-white shadow-md shadow-teal-200/50">
         <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-teal-100/80">
           <Clock size={12} /> Agora
         </div>

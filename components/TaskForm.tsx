@@ -249,7 +249,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({ initialTask, projects, defau
           </div>
 
           <div className="space-y-2 pt-1">
-            <button type="submit" className="w-full py-3 rounded-xl font-bold text-white bg-gradient-to-r from-teal-800 to-emerald-700 hover:brightness-110 active:scale-[0.98] transition flex items-center justify-center gap-2 shadow-md shadow-teal-200">
+            <button type="submit" className="w-full py-3 rounded-xl font-bold text-white bg-teal-800 hover:brightness-110 active:scale-[0.98] transition flex items-center justify-center gap-2 shadow-md shadow-teal-200">
               <Save size={18} /> Salvar tarefa
             </button>
             {dueDate && title.trim() && (

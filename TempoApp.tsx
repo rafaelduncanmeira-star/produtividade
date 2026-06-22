@@ -628,7 +628,7 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
         <div className="px-6 py-6">
           <div className="flex items-center gap-2.5">
             <img src={`${import.meta.env.BASE_URL}icon-192.png`} alt="" className="w-8 h-8 rounded-lg shadow-sm" />
-            <h1 className="text-xl font-bold font-display bg-gradient-to-r from-teal-800 to-emerald-600 bg-clip-text text-transparent">Foco GeriClass</h1>
+            <h1 className="text-xl font-bold font-display text-teal-800">Foco GeriClass</h1>
           </div>
           <p className="text-xs text-slate-400 mt-1">Gestão de tempo e produtividade</p>
         </div>
@@ -652,7 +652,7 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
         <div className="px-3 pb-2 space-y-1">
           <button
             onClick={() => setIsAIOpen(true)}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-teal-800 to-emerald-700 hover:brightness-110 transition-all shadow-md shadow-teal-200"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-white bg-teal-800 hover:brightness-110 transition-all shadow-md shadow-teal-200"
           >
             <Sparkles size={18} />
             <span>Assistente IA</span>
@@ -704,7 +704,7 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
         <header className="header-glass md:hidden sticky top-0 z-30 bg-white/90 backdrop-blur border-b border-slate-100 px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <img src={`${import.meta.env.BASE_URL}icon-192.png`} alt="" className="w-7 h-7 rounded-lg shadow-sm" />
-            <h1 className="text-lg font-bold font-display bg-gradient-to-r from-teal-800 to-emerald-600 bg-clip-text text-transparent">Foco GeriClass</h1>
+            <h1 className="text-lg font-bold font-display text-teal-800">Foco GeriClass</h1>
           </div>
           <div className="flex items-center gap-2">
             {timerActive && currentView !== 'focus' && (
@@ -730,7 +730,7 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
         <main className="p-4 md:p-8 pb-[calc(9.5rem+env(safe-area-inset-bottom))] md:pb-8 max-w-5xl mx-auto">
           {pwa.showInstall && (
             <div className="mb-4 flex items-center gap-3 bg-white rounded-xl border border-teal-100 shadow-sm p-3">
-              <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-teal-800 to-emerald-700 text-white flex items-center justify-center shrink-0">
+              <div className="w-9 h-9 rounded-lg bg-teal-800 text-white flex items-center justify-center shrink-0">
                 <Download size={18} />
               </div>
               <div className="flex-1 min-w-0">
@@ -1028,7 +1028,7 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
       {showWelcome && (
         <div className="fixed inset-0 z-[80] flex items-end md:items-center justify-center bg-black/50 backdrop-blur-sm md:p-4">
           <div className="bg-white rounded-t-2xl md:rounded-2xl shadow-xl w-full max-w-md p-6 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-teal-800 to-emerald-700 text-white flex items-center justify-center mb-4">
+            <div className="w-12 h-12 rounded-2xl bg-teal-800 text-white flex items-center justify-center mb-4">
               <Sparkles size={24} />
             </div>
             <h2 className="text-xl font-bold text-slate-800">Bem-vindo ao Foco GeriClass 👋</h2>
@@ -1049,7 +1049,7 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
             <div className="mt-3 space-y-2">
               <button
                 onClick={() => dismissWelcome(false)}
-                className="w-full py-3 rounded-xl font-bold text-white bg-gradient-to-r from-teal-800 to-emerald-700 hover:brightness-110 active:scale-[0.98] transition"
+                className="w-full py-3 rounded-xl font-bold text-white bg-teal-800 hover:brightness-110 active:scale-[0.98] transition"
               >
                 Explorar com exemplos
               </button>

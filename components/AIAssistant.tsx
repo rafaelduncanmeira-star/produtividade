@@ -147,7 +147,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ tasks, blocks, project
     <>
     <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/50 backdrop-blur-sm md:p-4">
       <div className="bg-white rounded-t-2xl md:rounded-2xl shadow-xl w-full max-w-md overflow-hidden max-h-[92vh] flex flex-col">
-        <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-gradient-to-r from-teal-800 to-emerald-700 text-white">
+        <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-teal-800 text-white">
           <h3 className="font-bold flex items-center gap-2"><Sparkles size={18} /> Assistente IA</h3>
           <button onClick={onClose} className="p-1"><X size={20} className="text-teal-200" /></button>
         </div>

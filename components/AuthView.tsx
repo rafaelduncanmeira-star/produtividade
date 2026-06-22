@@ -77,7 +77,7 @@ export const AuthView: React.FC = () => {
       <div className="w-full max-w-sm animate-rise">
         <div className="text-center mb-8">
           <img src={`${import.meta.env.BASE_URL}icon-192.png`} alt="Foco GeriClass" className="w-20 h-20 rounded-[1.4rem] mx-auto mb-4 shadow-lg shadow-teal-900/20" />
-          <h1 className="text-3xl font-bold font-display bg-gradient-to-r from-teal-800 to-emerald-600 bg-clip-text text-transparent">Foco GeriClass</h1>
+          <h1 className="text-3xl font-bold font-display text-teal-800">Foco GeriClass</h1>
           <p className="text-sm text-slate-400 mt-1">Gestão de tempo e produtividade</p>
         </div>
 
