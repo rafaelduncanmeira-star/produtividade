@@ -1,11 +1,13 @@
 import React, { useState, useMemo, useCallback, useRef } from 'react';
 import { Plus, List, LayoutGrid, CheckSquare, Columns3, Search, X, Info, ChevronDown, CheckCircle2 } from 'lucide-react';
 import { Task, TaskStatus, Project, QUADRANTS, QUADRANT_INFO, getQuadrant, getTaskStatus, KANBAN_COLUMNS, DEFAULT_TASK_CATEGORIES } from '../types';
-import { todayISO, getWeekDays, parseQuickTask } from '../utils';
+import { todayISO, getWeekDays, parseQuickTask, addDaysISO, formatShortDate } from '../utils';
 import { TaskItem } from './TaskItem';
 import { KanbanCard } from './KanbanCard';
 import { TaskForm } from './TaskForm';
 import { EisenhowerInfo } from './EisenhowerInfo';
+import { QuickWhen } from './QuickWhen';
+import { useToast } from './Toast';
 
 interface TasksViewProps {
   tasks: Task[];
@@ -58,13 +60,16 @@ export const TasksView: React.FC<TasksViewProps> = ({
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [showInfo, setShowInfo] = useState(false);
   const [addStatus, setAddStatus] = useState<TaskStatus | null>(null);
+  const [pendingQuick, setPendingQuick] = useState<{ title: string; dueTime?: string } | null>(null);
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
   const colRefs = useRef<Partial<Record<TaskStatus, HTMLDivElement | null>>>({});
   const [drag, setDrag] = useState<{ id: string; title: string; x: number; y: number; over: TaskStatus | null } | null>(null);
 
   const today = todayISO();
+  const tomorrow = addDaysISO(today, 1);
   const weekEnd = getWeekDays()[6];
+  const { toast } = useToast();
 
   const matches = useCallback((t: Task) => {
     if (categoryFilter && t.category !== categoryFilter) return false;
@@ -103,20 +108,37 @@ export const TasksView: React.FC<TasksViewProps> = ({
   );
   const [showDone, setShowDone] = useState(true);
 
+  const createQuickTask = (title: string, dueDate: string | undefined, dueTime: string | undefined, recurrence: Task['recurrence']) => {
+    onAddTask({
+      title, urgent: false, important: true,
+      dueDate, dueTime, recurrence,
+      category: 'Outros', estimatedPomodoros: 1, completedPomodoros: 0,
+      completed: false, createdAt: new Date().toISOString(),
+    });
+    if (recurrence) toast(`Recorrente${dueTime ? ' · ' + dueTime : ''}`);
+    else if (dueDate && dueDate !== today) toast(`Agendada: ${formatShortDate(dueDate)}${dueTime ? ' · ' + dueTime : ''}`);
+    else if (dueDate) toast(`Adicionada para hoje${dueTime ? ' às ' + dueTime : ''}`);
+    else toast('Adicionada · sem data');
+  };
   const handleQuickAdd = (e: React.FormEvent) => {
     e.preventDefault();
     const raw = quickTitle.trim();
     if (!raw) return;
     const p = parseQuickTask(raw);
-    onAddTask({
-      title: p.title, urgent: false, important: true,
-      dueDate: p.dueDate ?? (filter === 'hoje' ? today : undefined),
-      dueTime: p.dueTime,
-      recurrence: p.recurrence,
-      category: 'Outros', estimatedPomodoros: 1, completedPomodoros: 0,
-      completed: false, createdAt: new Date().toISOString(),
-    });
+    // Achou data/recorrência no texto? cria direto. Senão, pergunta "quando?".
+    if (p.dueDate || p.recurrence) {
+      createQuickTask(p.title, p.dueDate, p.dueTime, p.recurrence);
+      setPendingQuick(null);
+    } else {
+      setPendingQuick({ title: p.title, dueTime: p.dueTime });
+    }
     setQuickTitle('');
+  };
+  const confirmPendingQuick = (when: 'today' | 'tomorrow' | 'none') => {
+    if (!pendingQuick) return;
+    const dueDate = when === 'today' ? today : when === 'tomorrow' ? tomorrow : undefined;
+    createQuickTask(pendingQuick.title, dueDate, pendingQuick.dueTime, undefined);
+    setPendingQuick(null);
   };
 
   const handleSave = (data: Omit<Task, 'id'>, id?: string) => {
@@ -296,6 +318,13 @@ export const TasksView: React.FC<TasksViewProps> = ({
             <Plus size={20} />
           </button>
         </form>
+      )}
+      {pendingQuick && (
+        <QuickWhen
+          title={pendingQuick.title}
+          onPick={confirmPendingQuick}
+          onCancel={() => setPendingQuick(null)}
+        />
       )}
 
       {mode === 'list' ? (

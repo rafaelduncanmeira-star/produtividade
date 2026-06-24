@@ -503,9 +503,10 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
       title, urgent: false, important: true, dueDate, dueTime, category: 'Outros',
       estimatedPomodoros: 1, completedPomodoros: 0, completed: false, recurrence, createdAt: new Date().toISOString(),
     });
-    if (recurrence) toast(`🔁 Recorrente${dueTime ? ' · ' + dueTime : ''}`);
-    else if (dueDate && dueDate !== todayISO()) toast(`📅 Agendada: ${formatShortDate(dueDate)}${dueTime ? ' · ' + dueTime : ''}`);
-    else if (dueTime) toast(`⏰ Hoje às ${dueTime}`);
+    if (recurrence) toast(`Recorrente${dueTime ? ' · ' + dueTime : ''}`);
+    else if (dueDate && dueDate !== todayISO()) toast(`Agendada: ${formatShortDate(dueDate)}${dueTime ? ' · ' + dueTime : ''}`);
+    else if (dueDate) toast(`Adicionada para hoje${dueTime ? ' às ' + dueTime : ''}`);
+    else toast('Adicionada · sem data');
   };
 
   const addHabit = (data: Omit<Habit, 'id'>) => setHabits(prev => [...prev, { ...data, id: uid() }]);
@@ -768,7 +769,7 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
               onToggleTask={toggleTask}
               onDeleteTask={deleteTask}
               onUpdateTask={updateTask}
-              onQuickAddTask={(title, dueDate, dueTime, recurrence) => quickAddTask(title, dueDate ?? todayISO(), dueTime, recurrence)}
+              onQuickAddTask={quickAddTask}
               projects={projects}
               onToggleHabitDay={toggleHabitDay}
               onStartFocusTask={startFocusOnTask}
