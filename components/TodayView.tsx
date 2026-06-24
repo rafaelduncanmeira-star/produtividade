@@ -4,7 +4,6 @@ import { Task, Habit, TimeBlock, FocusSession, GoogleEvent, Project, DailyReview
 import { todayISO, getGreeting, formatLongDate, formatMinutes, focusMinutesOn, parseQuickTask, addDaysISO, timeToMinutes } from '../utils';
 import { TaskItem } from './TaskItem';
 import { TaskForm } from './TaskForm';
-import { QuickWhen } from './QuickWhen';
 import { useToast } from './Toast';
 
 type AgendaItem = { key: string; title: string; start: string; end: string; color: string; fromGoogle: boolean; taskId?: string; completed?: boolean };
@@ -39,7 +38,6 @@ export const TodayView: React.FC<TodayViewProps> = ({
   review, onSaveReview, projects, focusMinutes = 25,
 }) => {
   const [quickTitle, setQuickTitle] = useState('');
-  const [pendingQuick, setPendingQuick] = useState<{ title: string; dueTime?: string } | null>(null);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [mood, setMood] = useState(review?.mood ?? 0);
   const [note, setNote] = useState(review?.note ?? '');
@@ -187,20 +185,9 @@ export const TodayView: React.FC<TodayViewProps> = ({
     const raw = quickTitle.trim();
     if (!raw) return;
     const p = parseQuickTask(raw);
-    // Achou data/recorrência no texto? cria direto. Senão, pergunta "quando?".
-    if (p.dueDate || p.recurrence) {
-      onQuickAddTask(p.title, p.dueDate, p.dueTime, p.recurrence);
-      setPendingQuick(null);
-    } else {
-      setPendingQuick({ title: p.title, dueTime: p.dueTime });
-    }
+    // Sem data no texto? cai em hoje. O toast confirma onde a tarefa foi parar.
+    onQuickAddTask(p.title, p.dueDate ?? today, p.dueTime, p.recurrence);
     setQuickTitle('');
-  };
-  const confirmPendingQuick = (when: 'today' | 'tomorrow' | 'none') => {
-    if (!pendingQuick) return;
-    const dueDate = when === 'today' ? today : when === 'tomorrow' ? tomorrow : undefined;
-    onQuickAddTask(pendingQuick.title, dueDate, pendingQuick.dueTime, undefined);
-    setPendingQuick(null);
   };
 
   const handleSaveTask = (data: Omit<Task, 'id'>, id?: string) => {
@@ -351,13 +338,6 @@ export const TodayView: React.FC<TodayViewProps> = ({
               <Plus size={20} />
             </button>
           </form>
-          {pendingQuick && (
-            <QuickWhen
-              title={pendingQuick.title}
-              onPick={confirmPendingQuick}
-              onCancel={() => setPendingQuick(null)}
-            />
-          )}
           <div className="space-y-1.5">
             {sortedToday.slice(0, 3).map(task => (
               <TaskItem

@@ -1,12 +1,11 @@
 import React, { useState, useMemo, useCallback, useRef } from 'react';
 import { Plus, List, LayoutGrid, CheckSquare, Columns3, Search, X, Info, ChevronDown, CheckCircle2 } from 'lucide-react';
 import { Task, TaskStatus, Project, QUADRANTS, QUADRANT_INFO, getQuadrant, getTaskStatus, KANBAN_COLUMNS, DEFAULT_TASK_CATEGORIES } from '../types';
-import { todayISO, getWeekDays, parseQuickTask, addDaysISO, formatShortDate } from '../utils';
+import { todayISO, getWeekDays, parseQuickTask, formatShortDate } from '../utils';
 import { TaskItem } from './TaskItem';
 import { KanbanCard } from './KanbanCard';
 import { TaskForm } from './TaskForm';
 import { EisenhowerInfo } from './EisenhowerInfo';
-import { QuickWhen } from './QuickWhen';
 import { useToast } from './Toast';
 
 interface TasksViewProps {
@@ -60,14 +59,12 @@ export const TasksView: React.FC<TasksViewProps> = ({
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [showInfo, setShowInfo] = useState(false);
   const [addStatus, setAddStatus] = useState<TaskStatus | null>(null);
-  const [pendingQuick, setPendingQuick] = useState<{ title: string; dueTime?: string } | null>(null);
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
   const colRefs = useRef<Partial<Record<TaskStatus, HTMLDivElement | null>>>({});
   const [drag, setDrag] = useState<{ id: string; title: string; x: number; y: number; over: TaskStatus | null } | null>(null);
 
   const today = todayISO();
-  const tomorrow = addDaysISO(today, 1);
   const weekEnd = getWeekDays()[6];
   const { toast } = useToast();
 
@@ -125,20 +122,9 @@ export const TasksView: React.FC<TasksViewProps> = ({
     const raw = quickTitle.trim();
     if (!raw) return;
     const p = parseQuickTask(raw);
-    // Achou data/recorrência no texto? cria direto. Senão, pergunta "quando?".
-    if (p.dueDate || p.recurrence) {
-      createQuickTask(p.title, p.dueDate, p.dueTime, p.recurrence);
-      setPendingQuick(null);
-    } else {
-      setPendingQuick({ title: p.title, dueTime: p.dueTime });
-    }
+    // Sem data no texto? cai em hoje. O toast confirma onde a tarefa foi parar.
+    createQuickTask(p.title, p.dueDate ?? today, p.dueTime, p.recurrence);
     setQuickTitle('');
-  };
-  const confirmPendingQuick = (when: 'today' | 'tomorrow' | 'none') => {
-    if (!pendingQuick) return;
-    const dueDate = when === 'today' ? today : when === 'tomorrow' ? tomorrow : undefined;
-    createQuickTask(pendingQuick.title, dueDate, pendingQuick.dueTime, undefined);
-    setPendingQuick(null);
   };
 
   const handleSave = (data: Omit<Task, 'id'>, id?: string) => {
@@ -318,13 +304,6 @@ export const TasksView: React.FC<TasksViewProps> = ({
             <Plus size={20} />
           </button>
         </form>
-      )}
-      {pendingQuick && (
-        <QuickWhen
-          title={pendingQuick.title}
-          onPick={confirmPendingQuick}
-          onCancel={() => setPendingQuick(null)}
-        />
       )}
 
       {mode === 'list' ? (
