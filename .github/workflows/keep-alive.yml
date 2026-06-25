@@ -1,0 +1,49 @@
+name: Keep Supabase Alive
+
+# Mantém o projeto Supabase (plano free) acordado.
+#
+# Projetos free são PAUSADOS após ~7 dias sem atividade — o que derrubaria
+# login, sincronização na nuvem e o assistente de IA até alguém reativar
+# manualmente no painel. Este job faz um ping diário no banco (via REST)
+# só para registrar atividade. Custo: zero (GitHub Actions).
+#
+# IMPORTANTE: o gatilho "schedule" só roda na branch PADRÃO (main).
+# Enquanto este arquivo não estiver na main, o agendamento NÃO dispara —
+# dá para testar antes pela aba Actions ("Run workflow").
+
+on:
+  schedule:
+    # Diário às 12:17 UTC (~09:17 em Brasília). Minuto "quebrado" de propósito:
+    # agendamentos no minuto 0 costumam atrasar ou ser pulados nos picos do GitHub.
+    - cron: "17 12 * * *"
+  workflow_dispatch: {} # permite rodar manualmente pela aba Actions
+
+permissions:
+  contents: read
+
+concurrency:
+  group: keep-alive
+  cancel-in-progress: false
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase (registra atividade no banco)
+        env:
+          # Chave "publishable": pública por design (a mesma usada no front-end).
+          # NÃO é segredo — a segurança dos dados vem das políticas de RLS no banco.
+          SUPABASE_URL: https://ogwepzrwmywnubfgndpn.supabase.co
+          SUPABASE_ANON_KEY: sb_publishable_BwBpKV4-yCeQhYVuJ52STw_8kBaFr7u
+        run: |
+          set -uo pipefail
+          code=$(curl -sS --max-time 30 --retry 3 --retry-delay 5 --retry-all-errors \
+            -o /dev/null -w '%{http_code}' \
+            "$SUPABASE_URL/rest/v1/tempo_app_state?select=user_id&limit=1" \
+            -H "apikey: $SUPABASE_ANON_KEY" \
+            -H "Authorization: Bearer $SUPABASE_ANON_KEY" || true)
+          echo "Supabase respondeu HTTP ${code:-000}"
+          case "${code:-000}" in
+            2*) echo "OK — atividade registrada, projeto mantido ativo." ;;
+            *)  echo "::error::Ping falhou (HTTP ${code:-000}) — verifique o projeto Supabase."; exit 1 ;;
+          esac
