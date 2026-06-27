@@ -140,10 +140,10 @@ export const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, onDelete, on
       style={{ display: 'grid', gridTemplateRows: collapsing ? '0fr' : '1fr', opacity: collapsing ? 0 : 1, transition: 'grid-template-rows 0.26s ease, opacity 0.26s ease' }}
     >
       <div className="overflow-hidden">
-    <div className="relative overflow-hidden rounded-xl">
+    <div className={`relative overflow-hidden ${compact ? '' : 'rounded-xl'}`}>
       {/* Fundo revelado ao deslizar */}
       {dx !== 0 && (
-        <div className={`absolute inset-0 flex items-center px-5 rounded-xl text-white font-semibold text-sm ${dx > 0 ? 'justify-start bg-emerald-500' : 'justify-end bg-rose-500'}`}>
+        <div className={`absolute inset-0 flex items-center px-5 ${compact ? '' : 'rounded-xl'} text-white font-semibold text-sm ${dx > 0 ? 'justify-start bg-emerald-500' : 'justify-end bg-rose-500'}`}>
           {dx > 0
             ? <span className="flex items-center gap-1.5"><Check size={18} /> {task.completed ? 'Reabrir' : 'Concluir'}</span>
             : <span className="flex items-center gap-1.5">Excluir <Trash2 size={18} /></span>}
@@ -155,9 +155,9 @@ export const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, onDelete, on
         onPointerMove={onPointerMove}
         onPointerUp={endSwipe}
         onPointerCancel={endSwipe}
-        style={{ transform: `translateX(${dx}px)`, transition: dragging ? 'none' : 'transform 0.2s ease', touchAction: 'pan-y', borderLeftWidth: task.completed ? undefined : 4, borderLeftColor: task.completed ? undefined : quadrant.color }}
+        style={{ transform: `translateX(${dx}px)`, transition: dragging ? 'none' : 'transform 0.2s ease', touchAction: 'pan-y', borderLeftWidth: (compact || task.completed) ? undefined : 4, borderLeftColor: (compact || task.completed) ? undefined : quadrant.color }}
         title={task.completed ? undefined : quadrant.hint}
-        className={`relative rounded-xl border transition-colors ${completing ? 'bg-emerald-50 border-emerald-200' : 'bg-white border-slate-100 hover:border-slate-200'} ${compact ? 'pl-3 pr-2 py-2.5' : 'pl-4 pr-3 py-3'}`}
+        className={`relative transition-colors ${completing ? (compact ? 'bg-emerald-50' : 'bg-emerald-50 border-emerald-200') : (compact ? 'bg-white' : 'bg-white border-slate-100 hover:border-slate-200')} ${compact ? 'px-1 py-3' : 'rounded-xl border pl-4 pr-3 py-3'}`}
       >
         {completing && (
           <span className="pointer-events-none absolute inset-0 overflow-hidden rounded-xl">
@@ -175,6 +175,10 @@ export const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, onDelete, on
             {completing && <span className="absolute inset-0 rounded-full bg-emerald-400 task-ring" />}
             <Check size={14} strokeWidth={3} className="relative" />
           </button>
+
+          {compact && !task.completed && (
+            <span className="shrink-0 w-1.5 h-1.5 rounded-full -ml-0.5" style={{ backgroundColor: quadrant.color }} title={quadrant.hint} />
+          )}
 
           <div className="flex-1 min-w-0">
             <p title={task.title} className={`relative text-[15px] font-semibold leading-snug line-clamp-2 transition-colors ${task.completed ? 'text-slate-400 line-through' : completing ? 'text-slate-400' : 'text-slate-800'}`}>

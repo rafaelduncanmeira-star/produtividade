@@ -241,66 +241,83 @@ export const TodayView: React.FC<TodayViewProps> = ({
 
   return (
     <div className="space-y-5">
-      {/* Saudação + atalho discreto de foco */}
-      <div className="flex items-start justify-between gap-3">
+      {/* Saudação grande (estilo iOS) + atalho de foco */}
+      <div className="flex items-start justify-between gap-3 px-1 pt-1">
         <div>
-          <h2 className="text-2xl font-bold text-slate-800 font-display">{getGreeting()}</h2>
-          <p className="text-slate-500 text-sm first-letter:capitalize">{formatLongDate()}</p>
+          <h2 className="text-3xl font-bold text-slate-800 font-display leading-tight">{getGreeting()}</h2>
+          <p className="text-slate-500 text-[15px] mt-0.5 first-letter:capitalize">{formatLongDate()}</p>
         </div>
         <button
           onClick={() => onNavigate('focus')}
-          className="shrink-0 flex items-center gap-1.5 bg-teal-50 text-teal-800 px-3.5 py-2 rounded-xl font-bold text-sm active:scale-95 transition"
+          aria-label="Ir para o foco"
+          className="shrink-0 w-11 h-11 flex items-center justify-center bg-teal-50 text-teal-800 rounded-full active:scale-95 transition"
         >
-          <Play size={15} /> Focar
+          <Play size={18} className="ml-0.5" />
         </button>
       </div>
 
-      {/* Resumo do dia em uma linha enxuta */}
-      <div className="flex items-center gap-5 px-1 text-xs text-slate-400">
-        <span><b className="text-sm font-bold text-teal-700">{formatMinutes(focusToday)}</b> de foco</span>
-        <span><b className="text-sm font-bold text-emerald-600">{doneToday}</b> concluídas</span>
-        <span><b className="text-sm font-bold text-orange-500">{habitsDone}/{todayHabits.length}</b> hábitos</span>
+      {/* Resumo do dia — cartão de 3 colunas, monocromático */}
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-100">
+        <div className="flex items-stretch text-center py-4">
+          <div className="flex-1 flex flex-col gap-0.5">
+            <span className="text-xl font-bold text-slate-800 tabular-nums">{formatMinutes(focusToday)}</span>
+            <span className="text-xs text-slate-500">Foco</span>
+          </div>
+          <div className="w-px bg-slate-100 my-1" />
+          <div className="flex-1 flex flex-col gap-0.5">
+            <span className="text-xl font-bold text-slate-800 tabular-nums">{doneToday}</span>
+            <span className="text-xs text-slate-500">Concluídas</span>
+          </div>
+          <div className="w-px bg-slate-100 my-1" />
+          <div className="flex-1 flex flex-col gap-0.5">
+            <span className="text-xl font-bold text-slate-800 tabular-nums">{habitsDone}/{todayHabits.length}</span>
+            <span className="text-xs text-slate-500">Hábitos</span>
+          </div>
+        </div>
       </div>
 
       {/* Bloco "Agora": responde "o que faço agora?" */}
-      <div className="rounded-2xl p-4 bg-teal-800 text-white shadow-md">
-        <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-teal-100/80">
-          <Clock size={12} /> Agora
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4 md:p-5">
+        <div className="flex items-center gap-2.5 mb-2.5">
+          <span className="w-7 h-7 rounded-lg bg-teal-800 text-white flex items-center justify-center shrink-0">
+            <Clock size={15} />
+          </span>
+          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Agora</span>
         </div>
-        <p className="text-sm text-teal-50 mt-1.5 leading-snug">
+        <p className="text-[15px] text-slate-700 leading-relaxed">
           {agendaNow ?? 'Sem compromissos próximos — bom momento para avançar numa tarefa importante.'}
         </p>
         {chosen ? (
           <div className="mt-3">
-            <div className="bg-white/10 rounded-xl p-2.5 pl-3 flex items-center gap-2.5">
+            <div className="bg-slate-50 rounded-xl p-2.5 pl-3.5 flex items-center gap-2.5">
               <button
                 onClick={() => sortedToday.length > 1 && setPicking(p => !p)}
                 className="flex-1 min-w-0 text-left"
                 aria-expanded={picking}
               >
-                <div className="text-[10px] font-medium text-teal-100/70 flex items-center gap-1">
+                <div className="text-[11px] font-medium text-slate-500 flex items-center gap-1">
                   Sugestão para focar
-                  {sortedToday.length > 1 && <ChevronDown size={11} className={`transition-transform ${picking ? 'rotate-180' : ''}`} />}
+                  {sortedToday.length > 1 && <ChevronDown size={12} className={`transition-transform ${picking ? 'rotate-180' : ''}`} />}
                 </div>
-                <div className="font-bold truncate text-[15px]">{chosen.title}</div>
+                <div className="font-semibold truncate text-[15px] text-slate-800 mt-0.5">{chosen.title}</div>
               </button>
               <button
                 onClick={() => onStartFocusTask(chosen.id)}
-                className="shrink-0 bg-white text-teal-800 font-bold text-sm px-3 py-2 rounded-lg flex items-center gap-1.5 active:scale-95 transition shadow-sm"
+                className="shrink-0 bg-teal-800 text-white font-semibold text-sm px-3.5 py-2.5 rounded-xl flex items-center gap-1.5 active:scale-95 transition"
               >
                 <Play size={15} /> Focar {focusMinutes} min
               </button>
             </div>
             {picking && sortedToday.length > 1 && (
-              <div className="mt-1.5 bg-white/10 rounded-xl p-1.5 space-y-0.5 max-h-44 overflow-y-auto">
-                <div className="px-2.5 pt-1 pb-1.5 text-[10px] font-medium text-teal-100/70">Focar em outra tarefa de hoje:</div>
+              <div className="mt-1.5 bg-slate-50 rounded-xl p-1.5 space-y-0.5 max-h-44 overflow-y-auto">
+                <div className="px-2.5 pt-1 pb-1.5 text-[11px] font-medium text-slate-500">Focar em outra tarefa de hoje:</div>
                 {sortedToday.map(t => (
                   <button
                     key={t.id}
                     onClick={() => { setPickedId(t.id); setPicking(false); }}
-                    className={`w-full text-left px-2.5 py-2 rounded-lg text-sm flex items-center gap-2 transition-colors ${t.id === chosen.id ? 'bg-white/20 font-bold' : 'hover:bg-white/10'}`}
+                    className={`w-full text-left px-2.5 py-2 rounded-lg text-sm flex items-center gap-2 transition-colors ${t.id === chosen.id ? 'bg-white font-semibold text-slate-800 shadow-sm' : 'text-slate-600 hover:bg-white/60'}`}
                   >
-                    {t.id === chosen.id ? <Check size={13} className="shrink-0" /> : <span className="w-[13px] shrink-0" />}
+                    {t.id === chosen.id ? <Check size={13} className="shrink-0 text-teal-700" /> : <span className="w-[13px] shrink-0" />}
                     <span className="truncate">{t.title}</span>
                   </button>
                 ))}
@@ -308,7 +325,7 @@ export const TodayView: React.FC<TodayViewProps> = ({
             )}
           </div>
         ) : (
-          <p className="mt-2 text-sm text-teal-50/80">Nada pendente para hoje. 🎉 Que tal puxar algo das sugestões?</p>
+          <p className="mt-2 text-sm text-slate-400">Nada pendente para hoje. Que tal puxar algo das sugestões?</p>
         )}
       </div>
 
@@ -316,18 +333,18 @@ export const TodayView: React.FC<TodayViewProps> = ({
         {/* Tarefas de hoje */}
         <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4 md:p-5">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="font-bold text-slate-800 text-sm">Tarefas de hoje</h3>
-            <button onClick={() => onNavigate('tasks')} className="text-xs text-teal-700 font-medium flex items-center gap-0.5 hover:underline">
-              Ver todas <ChevronRight size={12} />
+            <h3 className="font-semibold text-slate-800 text-[17px]">Tarefas de hoje</h3>
+            <button onClick={() => onNavigate('tasks')} className="text-[15px] text-slate-500 flex items-center gap-0.5">
+              Ver todas <ChevronRight size={16} className="text-slate-400" />
             </button>
           </div>
-          <form onSubmit={handleQuickAdd} className="flex gap-2 mb-3">
+          <form onSubmit={handleQuickAdd} className="flex gap-2 mb-1">
             <input
               type="text"
               value={quickTitle}
               onChange={e => setQuickTitle(e.target.value)}
               placeholder="Nova tarefa... ex: reunião amanhã 14h"
-              className="flex-1 min-w-0 px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-teal-200 outline-none text-sm"
+              className="flex-1 min-w-0 px-4 py-3 rounded-xl bg-slate-50 border-0 focus:ring-2 focus:ring-teal-300 outline-none text-[15px] placeholder:text-slate-400"
             />
             <button
               type="submit"
@@ -338,7 +355,7 @@ export const TodayView: React.FC<TodayViewProps> = ({
               <Plus size={20} />
             </button>
           </form>
-          <div className="space-y-1.5">
+          <div className="divide-y divide-slate-100">
             {sortedToday.slice(0, 3).map(task => (
               <TaskItem
                 key={task.id}
@@ -352,10 +369,10 @@ export const TodayView: React.FC<TodayViewProps> = ({
               />
             ))}
             {todayTasks.length === 0 && (
-              <p className="text-sm text-slate-400 text-center py-6">Nada com prazo para hoje. 🎉</p>
+              <p className="text-sm text-slate-400 text-center py-6">Nada com prazo para hoje.</p>
             )}
             {todayTasks.length > 3 && (
-              <button onClick={() => onNavigate('tasks')} className="w-full text-center text-xs font-medium text-teal-700 hover:underline py-1.5">
+              <button onClick={() => onNavigate('tasks')} className="w-full text-center text-[13px] font-semibold text-teal-700 py-3">
                 +{todayTasks.length - 3} {todayTasks.length - 3 === 1 ? 'tarefa' : 'tarefas'} · ver todas
               </button>
             )}
@@ -382,8 +399,8 @@ export const TodayView: React.FC<TodayViewProps> = ({
                         ? <span className="text-sm shrink-0" title={project.name}>{project.emoji}</span>
                         : <span className="w-1.5 h-1.5 rounded-full bg-slate-300 shrink-0" />}
                       <span className="text-sm text-slate-600 flex-1 truncate">{task.title}</span>
-                      <button onClick={() => scheduleFor(task, today, '✅ Adicionada ao seu dia')} className="text-[11px] font-bold text-teal-700 px-2 py-1 rounded-md hover:bg-teal-50 active:scale-95 transition">Hoje</button>
-                      <button onClick={() => scheduleFor(task, tomorrow, '📅 Agendada para amanhã')} className="text-[11px] font-medium text-slate-500 px-2 py-1 rounded-md hover:bg-slate-100 active:scale-95 transition">Amanhã</button>
+                      <button onClick={() => scheduleFor(task, today, 'Adicionada ao seu dia')} className="text-[11px] font-bold text-teal-700 px-2 py-1 rounded-md hover:bg-teal-50 active:scale-95 transition">Hoje</button>
+                      <button onClick={() => scheduleFor(task, tomorrow, 'Agendada para amanhã')} className="text-[11px] font-medium text-slate-500 px-2 py-1 rounded-md hover:bg-slate-100 active:scale-95 transition">Amanhã</button>
                     </div>
                   ))}
                 </div>
@@ -427,9 +444,9 @@ export const TodayView: React.FC<TodayViewProps> = ({
           {/* Blocos de hoje */}
           <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4 md:p-5">
             <div className="flex items-center justify-between mb-3">
-              <h3 className="font-bold text-slate-800 text-sm">Agenda de hoje</h3>
-              <button onClick={() => onNavigate('planner')} className="text-xs text-teal-700 font-medium flex items-center gap-0.5 hover:underline">
-                Ver agenda <ChevronRight size={12} />
+              <h3 className="font-semibold text-slate-800 text-[17px]">Agenda de hoje</h3>
+              <button onClick={() => onNavigate('planner')} className="text-[15px] text-slate-500 flex items-center gap-0.5">
+                Ver agenda <ChevronRight size={16} className="text-slate-400" />
               </button>
             </div>
             {mixedSources && (
@@ -476,7 +493,7 @@ export const TodayView: React.FC<TodayViewProps> = ({
                 )}
                 {liveAgenda.map(item => renderAgenda(item, false, isOngoing(item)))}
                 {liveAgenda.length === 0 && (
-                  <p className="text-sm text-slate-400 text-center py-3">Compromissos de hoje encerrados. 🌙</p>
+                  <p className="text-sm text-slate-400 text-center py-3">Compromissos de hoje encerrados.</p>
                 )}
               </div>
             )}
@@ -485,9 +502,9 @@ export const TodayView: React.FC<TodayViewProps> = ({
           {/* Hábitos de hoje */}
           <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4 md:p-5">
             <div className="flex items-center justify-between mb-3">
-              <h3 className="font-bold text-slate-800 text-sm">Hábitos de hoje</h3>
-              <button onClick={() => onNavigate('habits')} className="text-xs text-teal-700 font-medium flex items-center gap-0.5 hover:underline">
-                Ver todos <ChevronRight size={12} />
+              <h3 className="font-semibold text-slate-800 text-[17px]">Hábitos de hoje</h3>
+              <button onClick={() => onNavigate('habits')} className="text-[15px] text-slate-500 flex items-center gap-0.5">
+                Ver todos <ChevronRight size={16} className="text-slate-400" />
               </button>
             </div>
             {todayHabits.length === 0 ? (
