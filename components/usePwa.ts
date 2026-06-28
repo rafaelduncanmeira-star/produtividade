@@ -47,7 +47,7 @@ export function usePwa() {
     const promptUpdate = () => {
       if (notified) return;
       notified = true;
-      toast('✨ Nova versão disponível', {
+      toast('Nova versão disponível', {
         action: { label: 'Atualizar', onClick: () => window.location.reload() },
         duration: 8000,
       });

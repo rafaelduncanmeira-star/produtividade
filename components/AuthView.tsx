@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { LogIn, UserPlus, LoaderCircle, Mail } from 'lucide-react';
+import { LoaderCircle, Mail } from 'lucide-react';
 import { supabase } from '../services/supabaseClient';
 
 type Mode = 'login' | 'signup';
@@ -70,82 +70,92 @@ export const AuthView: React.FC = () => {
     }
   };
 
-  const inputClass = 'w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-teal-200 outline-none text-sm';
+  const inputClass = 'w-full bg-slate-50 border-0 rounded-xl px-4 py-3 text-[15px] focus:ring-2 focus:ring-teal-300 outline-none placeholder:text-slate-400';
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
       <div className="w-full max-w-sm animate-rise">
         <div className="text-center mb-8">
-          <img src={`${import.meta.env.BASE_URL}icon-192.png`} alt="Foco GeriClass" className="w-20 h-20 rounded-2xl mx-auto mb-4 shadow-lg" />
-          <h1 className="text-3xl font-bold font-display text-teal-800">Foco GeriClass</h1>
-          <p className="text-sm text-slate-400 mt-1">Gestão de tempo e produtividade</p>
+          <img src={`${import.meta.env.BASE_URL}icon-192.png`} alt="Foco GeriClass" className="w-16 h-16 rounded-2xl mx-auto mb-4 shadow-sm" />
+          <h1 className="text-2xl font-bold font-display text-slate-800">Foco GeriClass</h1>
+          <p className="text-[15px] text-slate-500 mt-1">Gestão de tempo e produtividade</p>
         </div>
 
         <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
           {/* Alternância entrar/criar conta */}
-          <div className="flex bg-slate-100 rounded-xl p-1 mb-5">
+          <div className="flex bg-slate-100 rounded-xl p-1 mb-6">
             <button
               onClick={() => { setMode('login'); setError(null); setInfo(null); }}
-              className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${mode === 'login' ? 'bg-white shadow-sm text-teal-800' : 'text-slate-500'}`}
+              className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${mode === 'login' ? 'bg-white shadow-sm text-slate-800' : 'text-slate-500'}`}
             >
               Entrar
             </button>
             <button
               onClick={() => { setMode('signup'); setError(null); setInfo(null); }}
-              className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${mode === 'signup' ? 'bg-white shadow-sm text-teal-800' : 'text-slate-500'}`}
+              className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${mode === 'signup' ? 'bg-white shadow-sm text-slate-800' : 'text-slate-500'}`}
             >
               Criar conta
             </button>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-3">
+          <form onSubmit={handleSubmit} className="space-y-4">
             {mode === 'signup' && (
+              <div className="space-y-1.5">
+                <label htmlFor="auth-name" className="block text-sm text-slate-600">Nome</label>
+                <input
+                  id="auth-name"
+                  type="text"
+                  required
+                  value={name}
+                  onChange={e => setName(e.target.value)}
+                  placeholder="Seu nome"
+                  className={inputClass}
+                />
+              </div>
+            )}
+            <div className="space-y-1.5">
+              <label htmlFor="auth-email" className="block text-sm text-slate-600">E-mail</label>
               <input
-                type="text"
+                id="auth-email"
+                type="email"
                 required
-                value={name}
-                onChange={e => setName(e.target.value)}
-                placeholder="Seu nome"
+                autoComplete="email"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                placeholder="voce@exemplo.com"
                 className={inputClass}
               />
-            )}
-            <input
-              type="email"
-              required
-              autoComplete="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              placeholder="E-mail"
-              className={inputClass}
-            />
-            <input
-              type="password"
-              required
-              minLength={6}
-              autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              placeholder={mode === 'signup' ? 'Crie uma senha (mín. 6 caracteres)' : 'Senha'}
-              className={inputClass}
-            />
+            </div>
+            <div className="space-y-1.5">
+              <label htmlFor="auth-password" className="block text-sm text-slate-600">Senha</label>
+              <input
+                id="auth-password"
+                type="password"
+                required
+                minLength={6}
+                autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                placeholder={mode === 'signup' ? 'Mínimo de 6 caracteres' : 'Sua senha'}
+                className={inputClass}
+              />
+            </div>
 
             {error && (
-              <div className="bg-rose-50 border border-rose-200 rounded-xl px-4 py-3 text-xs text-rose-600">{error}</div>
+              <div className="bg-rose-50 rounded-xl px-4 py-3 text-sm text-rose-600">{error}</div>
             )}
             {info && (
-              <div className="bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 text-xs text-emerald-700 flex items-center gap-2">
-                <Mail size={14} /> {info}
+              <div className="bg-emerald-50 rounded-xl px-4 py-3 text-sm text-emerald-700 flex items-center gap-2">
+                <Mail size={15} className="shrink-0" /> {info}
               </div>
             )}
 
             <button
               type="submit"
               disabled={busy}
-              className="w-full py-3 bg-teal-800 text-white rounded-xl font-bold hover:bg-teal-900 flex items-center justify-center gap-2 disabled:opacity-60 active:scale-[0.98] transition-transform"
+              className="w-full bg-teal-800 text-white font-semibold rounded-xl py-3 flex items-center justify-center gap-2 disabled:opacity-60 active:scale-95 transition"
             >
-              {busy
-                ? <LoaderCircle size={18} className="animate-spin" />
-                : mode === 'signup' ? <UserPlus size={18} /> : <LogIn size={18} />}
+              {busy && <LoaderCircle size={18} className="animate-spin" />}
               {mode === 'signup' ? 'Criar minha conta' : 'Entrar'}
             </button>
           </form>
@@ -154,14 +164,14 @@ export const AuthView: React.FC = () => {
             <button
               onClick={handleForgot}
               disabled={busy}
-              className="w-full mt-3 text-xs text-slate-400 hover:text-teal-700 font-medium"
+              className="w-full mt-4 text-sm text-slate-500 hover:text-teal-800 transition-colors"
             >
               Esqueci a senha
             </button>
           )}
         </div>
 
-        <p className="text-center text-[11px] text-slate-300 mt-6">
+        <p className="text-center text-[13px] text-slate-400 mt-6">
           Seus dados são privados: cada conta vê apenas o que é seu.
         </p>
       </div>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Save, Volume2, VolumeX, Timer } from 'lucide-react';
+import { X, Volume2, VolumeX, Timer, Minus, Plus } from 'lucide-react';
 import { PomodoroSettings } from '../types';
 
 interface PomodoroSettingsModalProps {
@@ -7,9 +7,6 @@ interface PomodoroSettingsModalProps {
   onSave: (settings: PomodoroSettings) => void;
   onClose: () => void;
 }
-
-const labelCls = 'block text-xs font-medium text-slate-500 mb-1.5';
-const fieldCls = 'w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-700 focus:border-teal-400 focus:ring-2 focus:ring-teal-100 outline-none transition';
 
 export const PomodoroSettingsModal: React.FC<PomodoroSettingsModalProps> = ({ settings, onSave, onClose }) => {
   const [focusMinutes, setFocusMinutes] = useState(String(settings.focusMinutes));
@@ -35,57 +32,89 @@ export const PomodoroSettingsModal: React.FC<PomodoroSettingsModalProps> = ({ se
     });
   };
 
-  const numberInput = (label: string, value: string, onChange: (v: string) => void) => (
-    <div>
-      <label className={labelCls}>{label}</label>
-      <input
-        type="number"
-        min="1"
-        value={value}
-        onChange={e => onChange(e.target.value)}
-        className={fieldCls}
-      />
-    </div>
-  );
+  // Stepper iOS: botões redondos + número grande. Mantém o valor como string (clamp só no salvar).
+  const stepper = (
+    label: string,
+    value: string,
+    setValue: (v: string) => void,
+    min: number,
+    max: number,
+    suffix: string,
+  ) => {
+    const cur = parseInt(value);
+    const safe = isNaN(cur) ? min : cur;
+    const step = (delta: number) => setValue(String(Math.min(max, Math.max(min, safe + delta))));
+    return (
+      <div className="flex items-center justify-between gap-3 py-3.5">
+        <span className="text-[15px] text-slate-700">{label}</span>
+        <div className="flex items-center gap-3 shrink-0">
+          <button
+            type="button"
+            onClick={() => step(-1)}
+            disabled={safe <= min}
+            aria-label={`Diminuir ${label}`}
+            className="w-8 h-8 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center disabled:opacity-40 active:scale-90 transition"
+          >
+            <Minus size={16} />
+          </button>
+          <span className="min-w-[3.5rem] text-center text-[17px] font-semibold text-slate-800 tabular-nums">
+            {safe}<span className="text-[13px] font-normal text-slate-400 ml-0.5">{suffix}</span>
+          </span>
+          <button
+            type="button"
+            onClick={() => step(1)}
+            disabled={safe >= max}
+            aria-label={`Aumentar ${label}`}
+            className="w-8 h-8 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center disabled:opacity-40 active:scale-90 transition"
+          >
+            <Plus size={16} />
+          </button>
+        </div>
+      </div>
+    );
+  };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/50 backdrop-blur-sm md:p-4">
-      <div className="bg-white rounded-t-2xl md:rounded-2xl shadow-xl w-full max-w-sm overflow-hidden max-h-[92vh] overflow-y-auto">
-        <div className="px-5 py-4 border-b border-slate-100 flex justify-between items-center bg-white/95 backdrop-blur sticky top-0 z-10">
-          <h3 className="font-bold text-slate-800 text-[15px] flex items-center gap-2">
-            <span className="w-7 h-7 rounded-lg bg-teal-50 text-teal-700 flex items-center justify-center"><Timer size={16} strokeWidth={2.5} /></span>
-            Configurações do Timer
+    <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/40 md:p-4" onClick={onClose}>
+      <div
+        className="bg-white rounded-t-2xl md:rounded-2xl shadow-xl w-full max-w-sm overflow-hidden max-h-[92vh] overflow-y-auto"
+        onClick={e => e.stopPropagation()}
+      >
+        <div className="px-5 py-4 flex justify-between items-center bg-white sticky top-0 z-10 border-b border-slate-100">
+          <h3 className="text-[17px] font-semibold text-slate-800 flex items-center gap-2.5">
+            <span className="w-7 h-7 rounded-lg bg-teal-800 text-white flex items-center justify-center shrink-0"><Timer size={15} /></span>
+            Timer
           </h3>
           <button onClick={onClose} aria-label="Fechar" className="p-1.5 -mr-1.5 rounded-lg text-slate-400 hover:bg-slate-100"><X size={20} /></button>
         </div>
         <form onSubmit={handleSubmit} className="p-5 space-y-5 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
-          <div className="grid grid-cols-2 gap-4">
-            {numberInput('Foco (min)', focusMinutes, setFocusMinutes)}
-            {numberInput('Pausa curta (min)', shortBreakMinutes, setShortBreakMinutes)}
-            {numberInput('Pausa longa (min)', longBreakMinutes, setLongBreakMinutes)}
-            {numberInput('Focos até pausa longa', sessionsUntilLongBreak, setSessionsUntilLongBreak)}
+          <div className="divide-y divide-slate-100">
+            {stepper('Foco', focusMinutes, setFocusMinutes, 1, 120, 'min')}
+            {stepper('Pausa curta', shortBreakMinutes, setShortBreakMinutes, 1, 60, 'min')}
+            {stepper('Pausa longa', longBreakMinutes, setLongBreakMinutes, 1, 90, 'min')}
+            {stepper('Focos até pausa longa', sessionsUntilLongBreak, setSessionsUntilLongBreak, 2, 10, '')}
           </div>
 
           <button
             type="button"
             onClick={() => setSoundEnabled(!soundEnabled)}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border-2 text-left transition-colors ${
-              soundEnabled ? 'border-teal-300 bg-teal-50' : 'border-slate-200 bg-white'
-            }`}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-slate-50 text-left"
           >
-            {soundEnabled ? <Volume2 size={18} className="text-teal-500" /> : <VolumeX size={18} className="text-slate-300" />}
-            <span className="flex-1 text-sm font-bold text-slate-700">Som ao concluir fase</span>
-            <div className={`w-10 h-6 rounded-full p-0.5 transition-colors ${soundEnabled ? 'bg-teal-700' : 'bg-slate-200'}`}>
-              <div className={`w-5 h-5 bg-white rounded-full shadow transition-transform ${soundEnabled ? 'translate-x-4' : ''}`} />
-            </div>
+            <span className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${soundEnabled ? 'bg-teal-800 text-white' : 'bg-slate-200 text-slate-400'}`}>
+              {soundEnabled ? <Volume2 size={15} /> : <VolumeX size={15} />}
+            </span>
+            <span className="flex-1 text-[15px] font-medium text-slate-700">Som ao concluir fase</span>
+            <span className={`w-12 h-7 rounded-full p-0.5 transition-colors shrink-0 ${soundEnabled ? 'bg-teal-800' : 'bg-slate-200'}`}>
+              <span className={`block w-6 h-6 bg-white rounded-full shadow transition-transform ${soundEnabled ? 'translate-x-5' : ''}`} />
+            </span>
           </button>
 
-          <p className="text-[11px] text-slate-400">
+          <p className="text-[13px] text-slate-400 leading-relaxed">
             Mudanças de duração valem a partir da próxima fase; a fase em andamento não é alterada.
           </p>
 
-          <button type="submit" className="w-full py-3 rounded-xl font-bold text-white bg-teal-800 hover:brightness-110 active:scale-[0.98] transition flex items-center justify-center gap-2 shadow-md">
-            <Save size={18} /> Salvar
+          <button type="submit" className="w-full py-2.5 rounded-xl font-semibold text-white bg-teal-800 active:scale-95 transition">
+            Salvar
           </button>
         </form>
       </div>

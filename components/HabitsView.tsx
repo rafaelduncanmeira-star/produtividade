@@ -37,12 +37,12 @@ export const HabitsView: React.FC<HabitsViewProps> = ({
     <div className="space-y-5">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-slate-800 font-display">Hábitos</h2>
-          <p className="text-slate-500 text-sm">Consistência diária constrói grandes resultados.</p>
+          <h2 className="text-3xl font-bold text-slate-800 font-display leading-tight">Hábitos</h2>
+          <p className="text-slate-500 text-[15px] mt-0.5">Consistência diária constrói grandes resultados.</p>
         </div>
         <button
           onClick={() => { setEditingHabit(null); setIsFormOpen(true); }}
-          className="hidden md:flex items-center gap-2 bg-teal-800 hover:bg-teal-900 text-white px-4 py-2 rounded-lg font-medium transition-all shadow-md active:scale-95"
+          className="hidden md:flex items-center gap-2 bg-teal-800 hover:bg-teal-900 text-white px-4 py-2 rounded-xl font-semibold transition-all active:scale-95"
         >
           <Plus size={18} />
           <span>Novo Hábito</span>
@@ -50,13 +50,13 @@ export const HabitsView: React.FC<HabitsViewProps> = ({
       </div>
 
       {/* Navegação de semana */}
-      <div className="flex items-center justify-between bg-white rounded-xl border border-slate-100 px-3 py-2">
-        <button onClick={() => setWeekOffset(weekOffset - 1)} aria-label="Semana anterior" className="p-2 text-slate-400 hover:text-teal-700 rounded-lg">
+      <div className="flex items-center justify-between bg-white rounded-2xl shadow-sm border border-slate-100 px-2 py-1.5">
+        <button onClick={() => setWeekOffset(weekOffset - 1)} aria-label="Semana anterior" className="p-2 text-slate-400 hover:text-teal-700 rounded-lg transition-colors">
           <ChevronLeft size={18} />
         </button>
         <button
           onClick={() => setWeekOffset(0)}
-          className={`text-sm font-medium ${weekOffset === 0 ? 'text-slate-700' : 'text-teal-700 hover:underline'}`}
+          className={`text-[15px] font-semibold ${weekOffset === 0 ? 'text-slate-800' : 'text-teal-700'}`}
         >
           {weekOffset === 0 ? 'Esta semana' : `${formatShortDate(weekDays[0])} – ${formatShortDate(weekDays[6])}`}
         </button>
@@ -64,7 +64,7 @@ export const HabitsView: React.FC<HabitsViewProps> = ({
           onClick={() => setWeekOffset(weekOffset + 1)}
           disabled={weekOffset >= 0}
           aria-label="Próxima semana"
-          className="p-2 text-slate-400 hover:text-teal-700 rounded-lg disabled:opacity-30 disabled:hover:text-slate-400"
+          className="p-2 text-slate-400 hover:text-teal-700 rounded-lg transition-colors disabled:opacity-30 disabled:hover:text-slate-400"
         >
           <ChevronRight size={18} />
         </button>
@@ -75,27 +75,29 @@ export const HabitsView: React.FC<HabitsViewProps> = ({
           const streaks = calcStreaks(habit, today);
           return (
             <div key={habit.id} className="group bg-white rounded-2xl shadow-sm border border-slate-100 p-4 md:p-5">
-              <div className="flex items-center gap-3 mb-3">
+              <div className="flex items-center gap-3 mb-4">
                 <div
-                  className="w-10 h-10 rounded-xl flex items-center justify-center text-lg shrink-0"
-                  style={{ backgroundColor: `${habit.color}20` }}
+                  className="w-9 h-9 rounded-xl flex items-center justify-center text-base shrink-0 bg-slate-50"
                 >
                   {habit.emoji}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-bold text-slate-800 text-sm truncate">{habit.name}</h3>
-                  <div className="flex items-center gap-3 text-xs text-slate-400">
+                  <h3 className="font-semibold text-slate-800 text-[15px] truncate flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: habit.color }} />
+                    {habit.name}
+                  </h3>
+                  <div className="flex items-center gap-3 text-[13px] text-slate-400 mt-0.5">
                     {streaks.current > 0 ? (
-                      <span className="flex items-center gap-1 font-bold text-orange-500">
-                        <Flame size={12} /> {streaks.current} {streaks.current === 1 ? 'dia' : 'dias'} seguidos
+                      <span className="flex items-center gap-1 font-semibold text-amber-600">
+                        <Flame size={13} /> {streaks.current} {streaks.current === 1 ? 'dia' : 'dias'} seguidos
                       </span>
                     ) : (
-                      <span className="flex items-center gap-1 font-medium text-slate-400">
-                        <Flame size={12} /> Sequência: 0
+                      <span className="flex items-center gap-1 text-slate-400">
+                        <Flame size={13} /> Sequência: 0
                       </span>
                     )}
-                    <span className="flex items-center gap-1">
-                      <Trophy size={12} /> recorde: {streaks.best}
+                    <span className="flex items-center gap-1 text-slate-400">
+                      <Trophy size={13} /> recorde: {streaks.best}
                     </span>
                   </div>
                 </div>
@@ -103,14 +105,14 @@ export const HabitsView: React.FC<HabitsViewProps> = ({
                   <button
                     onClick={() => { setEditingHabit(habit); setIsFormOpen(true); }}
                     aria-label={`Editar hábito ${habit.name}`}
-                    className="p-2 text-slate-300 hover:text-teal-700 hover:bg-teal-50 rounded-lg"
+                    className="p-2 text-slate-400 hover:text-teal-700 hover:bg-teal-50 rounded-lg transition-colors"
                   >
                     <Edit2 size={16} />
                   </button>
                   <button
                     onClick={() => onDeleteHabit(habit.id)}
                     aria-label={`Excluir hábito ${habit.name}`}
-                    className="p-2 text-slate-300 hover:text-rose-600 hover:bg-rose-50 rounded-lg"
+                    className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
                   >
                     <Trash2 size={16} />
                   </button>
@@ -136,12 +138,12 @@ export const HabitsView: React.FC<HabitsViewProps> = ({
                         done
                           ? 'border-transparent text-white'
                           : disabled
-                            ? 'border-slate-100 bg-slate-50/50 text-slate-300'
+                            ? 'border-transparent bg-slate-50 text-slate-300'
                             : 'border-slate-200 bg-white text-slate-500 hover:border-slate-300'
-                      } ${isToday && !done ? 'ring-2 ring-teal-200' : ''}`}
+                      } ${isToday && !done ? 'ring-2 ring-teal-300' : ''}`}
                       style={done ? { backgroundColor: habit.color } : undefined}
                     >
-                      <span className={`text-[10px] font-bold ${isToday && !done ? 'text-teal-700' : 'opacity-70'}`}>{WEEKDAY_SHORT[i]}</span>
+                      <span className={`text-[10px] font-semibold ${isToday && !done ? 'text-teal-700' : 'opacity-70'}`}>{WEEKDAY_SHORT[i]}</span>
                       {done
                         ? <Check size={16} strokeWidth={3} />
                         : <span className="text-xs font-medium">{parseISODate(iso).getDate()}</span>

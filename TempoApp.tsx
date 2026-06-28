@@ -629,7 +629,7 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
         <div className="px-6 py-6">
           <div className="flex items-center gap-2.5">
             <img src={`${import.meta.env.BASE_URL}icon-192.png`} alt="" className="w-8 h-8 rounded-lg shadow-sm" />
-            <h1 className="text-xl font-bold font-display text-teal-800">Foco GeriClass</h1>
+            <h1 className="text-xl font-bold font-display text-slate-800">Foco GeriClass</h1>
           </div>
           <p className="text-xs text-slate-400 mt-1">Gestão de tempo e produtividade</p>
         </div>
@@ -705,7 +705,7 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
         <header className="header-glass md:hidden sticky top-0 z-30 bg-white/90 backdrop-blur border-b border-slate-100 px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <img src={`${import.meta.env.BASE_URL}icon-192.png`} alt="" className="w-7 h-7 rounded-lg shadow-sm" />
-            <h1 className="text-lg font-bold font-display text-teal-800">Foco GeriClass</h1>
+            <h1 className="text-lg font-bold font-display text-slate-800">Foco GeriClass</h1>
           </div>
           <div className="flex items-center gap-2">
             {timerActive && currentView !== 'focus' && (
@@ -730,7 +730,7 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
 
         <main className="p-4 md:p-8 pb-[calc(9.5rem+env(safe-area-inset-bottom))] md:pb-8 max-w-5xl mx-auto">
           {pwa.showInstall && (
-            <div className="mb-4 flex items-center gap-3 bg-white rounded-xl border border-teal-100 shadow-sm p-3">
+            <div className="mb-4 flex items-center gap-3 bg-white rounded-2xl border border-slate-100 shadow-sm p-3">
               <div className="w-9 h-9 rounded-lg bg-teal-800 text-white flex items-center justify-center shrink-0">
                 <Download size={18} />
               </div>

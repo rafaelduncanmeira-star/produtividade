@@ -431,12 +431,12 @@ export const PlannerView: React.FC<PlannerViewProps> = ({
     <div className="space-y-5">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-slate-800 font-display">Planejamento</h2>
-          <p className="text-slate-500 text-sm">Organize seu tempo em blocos.</p>
+          <h2 className="text-3xl font-bold text-slate-800 font-display leading-tight">Planejamento</h2>
+          <p className="text-slate-500 text-[15px] mt-0.5">Organize seu tempo em blocos.</p>
         </div>
         <button
           onClick={() => openCreate(viewMode === 'month' ? todayISO() : anchor)}
-          className="hidden md:flex items-center gap-2 bg-teal-800 hover:bg-teal-900 text-white px-4 py-2 rounded-lg font-medium transition-all shadow-md active:scale-95"
+          className="hidden md:flex items-center gap-2 bg-teal-800 hover:bg-teal-900 text-white px-4 py-2.5 rounded-xl font-semibold transition-all active:scale-95"
         >
           <Plus size={18} /><span>Novo Bloco</span>
         </button>
@@ -448,7 +448,7 @@ export const PlannerView: React.FC<PlannerViewProps> = ({
           <button
             key={id}
             onClick={() => setViewMode(id)}
-            className={`${desktopOnly ? 'hidden md:flex' : 'flex'} items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${viewMode === id ? 'bg-white shadow-sm text-teal-800' : 'text-slate-500'}`}
+            className={`${desktopOnly ? 'hidden md:flex' : 'flex'} items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${viewMode === id ? 'bg-white shadow-sm text-slate-800' : 'text-slate-500'}`}
           >
             <Icon size={16} /> {label}
           </button>

@@ -43,20 +43,20 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         {items.map(t => (
           <div
             key={t.id}
-            className="pointer-events-auto w-full max-w-sm flex items-center gap-3 px-4 py-3 rounded-xl bg-slate-900 text-white shadow-xl shadow-black/25 ring-1 ring-white/10 animate-[toast-in_0.2s_ease]"
+            className="pointer-events-auto max-w-sm flex items-center gap-3 pl-4 pr-3 py-2.5 rounded-full bg-slate-800 text-white text-sm shadow-lg shadow-black/20 animate-[toast-in_0.2s_ease]"
           >
             {t.icon && <span className="shrink-0">{t.icon}</span>}
-            <span className="flex-1 text-sm font-medium leading-snug">{t.message}</span>
+            <span className="flex-1 font-medium leading-snug">{t.message}</span>
             {t.action && (
               <button
                 onClick={() => { t.action!.onClick(); dismiss(t.id); }}
-                className="shrink-0 text-sm font-bold text-teal-300 hover:text-teal-200 px-1"
+                className="shrink-0 font-semibold text-teal-300 hover:text-teal-200 px-1"
               >
                 {t.action.label}
               </button>
             )}
-            <button onClick={() => dismiss(t.id)} aria-label="Fechar aviso" className="shrink-0 text-slate-400 hover:text-white">
-              <X size={16} />
+            <button onClick={() => dismiss(t.id)} aria-label="Fechar aviso" className="shrink-0 p-1 text-slate-400 hover:text-white">
+              <X size={15} />
             </button>
           </div>
         ))}

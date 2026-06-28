@@ -14,11 +14,11 @@ export const CreateFab: React.FC<CreateFabProps> = ({ onTask, onHabit, onBlock, 
   const [open, setOpen] = useState(false);
 
   const actions = [
-    { label: 'Assistente IA', style: { backgroundImage: 'linear-gradient(135deg, #0f766e, #047857)' }, icon: <Sparkles size={20} />, run: onAI },
-    { label: 'Tarefa', style: { backgroundColor: '#0f766e' }, icon: <CheckSquare size={20} />, run: onTask },
-    { label: 'Hábito', style: { backgroundColor: '#10b981' }, icon: <Repeat size={20} />, run: onHabit },
-    { label: 'Meta', style: { backgroundColor: '#0ea5e9' }, icon: <Target size={20} />, run: onProject },
-    { label: 'Bloco de agenda', style: { backgroundColor: '#f59e0b' }, icon: <CalendarClock size={20} />, run: onBlock },
+    { label: 'Assistente IA', icon: <Sparkles size={18} />, run: onAI },
+    { label: 'Tarefa', icon: <CheckSquare size={18} />, run: onTask },
+    { label: 'Hábito', icon: <Repeat size={18} />, run: onHabit },
+    { label: 'Meta', icon: <Target size={18} />, run: onProject },
+    { label: 'Bloco de agenda', icon: <CalendarClock size={18} />, run: onBlock },
   ];
 
   return (
@@ -26,19 +26,22 @@ export const CreateFab: React.FC<CreateFabProps> = ({ onTask, onHabit, onBlock, 
       {open && <div className="fixed inset-0 z-[45] bg-black/20 backdrop-blur-sm" onClick={() => setOpen(false)} aria-hidden />}
 
       <div className="create-fab fixed bottom-24 right-4 z-50 flex flex-col items-end gap-3">
-        {open && actions.map((a, i) => (
-          <button
-            key={a.label}
-            onClick={() => { a.run(); setOpen(false); }}
-            className="flex items-center gap-2.5 animate-[fab-in_0.18s_ease_both]"
-            style={{ animationDelay: `${i * 35}ms` }}
-          >
-            <span className="px-2.5 py-1 rounded-lg bg-white shadow-md text-sm font-medium text-slate-700">{a.label}</span>
-            <span className="w-11 h-11 rounded-full shadow-lg flex items-center justify-center text-white" style={a.style}>
-              {a.icon}
-            </span>
-          </button>
-        ))}
+        {open && (
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-1.5 w-56 divide-y divide-slate-100 animate-[fab-in_0.18s_ease_both]">
+            {actions.map(a => (
+              <button
+                key={a.label}
+                onClick={() => { a.run(); setOpen(false); }}
+                className="w-full flex items-center gap-3 px-2.5 py-2.5 rounded-xl text-left hover:bg-slate-50 active:bg-slate-100 transition-colors"
+              >
+                <span className="w-8 h-8 rounded-lg bg-teal-800 text-white flex items-center justify-center shrink-0">
+                  {a.icon}
+                </span>
+                <span className="text-[15px] font-medium text-slate-800">{a.label}</span>
+              </button>
+            ))}
+          </div>
+        )}
 
         <button
           onClick={() => setOpen(o => !o)}

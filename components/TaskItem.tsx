@@ -205,7 +205,6 @@ export const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, onDelete, on
                   <Clock size={10} /> {task.dueTime}
                 </span>
               )}
-              {!compact && <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${quadrant.badgeClass}`}>{quadrant.label}</span>}
               {!compact && <span className="text-[10px] text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded">{task.category}</span>}
               {task.recurrence && <Repeat size={11} className="text-slate-400 shrink-0" />}
               {subs.length > 0 && (onUpdate ? (

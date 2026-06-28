@@ -147,9 +147,14 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ tasks, blocks, project
     <>
     <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/50 backdrop-blur-sm md:p-4">
       <div className="bg-white rounded-t-2xl md:rounded-2xl shadow-xl w-full max-w-md overflow-hidden max-h-[92vh] flex flex-col">
-        <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-teal-800 text-white">
-          <h3 className="font-bold flex items-center gap-2"><Sparkles size={18} /> Assistente IA</h3>
-          <button onClick={onClose} className="p-1"><X size={20} className="text-teal-200" /></button>
+        <div className="px-5 py-4 border-b border-slate-100 flex justify-between items-center">
+          <h3 className="text-[17px] font-semibold text-slate-800 flex items-center gap-2.5">
+            <span className="w-7 h-7 rounded-lg bg-teal-800 text-white flex items-center justify-center shrink-0">
+              <Sparkles size={15} />
+            </span>
+            Assistente IA
+          </h3>
+          <button onClick={onClose} aria-label="Fechar" className="p-1 text-slate-400 hover:text-slate-600 transition-colors"><X size={20} /></button>
         </div>
 
         <div className="p-5 space-y-4 overflow-y-auto pb-[max(1.25rem,env(safe-area-inset-bottom))]">
@@ -161,20 +166,20 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ tasks, blocks, project
                   <button
                     onClick={toggleMic}
                     disabled={busy}
-                    className={`w-20 h-20 rounded-full flex items-center justify-center transition-all active:scale-95 ${
+                    className={`w-16 h-16 rounded-full flex items-center justify-center transition-all active:scale-95 shadow-sm ${
                       listening
-                        ? 'bg-rose-500 text-white shadow-lg animate-pulse'
-                        : 'bg-teal-800 text-white shadow-lg hover:bg-teal-900'
+                        ? 'bg-rose-500 text-white animate-pulse'
+                        : 'bg-teal-800 text-white hover:bg-teal-900'
                     }`}
                   >
-                    {listening ? <MicOff size={32} /> : <Mic size={32} />}
+                    {listening ? <MicOff size={26} /> : <Mic size={26} />}
                   </button>
-                  <p className="text-xs text-slate-400">
+                  <p className="text-[13px] text-slate-500">
                     {listening ? 'Ouvindo... toque para parar' : 'Toque e dite seu comando'}
                   </p>
                 </>
               ) : (
-                <p className="text-xs text-slate-400 text-center">
+                <p className="text-[13px] text-slate-500 text-center">
                   Ditado por voz não disponível neste navegador (use o Chrome). Digite abaixo:
                 </p>
               )}
@@ -187,7 +192,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ tasks, blocks, project
                 onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
                 rows={2}
                 placeholder='Ex: "Amanhã às 14h tenho reunião e preciso estudar dermato urgente"'
-                className="flex-1 px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-teal-200 outline-none text-sm resize-none"
+                className="flex-1 px-4 py-3 rounded-xl bg-slate-50 border-0 focus:ring-2 focus:ring-teal-300 outline-none text-[15px] resize-none placeholder:text-slate-400"
               />
               <button
                 onClick={handleSend}
@@ -205,9 +210,9 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ tasks, blocks, project
                   <button
                     key={s}
                     onClick={() => setInput(s)}
-                    className="w-full text-left text-xs text-slate-500 bg-slate-50 hover:bg-teal-50 hover:text-teal-700 px-3 py-2 rounded-lg transition-colors"
+                    className="w-full text-left text-[13px] text-slate-500 bg-slate-50 hover:bg-slate-100 px-3.5 py-2.5 rounded-xl transition-colors"
                   >
-                    💡 {s}
+                    {s}
                   </button>
                 ))}
               </div>
@@ -221,32 +226,34 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ tasks, blocks, project
           {/* Resposta e ações propostas */}
           {result && (
             <div className="space-y-3">
-              <div className="bg-teal-50 border border-teal-100 rounded-xl px-4 py-3 text-sm text-teal-800">
+              <div className="bg-slate-50 rounded-xl px-4 py-3 text-[15px] text-slate-700 leading-relaxed">
                 {result.reply}
               </div>
 
               {result.actions.length > 0 && (
                 <div className="space-y-1.5">
-                  <p className="text-xs font-medium text-slate-500">
-                    {applied ? 'Aplicado!' : 'O que vou criar:'}
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                    {applied ? 'Aplicado' : 'O que vou criar'}
                   </p>
                   {result.actions.map((action, i) => {
                     const Icon = ACTION_ICONS[action.type];
                     const editable = action.type === 'create_task' || action.type === 'create_block' || action.type === 'create_habit';
                     return (
-                      <div key={i} className="flex items-center gap-2.5 bg-slate-50 rounded-lg px-3 py-2.5">
-                        <Icon size={15} className={applied ? 'text-emerald-500' : 'text-teal-500'} />
-                        <span className="text-sm text-slate-600 flex-1">{action.label}</span>
+                      <div key={i} className="flex items-center gap-2.5 bg-white border border-slate-100 rounded-xl px-3 py-2.5">
+                        <span className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${applied ? 'bg-emerald-50 text-emerald-600' : 'bg-teal-50 text-teal-700'}`}>
+                          <Icon size={15} />
+                        </span>
+                        <span className="text-sm text-slate-700 flex-1">{action.label}</span>
                         {applied ? (
-                          <Check size={15} className="text-emerald-500" strokeWidth={3} />
+                          <Check size={15} className="text-emerald-500 shrink-0" strokeWidth={3} />
                         ) : (
                           <div className="flex items-center gap-0.5 shrink-0">
                             {editable && (
-                              <button onClick={() => setEditingIndex(i)} aria-label="Editar" className="p-1 text-slate-400 hover:text-teal-700 rounded-md hover:bg-teal-50 transition-colors">
+                              <button onClick={() => setEditingIndex(i)} aria-label="Editar" className="p-1.5 text-slate-400 hover:text-teal-700 rounded-lg hover:bg-teal-50 transition-colors">
                                 <Pencil size={14} />
                               </button>
                             )}
-                            <button onClick={() => removeAction(i)} aria-label="Remover" className="p-1 text-slate-400 hover:text-rose-600 rounded-md hover:bg-rose-50 transition-colors">
+                            <button onClick={() => removeAction(i)} aria-label="Remover" className="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition-colors">
                               <X size={14} />
                             </button>
                           </div>
@@ -258,13 +265,13 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ tasks, blocks, project
                     <div className="flex gap-2 pt-2 sticky bottom-0 bg-white">
                       <button
                         onClick={() => { setResult(null); }}
-                        className="flex-1 py-2.5 bg-white border border-slate-200 text-slate-500 rounded-xl text-sm font-medium hover:border-slate-300"
+                        className="flex-1 py-2.5 bg-slate-100 text-slate-700 rounded-xl text-sm font-semibold hover:bg-slate-200 active:scale-95 transition"
                       >
                         Descartar
                       </button>
                       <button
                         onClick={handleApply}
-                        className="flex-1 py-2.5 bg-teal-800 text-white rounded-xl text-sm font-bold hover:bg-teal-900 flex items-center justify-center gap-1.5"
+                        className="flex-1 py-2.5 bg-teal-800 text-white rounded-xl text-sm font-semibold hover:bg-teal-900 active:scale-95 transition flex items-center justify-center gap-1.5"
                       >
                         <Check size={16} /> Aplicar tudo
                       </button>
@@ -272,9 +279,9 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ tasks, blocks, project
                   ) : (
                     <button
                       onClick={() => { setResult(null); setApplied(false); }}
-                      className="w-full py-2.5 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-xl text-sm font-bold"
+                      className="w-full py-2.5 bg-slate-100 text-slate-700 rounded-xl text-sm font-semibold hover:bg-slate-200 active:scale-95 transition"
                     >
-                      ✓ Criado com sucesso! Novo comando?
+                      Criado com sucesso. Novo comando?
                     </button>
                   )}
                 </div>

@@ -25,9 +25,11 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ tasks, habits, session
   const week = getWeekDays();
   // Cores dos gráficos legíveis nos dois temas (recharts usa cor fixa, então escolhemos pelo tema).
   const isDark = typeof document !== 'undefined' && document.documentElement.classList.contains('dark');
-  const tickColor = isDark ? '#94a3b8' : '#64748b';
+  const tickColor = isDark ? '#94a3b8' : '#94a3b8';
   const gridStroke = isDark ? '#334155' : '#e2e8f0';
   const tooltipStyle = { borderRadius: 12, border: `1px solid ${gridStroke}`, fontSize: 12, background: isDark ? '#1e293b' : '#ffffff', color: isDark ? '#e2e8f0' : '#334155' };
+  // Paleta calma: teal como cor principal das séries nos dois temas.
+  const barColor = isDark ? '#2dd4bf' : '#0f766e';
 
   // --- Cards de resumo ---
   const focusToday = useMemo(() => focusMinutesOn(sessions, today), [sessions, today]);
@@ -99,9 +101,9 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ tasks, habits, session
   }, [tasks]);
   const pomoVerdict = pomo.est === 0
     ? 'Defina pomodoros estimados nas tarefas para comparar.'
-    : pomo.real > pomo.est * 1.15 ? 'Você costuma subestimar o tempo das tarefas. ⏳'
-    : pomo.real < pomo.est * 0.85 ? 'Você costuma superestimar — dá para apertar as estimativas. ✂️'
-    : 'Suas estimativas estão bem calibradas! 👏';
+    : pomo.real > pomo.est * 1.15 ? 'Você costuma subestimar o tempo das tarefas.'
+    : pomo.real < pomo.est * 0.85 ? 'Você costuma superestimar — dá para apertar as estimativas.'
+    : 'Suas estimativas estão bem calibradas!';
 
   // --- Insights: melhor horário de foco ---
   const bestPeriod = useMemo(() => {
@@ -160,7 +162,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ tasks, habits, session
     const g = avg(good);
     const b = avg(bad);
     if (g === null || b === null) return null;
-    if (g > b) return `Nos seus dias bons 😄🤩 você focou em média ${formatMinutes(g)} — ${formatMinutes(g - b)} a mais que nos dias difíceis.`;
+    if (g > b) return `Nos seus dias bons você focou em média ${formatMinutes(g)} — ${formatMinutes(g - b)} a mais que nos dias difíceis.`;
     if (b > g) return `Curiosamente, você focou mais nos dias difíceis (${formatMinutes(b)}) que nos dias bons (${formatMinutes(g)}).`;
     return `Seu foco foi parecido nos dias bons e ruins (${formatMinutes(g)}).`;
   }, [reviews, sessions]);
@@ -182,9 +184,9 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ tasks, habits, session
     const u = Math.round((counts.urgente / total) * 100);
     const c = Math.round((counts.circunstancial / total) * 100);
     const i = Math.round((counts.importante / total) * 100);
-    if (u >= 40) return '🔴 Muita urgência no seu prato. Planeje o importante com antecedência para ele não virar urgente.';
-    if (c >= 25) return '⚪ Bastante coisa circunstancial. Questione o que dá para eliminar ou delegar.';
-    if (i >= 60) return '🟢 Bom equilíbrio! A maior parte das suas tarefas está no que realmente importa.';
+    if (u >= 40) return 'Muita urgência no seu prato. Planeje o importante com antecedência para ele não virar urgente.';
+    if (c >= 25) return 'Bastante coisa circunstancial. Questione o que dá para eliminar ou delegar.';
+    if (i >= 60) return 'Bom equilíbrio! A maior parte das suas tarefas está no que realmente importa.';
     return 'Caminho razoável: tente aumentar o "Importante" e reduzir o "Urgente".';
   }, [triade]);
 
@@ -203,42 +205,47 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ tasks, habits, session
       out.push({ kind: 'tip', text: `${lostStreak.length === 1 ? 'Um hábito perdeu' : `${lostStreak.length} hábitos perderam`} a sequência. Escolha só 1 pra retomar amanhã — consistência vale mais que volume.` });
     if (out.length > 0) return out.slice(0, 3);
     if (focusWeek > 0 && tasksWeek > 0 && impPct >= 50)
-      return [{ kind: 'good' as const, text: `Boa semana: ${formatMinutes(focusWeek)} de foco, ${tasksWeek} ${tasksWeek === 1 ? 'tarefa concluída' : 'tarefas concluídas'} e prioridades no lugar. Mantenha o ritmo. 👏` }];
+      return [{ kind: 'good' as const, text: `Boa semana: ${formatMinutes(focusWeek)} de foco, ${tasksWeek} ${tasksWeek === 1 ? 'tarefa concluída' : 'tarefas concluídas'} e prioridades no lugar. Mantenha o ritmo.` }];
     if (focusWeek > 0 || tasksWeek > 0)
       return [{ kind: 'good' as const, text: `Semana em movimento: ${formatMinutes(focusWeek)} de foco e ${tasksWeek} ${tasksWeek === 1 ? 'tarefa' : 'tarefas'}. Que tal proteger 1 bloco de foco amanhã?` }];
     return [];
   }, [tasksWeek, focusWeek, habits, triade, today]);
 
   const summaryCards = [
-    { label: 'Foco hoje', value: formatMinutes(focusToday), icon: Timer, color: 'text-teal-700 bg-teal-50' },
-    { label: 'Foco na semana', value: formatMinutes(focusWeek), icon: CalendarRange, color: 'text-sky-600 bg-sky-50' },
-    { label: 'Tarefas na semana', value: String(tasksWeek), icon: CheckCircle2, color: 'text-emerald-600 bg-emerald-50' },
-    { label: 'Melhor sequência', value: `${bestStreak} ${bestStreak === 1 ? 'dia' : 'dias'}`, icon: Flame, color: 'text-orange-600 bg-orange-50' },
+    { label: 'Foco hoje', value: formatMinutes(focusToday), icon: Timer },
+    { label: 'Foco na semana', value: formatMinutes(focusWeek), icon: CalendarRange },
+    { label: 'Tarefas na semana', value: String(tasksWeek), icon: CheckCircle2 },
+    { label: 'Melhor sequência', value: `${bestStreak} ${bestStreak === 1 ? 'dia' : 'dias'}`, icon: Flame },
   ];
 
   return (
     <div className="space-y-5">
-      <div>
-        <h2 className="text-2xl font-bold text-slate-800 font-display">Relatórios</h2>
-        <p className="text-slate-500 text-sm">Acompanhe sua produtividade ao longo do tempo.</p>
+      <div className="px-1 pt-1">
+        <h2 className="text-3xl font-bold text-slate-800 font-display leading-tight">Relatórios</h2>
+        <p className="text-slate-500 text-[15px] mt-0.5">Acompanhe sua produtividade ao longo do tempo.</p>
       </div>
 
       {/* Cards de resumo */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {summaryCards.map(card => (
           <div key={card.label} className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4 md:p-5">
-            <div className={`w-9 h-9 rounded-xl flex items-center justify-center mb-2 ${card.color}`}>
-              <card.icon size={18} />
+            <div className="w-7 h-7 rounded-lg bg-teal-800 text-white flex items-center justify-center mb-3 shrink-0">
+              <card.icon size={15} />
             </div>
-            <p className="text-lg font-bold text-slate-800">{card.value}</p>
-            <p className="text-[11px] text-slate-400 font-medium">{card.label}</p>
+            <p className="text-xl font-bold text-slate-800 tabular-nums">{card.value}</p>
+            <p className="text-xs text-slate-500 mt-0.5">{card.label}</p>
           </div>
         ))}
       </div>
 
       {/* Leitura da semana */}
-      <div className="bg-white rounded-2xl border border-teal-100 shadow-sm p-5">
-        <h3 className="font-bold text-slate-800 text-sm flex items-center gap-1.5"><Sparkles size={15} className="text-teal-600" /> Leitura da semana</h3>
+      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 md:p-5">
+        <div className="flex items-center gap-2.5 mb-1">
+          <span className="w-7 h-7 rounded-lg bg-teal-800 text-white flex items-center justify-center shrink-0">
+            <Sparkles size={15} />
+          </span>
+          <h3 className="font-semibold text-slate-800 text-[17px]">Leitura da semana</h3>
+        </div>
         {weeklyReading.length === 0 ? (
           <p className="text-sm text-slate-400 mt-2">Registre tarefas, foco e hábitos durante a semana — aqui vira um diagnóstico do que melhorar amanhã.</p>
         ) : (
@@ -258,12 +265,12 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ tasks, habits, session
       </div>
 
       {/* Tríade do tempo */}
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 md:p-6">
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4 md:p-5">
         <div className="flex items-center justify-between">
-          <h3 className="font-bold text-slate-800 text-sm">Tríade do tempo</h3>
+          <h3 className="font-semibold text-slate-800 text-[17px]">Tríade do tempo</h3>
           <span className="text-[11px] text-slate-400">tarefas em aberto</span>
         </div>
-        <p className="text-[11px] text-slate-400 mt-0.5 mb-4">Muito Importante, pouco Urgente, quase nada Circunstancial.</p>
+        <p className="text-[13px] text-slate-500 mt-0.5 mb-4">Muito Importante, pouco Urgente, quase nada Circunstancial.</p>
         {triade.total === 0 ? (
           <p className="text-sm text-slate-400 text-center py-6">Marque urgência/importância nas suas tarefas para ver seu equilíbrio.</p>
         ) : (
@@ -294,9 +301,9 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ tasks, habits, session
       </div>
 
       {/* Humor / Revisão do dia */}
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 md:p-6">
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4 md:p-5">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-bold text-slate-800 text-sm">Humor — últimos 14 dias</h3>
+          <h3 className="font-semibold text-slate-800 text-[17px]">Humor — últimos 14 dias</h3>
           {avgMood > 0 && (
             <span className="text-xs text-slate-400">
               média {REVIEW_MOODS[Math.round(avgMood) - 1]} · {reviewedDays.length} {reviewedDays.length === 1 ? 'dia' : 'dias'}
@@ -333,8 +340,8 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ tasks, habits, session
       </div>
 
       {/* Humor × foco */}
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 md:p-6">
-        <h3 className="font-bold text-slate-800 text-sm mb-4">Humor × foco</h3>
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4 md:p-5">
+        <h3 className="font-semibold text-slate-800 text-[17px] mb-4">Humor × foco</h3>
         {moodFocus.rows.length === 0 ? (
           <p className="text-sm text-slate-400 text-center py-6">Faça a “Revisão do dia” e sessões de foco para ver a relação entre humor e produtividade.</p>
         ) : (
@@ -357,21 +364,21 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ tasks, habits, session
 
       {/* Insights: estimativa + melhor horário */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 md:p-6">
-          <h3 className="font-bold text-slate-800 text-sm mb-3">Estimativa de pomodoros</h3>
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4 md:p-5">
+          <h3 className="font-semibold text-slate-800 text-[17px] mb-3">Estimativa de pomodoros</h3>
           <div className="flex items-end gap-3">
-            <div><p className="text-2xl font-bold text-teal-700">{pomo.real}</p><p className="text-[11px] text-slate-400">reais 🍅</p></div>
+            <div><p className="text-2xl font-bold text-slate-800 tabular-nums">{pomo.real}</p><p className="text-xs text-slate-500 mt-0.5">reais</p></div>
             <span className="text-slate-300 text-lg pb-1">/</span>
-            <div><p className="text-2xl font-bold text-slate-400">{pomo.est}</p><p className="text-[11px] text-slate-400">estimados</p></div>
+            <div><p className="text-2xl font-bold text-slate-400 tabular-nums">{pomo.est}</p><p className="text-xs text-slate-500 mt-0.5">estimados</p></div>
           </div>
-          <p className="text-xs text-slate-500 mt-2">{pomoVerdict}</p>
+          <p className="text-sm text-slate-500 mt-3">{pomoVerdict}</p>
         </div>
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 md:p-6">
-          <h3 className="font-bold text-slate-800 text-sm mb-3">Seu melhor horário de foco</h3>
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4 md:p-5">
+          <h3 className="font-semibold text-slate-800 text-[17px] mb-3">Seu melhor horário de foco</h3>
           {bestPeriod ? (
             <>
               <p className="text-2xl font-bold text-slate-800 font-display">{bestPeriod.label}</p>
-              <p className="text-[11px] text-slate-400">{bestPeriod.hint} · {formatMinutes(bestPeriod.minutes)} de foco no total</p>
+              <p className="text-xs text-slate-500 mt-0.5">{bestPeriod.hint} · {formatMinutes(bestPeriod.minutes)} de foco no total</p>
             </>
           ) : (
             <p className="text-sm text-slate-400">Faça sessões de foco para descobrir.</p>
@@ -380,8 +387,8 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ tasks, habits, session
       </div>
 
       {/* Foco por matéria */}
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 md:p-6">
-        <h3 className="font-bold text-slate-800 text-sm mb-4">Foco por matéria — últimos 30 dias</h3>
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4 md:p-5">
+        <h3 className="font-semibold text-slate-800 text-[17px] mb-4">Foco por matéria — últimos 30 dias</h3>
         {focusByCategory.length === 0 ? (
           <p className="text-sm text-slate-400 text-center py-6">Nenhuma sessão de foco nos últimos 30 dias.</p>
         ) : (
@@ -402,55 +409,44 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ tasks, habits, session
       </div>
 
       {/* Foco por dia */}
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 md:p-6">
-        <h3 className="font-bold text-slate-800 text-sm mb-4">Minutos de foco — últimos 14 dias</h3>
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4 md:p-5">
+        <h3 className="font-semibold text-slate-800 text-[17px] mb-4">Minutos de foco — últimos 14 dias</h3>
         <div className="h-56">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={focusByDay} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
-              <defs>
-                <linearGradient id="gradFoco" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#0d9488" />
-                  <stop offset="100%" stopColor="#5eead4" />
-                </linearGradient>
-              </defs>
               <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} vertical={false} />
               <XAxis dataKey="name" tick={{ fontSize: 11, fill: tickColor }} axisLine={false} tickLine={false} interval={1} />
               <YAxis tick={{ fontSize: 11, fill: tickColor }} axisLine={false} tickLine={false} />
               <Tooltip
                 formatter={(value: number) => [formatMinutes(value), 'Foco']}
                 contentStyle={tooltipStyle}
+                cursor={{ fill: 'rgba(148,163,184,0.10)' }}
               />
-              <Bar dataKey="Minutos" fill="url(#gradFoco)" radius={[6, 6, 0, 0]} />
+              <Bar dataKey="Minutos" fill={barColor} radius={[6, 6, 0, 0]} maxBarSize={28} />
             </BarChart>
           </ResponsiveContainer>
         </div>
       </div>
 
       {/* Tarefas por semana */}
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 md:p-6">
-        <h3 className="font-bold text-slate-800 text-sm mb-4">Tarefas concluídas por semana</h3>
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4 md:p-5">
+        <h3 className="font-semibold text-slate-800 text-[17px] mb-4">Tarefas concluídas por semana</h3>
         <div className="h-56">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={tasksByWeek} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
-              <defs>
-                <linearGradient id="gradTarefas" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#059669" />
-                  <stop offset="100%" stopColor="#6ee7b7" />
-                </linearGradient>
-              </defs>
               <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} vertical={false} />
               <XAxis dataKey="name" tick={{ fontSize: 11, fill: tickColor }} axisLine={false} tickLine={false} />
               <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: tickColor }} axisLine={false} tickLine={false} />
-              <Tooltip contentStyle={tooltipStyle} />
-              <Bar dataKey="Tarefas" fill="url(#gradTarefas)" radius={[6, 6, 0, 0]} />
+              <Tooltip contentStyle={tooltipStyle} cursor={{ fill: 'rgba(148,163,184,0.10)' }} />
+              <Bar dataKey="Tarefas" fill={barColor} radius={[6, 6, 0, 0]} maxBarSize={28} />
             </BarChart>
           </ResponsiveContainer>
         </div>
       </div>
 
       {/* Taxa de conclusão de hábitos */}
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 md:p-6">
-        <h3 className="font-bold text-slate-800 text-sm mb-4">Hábitos — taxa de conclusão (30 dias)</h3>
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4 md:p-5">
+        <h3 className="font-semibold text-slate-800 text-[17px] mb-4">Hábitos — taxa de conclusão (30 dias)</h3>
         {habitRates.length === 0 ? (
           <p className="text-sm text-slate-400 text-center py-6">Nenhum hábito criado ainda.</p>
         ) : (

@@ -40,10 +40,10 @@ const QUADRANT_FLAGS: Record<string, { urgent: boolean; important: boolean }> = 
   q4: { urgent: false, important: false },
 };
 const EMPTY_QUADRANT: Record<string, string> = {
-  q1: 'Nada pegando fogo agora. 👏',
+  q1: 'Nada pegando fogo agora.',
   q2: 'Nada agendado ainda — bom lugar pra investir.',
   q3: 'Nada para delegar.',
-  q4: 'Nada para eliminar. 🧹',
+  q4: 'Nada para eliminar.',
 };
 
 // normaliza p/ busca (minúsculas, sem acentos)
@@ -197,8 +197,8 @@ export const TasksView: React.FC<TasksViewProps> = ({
     <div className="space-y-5">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-slate-800 font-display">Tarefas</h2>
-          <p className="text-slate-500 text-sm flex items-center gap-1.5">
+          <h2 className="text-3xl font-bold text-slate-800 font-display leading-tight">Tarefas</h2>
+          <p className="text-slate-500 text-[15px] mt-0.5 flex items-center gap-1.5">
             Priorize com a Matriz de Eisenhower.
             <button
               onClick={() => setShowInfo(true)}
@@ -212,7 +212,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
         </div>
         <button
           onClick={() => { setEditingTask(null); setAddStatus(null); setIsFormOpen(true); }}
-          className="hidden md:flex items-center gap-2 bg-teal-800 hover:bg-teal-900 text-white px-4 py-2 rounded-lg font-medium transition-all shadow-md active:scale-95"
+          className="hidden md:flex items-center gap-2 bg-teal-800 hover:bg-teal-900 text-white px-4 py-2 rounded-xl font-semibold transition-all active:scale-95"
         >
           <Plus size={18} />
           <span>Nova Tarefa</span>
@@ -224,19 +224,19 @@ export const TasksView: React.FC<TasksViewProps> = ({
         <div className="flex bg-slate-100 rounded-xl p-1">
           <button
             onClick={() => setMode('list')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${mode === 'list' ? 'bg-white shadow-sm text-teal-800' : 'text-slate-500'}`}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${mode === 'list' ? 'bg-white shadow-sm text-slate-800' : 'text-slate-500'}`}
           >
             <List size={16} /> Lista
           </button>
           <button
             onClick={() => setMode('matrix')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${mode === 'matrix' ? 'bg-white shadow-sm text-teal-800' : 'text-slate-500'}`}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${mode === 'matrix' ? 'bg-white shadow-sm text-slate-800' : 'text-slate-500'}`}
           >
             <LayoutGrid size={16} /> Matriz
           </button>
           <button
             onClick={() => setMode('board')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${mode === 'board' ? 'bg-white shadow-sm text-teal-800' : 'text-slate-500'}`}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${mode === 'board' ? 'bg-white shadow-sm text-slate-800' : 'text-slate-500'}`}
           >
             <Columns3 size={16} /> Quadro
           </button>
@@ -248,7 +248,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
               <button
                 key={f.id}
                 onClick={() => setFilter(f.id)}
-                className={`px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${filter === f.id ? 'bg-white shadow-sm text-teal-800' : 'text-slate-500'}`}
+                className={`px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${filter === f.id ? 'bg-white shadow-sm text-slate-800' : 'text-slate-500'}`}
               >
                 {f.label}
               </button>
@@ -266,7 +266,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Buscar tarefa..."
-            className="w-full pl-9 pr-9 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-teal-200 outline-none text-sm bg-white"
+            className="w-full pl-9 pr-9 py-2.5 rounded-xl bg-slate-50 border-0 focus:ring-2 focus:ring-teal-300 outline-none text-sm"
           />
           {search && (
             <button onClick={() => setSearch('')} aria-label="Limpar busca" className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600">
@@ -278,7 +278,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
           value={categoryFilter}
           onChange={e => setCategoryFilter(e.target.value)}
           aria-label="Filtrar por categoria"
-          className="shrink-0 px-3 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-teal-200 outline-none text-sm bg-white text-slate-600"
+          className="shrink-0 px-3 py-2.5 rounded-xl bg-slate-50 border-0 focus:ring-2 focus:ring-teal-300 outline-none text-sm text-slate-600"
         >
           <option value="">Todas categorias</option>
           {DEFAULT_TASK_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
@@ -293,7 +293,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
             value={quickTitle}
             onChange={e => setQuickTitle(e.target.value)}
             placeholder="Adicionar... ex: pagar conta sexta 9h"
-            className="flex-1 min-w-0 px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-teal-200 outline-none text-sm bg-white"
+            className="flex-1 min-w-0 px-4 py-3 rounded-xl bg-slate-50 border-0 focus:ring-2 focus:ring-teal-300 outline-none text-sm"
           />
           <button
             type="submit"
@@ -324,7 +324,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
               <div className="w-16 h-16 rounded-2xl bg-teal-50 flex items-center justify-center mb-4">
                 <CheckSquare size={28} className="text-teal-600" />
               </div>
-              <p className="text-sm">{filter === 'concluidas' ? 'Nenhuma tarefa concluída ainda.' : 'Nenhuma tarefa por aqui. Aproveite! 🎉'}</p>
+              <p className="text-sm">{filter === 'concluidas' ? 'Nenhuma tarefa concluída ainda.' : 'Nenhuma tarefa por aqui. Aproveite!'}</p>
               {filter !== 'concluidas' && (
                 <button
                   onClick={() => { setEditingTask(null); setAddStatus(null); setIsFormOpen(true); }}
@@ -370,7 +370,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
             const info = QUADRANT_INFO[q];
             const qTasks = pending.filter(t => getQuadrant(t) === q);
             return (
-              <div key={q} className={`rounded-2xl border-2 ${info.cellClass} p-4 min-h-[140px]`}>
+              <div key={q} className={`rounded-2xl border ${info.cellClass} p-4 min-h-[140px]`}>
                 <div className="flex items-baseline justify-between mb-3">
                   <div>
                     <h3 className="font-bold text-slate-800 text-sm">{info.label}</h3>
@@ -411,7 +411,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
               <div
                 key={col.id}
                 ref={el => { colRefs.current[col.id] = el; }}
-                className={`rounded-2xl border-2 p-3 transition-colors ${drag && drag.over === col.id ? 'border-teal-400 bg-teal-50/60' : `${col.ringClass} bg-white/60`}`}
+                className={`rounded-2xl border p-3 transition-colors ${drag && drag.over === col.id ? 'border-teal-400 bg-teal-50/60' : `${col.ringClass} bg-white/60`}`}
               >
                 <div className="flex items-center justify-between mb-3 px-1">
                   <div className="flex items-center gap-2">

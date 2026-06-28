@@ -31,9 +31,9 @@ const MetaNotes: React.FC<{ project: Project; onSave: (p: Project) => void }> = 
     onSave({ ...project, notes: next || undefined });
   };
   return (
-    <div className="rounded-xl border border-slate-100 bg-white p-3">
-      <div className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-500 mb-1.5">
-        <StickyNote size={13} className="text-teal-600" /> Anotações
+    <div className="rounded-xl bg-white p-3.5">
+      <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2">
+        <StickyNote size={13} className="text-teal-700" /> Anotações
       </div>
       <textarea
         ref={ref}
@@ -42,7 +42,7 @@ const MetaNotes: React.FC<{ project: Project; onSave: (p: Project) => void }> = 
         onBlur={commit}
         rows={2}
         placeholder="Contexto, links, decisões, ideias…"
-        className="w-full text-sm text-slate-700 placeholder:text-slate-300 outline-none resize-none bg-transparent leading-relaxed min-h-[2.5rem]"
+        className="w-full text-[15px] text-slate-700 placeholder:text-slate-400 outline-none resize-none bg-transparent leading-relaxed min-h-[2.5rem]"
       />
     </div>
   );
@@ -85,14 +85,14 @@ export const MetasView: React.FC<MetasViewProps> = ({
 
   return (
     <div className="space-y-5">
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex items-start justify-between gap-4 px-1 pt-1">
         <div>
-          <h2 className="text-2xl font-bold text-slate-800 font-display">Metas</h2>
-          <p className="text-slate-500 text-sm">Agrupe tarefas rumo a um objetivo.</p>
+          <h2 className="text-3xl font-bold text-slate-800 font-display leading-tight">Metas</h2>
+          <p className="text-slate-500 text-[15px] mt-0.5">Agrupe tarefas rumo a um objetivo.</p>
         </div>
         <button
           onClick={openNewProject}
-          className="hidden md:flex items-center gap-2 bg-teal-800 hover:bg-teal-900 text-white px-4 py-2 rounded-lg font-medium transition-all shadow-md active:scale-95"
+          className="hidden md:flex items-center gap-2 bg-teal-800 hover:bg-teal-900 text-white px-4 py-2 rounded-xl font-semibold transition-all active:scale-95"
         >
           <Plus size={18} /><span>Nova Meta</span>
         </button>
@@ -101,19 +101,19 @@ export const MetasView: React.FC<MetasViewProps> = ({
       {projects.length === 0 && (
         <div className="py-16 flex flex-col items-center justify-center text-center text-slate-400 bg-white rounded-2xl border border-dashed border-slate-200 px-6">
           <div className="w-16 h-16 rounded-2xl bg-teal-50 flex items-center justify-center mb-4">
-            <Target size={28} className="text-teal-600" />
+            <Target size={28} className="text-teal-700" />
           </div>
-          <p className="text-sm">Nenhuma meta ainda. Crie uma ou peça à IA: <span className="text-slate-500">"organiza minha prova de anatomia"</span>.</p>
+          <p className="text-[15px] text-slate-500">Nenhuma meta ainda. Crie uma ou peça à IA: <span className="text-slate-400">"organiza minha prova de anatomia"</span>.</p>
           <button
             onClick={openNewProject}
-            className="mt-4 inline-flex items-center gap-2 bg-teal-800 text-white px-4 py-2.5 rounded-xl font-bold text-sm hover:bg-teal-900 active:scale-95 transition"
+            className="mt-4 inline-flex items-center gap-2 bg-teal-800 text-white px-4 py-2.5 rounded-xl font-semibold text-sm hover:bg-teal-900 active:scale-95 transition"
           >
             <Plus size={16} /> Nova meta
           </button>
         </div>
       )}
 
-      <div className="space-y-3">
+      <div className="space-y-5">
         {projects.map(p => {
           const pTasks = tasks.filter(t => t.projectId === p.id);
           const done = pTasks.filter(t => t.completed).length;
@@ -136,73 +136,73 @@ export const MetasView: React.FC<MetasViewProps> = ({
             : null;
           return (
             <div key={p.id} className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-              <div className="p-4">
+              <div className="p-4 md:p-5">
                 <div className="flex items-start gap-3">
                   <span className="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center text-xl" style={{ backgroundColor: `${p.color}22` }}>{p.emoji}</span>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-slate-800 truncate">{p.name}</h3>
-                    <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-                      <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${STATUS_INFO[status].cls}`}>{STATUS_INFO[status].label}</span>
-                      <span className="text-[11px] text-slate-400">{done}/{total} · {pct}%</span>
+                    <h3 className="font-semibold text-[17px] text-slate-800 truncate">{p.name}</h3>
+                    <div className="flex items-center gap-2 mt-1 flex-wrap">
+                      <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${STATUS_INFO[status].cls}`}>{STATUS_INFO[status].label}</span>
+                      <span className="text-[13px] text-slate-400 tabular-nums">{done}/{total} · {pct}%</span>
                       {p.dueDate && (
-                        <span className={`flex items-center gap-0.5 text-[11px] font-medium ${overdue ? 'text-rose-600' : 'text-slate-400'}`}>
-                          <Calendar size={11} /> {formatShortDate(p.dueDate)}
+                        <span className={`flex items-center gap-0.5 text-[13px] font-medium ${overdue ? 'text-rose-600' : 'text-slate-400'}`}>
+                          <Calendar size={12} /> {formatShortDate(p.dueDate)}
                         </span>
                       )}
                       {p.notes && (
-                        <span className="flex items-center gap-0.5 text-[11px] font-medium text-teal-700"><StickyNote size={11} /> nota</span>
+                        <span className="flex items-center gap-0.5 text-[13px] font-medium text-teal-700"><StickyNote size={12} /> nota</span>
                       )}
                     </div>
                   </div>
                   <div className="flex gap-0.5 shrink-0">
-                    <button onClick={() => { setEditingProject(p); setIsProjectFormOpen(true); }} aria-label="Editar meta" className="p-2 text-slate-300 hover:text-teal-700 hover:bg-teal-50 rounded-lg"><Pencil size={15} /></button>
-                    <button onClick={() => onDeleteProject(p.id)} aria-label="Excluir meta" className="p-2 text-slate-300 hover:text-rose-600 hover:bg-rose-50 rounded-lg"><Trash2 size={15} /></button>
+                    <button onClick={() => { setEditingProject(p); setIsProjectFormOpen(true); }} aria-label="Editar meta" className="p-2 text-slate-400 hover:text-teal-700 hover:bg-teal-50 rounded-lg transition-colors"><Pencil size={16} /></button>
+                    <button onClick={() => onDeleteProject(p.id)} aria-label="Excluir meta" className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"><Trash2 size={16} /></button>
                   </div>
                 </div>
 
-                <div className="mt-3 h-2 rounded-full bg-slate-100 overflow-hidden">
-                  <div className="h-full rounded-full bar-sheen transition-all" style={{ width: `${pct}%`, backgroundColor: p.color }} />
+                <div className="mt-3.5 h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                  <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, backgroundColor: p.color }} />
                 </div>
 
                 {/* Ponte com a execução: próxima ação ou CTA */}
                 {status === 'idle' ? (
-                  <button onClick={() => setTaskForm({ projectId: p.id, task: null })} className="mt-3 w-full flex items-center justify-center gap-1.5 text-xs font-bold text-teal-700 border border-dashed border-teal-200 rounded-lg py-2 hover:bg-teal-50 transition">
-                    <Plus size={13} /> Definir próxima ação
+                  <button onClick={() => setTaskForm({ projectId: p.id, task: null })} className="mt-3.5 w-full flex items-center justify-center gap-1.5 text-[13px] font-semibold text-teal-700 bg-teal-50 rounded-xl py-2.5 hover:bg-teal-100 active:scale-[0.99] transition">
+                    <Plus size={14} /> Definir próxima ação
                   </button>
                 ) : status === 'late' ? (
-                  <div className="mt-3 flex items-center gap-2 text-xs">
+                  <div className="mt-3.5 flex items-center gap-2 text-[13px] bg-slate-50 rounded-xl px-3 py-2.5">
                     {nextAction ? (
                       <button onClick={() => setTaskForm({ projectId: p.id, task: nextAction })} className="flex items-center gap-1.5 min-w-0 text-left flex-1">
-                        <ChevronRight size={13} className="text-rose-500 shrink-0" />
+                        <ChevronRight size={14} className="text-rose-500 shrink-0" />
                         <span className="truncate text-slate-700 font-medium">{nextAction.title}</span>
                       </button>
                     ) : <span className="flex-1 text-slate-400">Prazo vencido</span>}
-                    <button onClick={() => { setEditingProject(p); setIsProjectFormOpen(true); }} className="shrink-0 font-bold text-teal-700 hover:underline">Replanejar</button>
+                    <button onClick={() => { setEditingProject(p); setIsProjectFormOpen(true); }} className="shrink-0 font-semibold text-teal-700 hover:underline">Replanejar</button>
                   </div>
                 ) : nextAction ? (
-                  <button onClick={() => setTaskForm({ projectId: p.id, task: nextAction })} className="mt-3 w-full flex items-center gap-1.5 text-xs text-left">
-                    <ChevronRight size={13} className="text-teal-600 shrink-0" />
+                  <button onClick={() => setTaskForm({ projectId: p.id, task: nextAction })} className="mt-3.5 w-full flex items-center gap-1.5 text-[13px] text-left bg-slate-50 rounded-xl px-3 py-2.5">
+                    <ChevronRight size={14} className="text-teal-600 shrink-0" />
                     <span className="shrink-0 font-semibold text-slate-500">{nextAction.dueDate === today ? 'Ação de hoje:' : 'Próxima:'}</span>
                     <span className="truncate text-slate-700 font-medium">{nextAction.title}</span>
                   </button>
                 ) : null}
 
-                <div className="flex items-center justify-between mt-3">
-                  <button onClick={() => setExpanded(isOpen ? null : p.id)} className="flex items-center gap-1 text-xs font-medium text-slate-500 hover:text-teal-700">
-                    <ChevronDown size={14} className={`transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+                <div className="flex items-center justify-between mt-3.5">
+                  <button onClick={() => setExpanded(isOpen ? null : p.id)} className="flex items-center gap-1 text-[13px] font-medium text-slate-500 hover:text-teal-700 transition-colors">
+                    <ChevronDown size={15} className={`transition-transform ${isOpen ? 'rotate-180' : ''}`} />
                     {isOpen ? 'Ocultar tarefas' : `Ver tarefas (${total})`}
                   </button>
-                  <button onClick={() => setTaskForm({ projectId: p.id, task: null })} className="flex items-center gap-1 text-xs font-medium text-teal-700 hover:text-teal-800">
-                    <Plus size={14} /> Tarefa
+                  <button onClick={() => setTaskForm({ projectId: p.id, task: null })} className="flex items-center gap-1 text-[13px] font-semibold text-teal-700 hover:text-teal-800 transition-colors">
+                    <Plus size={15} /> Tarefa
                   </button>
                 </div>
               </div>
 
               {isOpen && (
-                <div className="px-4 pb-4 space-y-3 bg-slate-50/50">
+                <div className="px-4 md:px-5 pt-4 pb-4 md:pb-5 space-y-3 bg-slate-50/60 border-t border-slate-100">
                   <MetaNotes project={p} onSave={onUpdateProject} />
                   <div className="space-y-1.5">
-                    {pTasks.length === 0 && <p className="text-xs text-slate-400 py-1">Nenhuma tarefa nesta meta ainda.</p>}
+                    {pTasks.length === 0 && <p className="text-[13px] text-slate-400 py-1">Nenhuma tarefa nesta meta ainda.</p>}
                     {pTasks.map(t => (
                       <TaskItem
                         key={t.id}
