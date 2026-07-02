@@ -86,18 +86,18 @@ export const HabitsView: React.FC<HabitsViewProps> = ({
                     <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: habit.color }} />
                     {habit.name}
                   </h3>
-                  <div className="flex items-center gap-3 text-[13px] text-slate-400 mt-0.5">
+                  <div className="flex items-center flex-wrap gap-x-3 gap-y-0.5 text-[13px] text-slate-400 mt-0.5">
                     {streaks.current > 0 ? (
-                      <span className="flex items-center gap-1 font-semibold text-amber-600">
-                        <Flame size={13} /> {streaks.current} {streaks.current === 1 ? 'dia' : 'dias'} seguidos
+                      <span className="flex items-center gap-1 font-semibold text-amber-600 whitespace-nowrap">
+                        <Flame size={13} /> {streaks.current} {streaks.current === 1 ? 'dia seguido' : 'dias seguidos'}
                       </span>
                     ) : (
-                      <span className="flex items-center gap-1 text-slate-400">
+                      <span className="flex items-center gap-1 text-slate-400 whitespace-nowrap">
                         <Flame size={13} /> Sequência: 0
                       </span>
                     )}
-                    <span className="flex items-center gap-1 text-slate-400">
-                      <Trophy size={13} /> recorde: {streaks.best}
+                    <span className="flex items-center gap-1 text-slate-400 whitespace-nowrap">
+                      <Trophy size={13} /> Recorde: {streaks.best}
                     </span>
                   </div>
                 </div>

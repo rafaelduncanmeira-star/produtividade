@@ -77,6 +77,10 @@
       html.dark .border-slate-200 { border-color: #334155; }
       html.dark .border-slate-300 { border-color: #475569; }
 
+      /* Divisórias de lista (divide-y): sem isto ficam claras demais no escuro */
+      html.dark .divide-slate-100 > :not([hidden]) ~ :not([hidden]) { border-color: #334155; }
+      html.dark .divide-slate-200 > :not([hidden]) ~ :not([hidden]) { border-color: #334155; }
+
       /* Chips coloridos: pastel claro -> tinta translúcida */
       html.dark .bg-teal-50 { background-color: rgba(20,184,166,0.16); }
       html.dark .bg-teal-50\/40 { background-color: rgba(20,184,166,0.10); }
@@ -203,13 +207,14 @@
       html .rounded-lg { border-radius: 0.75rem; }
       @media (min-width: 768px) { html .md\:rounded-2xl { border-radius: 1.375rem; } }
 
-      /* Foco visível por teclado em qualquer controle (navegação por Tab) */
-      button:focus-visible, a:focus-visible, [role="button"]:focus-visible,
-      select:focus-visible, input:focus-visible, textarea:focus-visible {
+      /* Foco visível por teclado (navegação por Tab). Campos de texto ficam de fora:
+         eles já sinalizam foco com o próprio ring (evita o anel duplo pesado). */
+      button:focus-visible, a:focus-visible, [role="button"]:focus-visible {
         outline: 2px solid #14b8a6;
         outline-offset: 2px;
         border-radius: 8px;
       }
+      input:focus-visible, textarea:focus-visible, select:focus-visible { outline: none; }
 
       /* Evita o zoom automático do iOS ao focar campos (acontece quando a fonte < 16px).
          Vale só em telas de toque, preservando o visual compacto no desktop. */
@@ -221,15 +226,15 @@
 
       /* ===== Look "Liquid Glass" do iOS (somente iPhone/iPad: html.ios) ===== */
       html.ios .header-glass {
-        background-color: rgba(255, 255, 255, 0.42) !important;
+        background-color: rgba(255, 255, 255, 0.78) !important;
         -webkit-backdrop-filter: saturate(180%) blur(22px) !important;
         backdrop-filter: saturate(180%) blur(22px) !important;
         padding-top: max(0.75rem, env(safe-area-inset-top));
       }
-      html.dark.ios .header-glass { background-color: rgba(15, 23, 42, 0.42) !important; }
+      html.dark.ios .header-glass { background-color: rgba(15, 23, 42, 0.72) !important; }
 
       html.ios .tabbar-glass {
-        background-color: rgba(255, 255, 255, 0.06) !important;
+        background-color: rgba(255, 255, 255, 0.62) !important;
         -webkit-backdrop-filter: saturate(200%) blur(34px) !important;
         backdrop-filter: saturate(200%) blur(34px) !important;
         border: 1px solid rgba(255, 255, 255, 0.6);
@@ -242,7 +247,7 @@
         overflow: hidden;
       }
       html.dark.ios .tabbar-glass {
-        background-color: rgba(17, 24, 39, 0.12) !important;
+        background-color: rgba(17, 24, 39, 0.55) !important;
         border-color: rgba(148, 163, 184, 0.22);
         box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 12px 32px rgba(0, 0, 0, 0.5);
       }

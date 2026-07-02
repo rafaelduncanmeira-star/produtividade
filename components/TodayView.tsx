@@ -289,21 +289,21 @@ export const TodayView: React.FC<TodayViewProps> = ({
         </p>
         {chosen ? (
           <div className="mt-3">
-            <div className="bg-slate-50 rounded-xl p-2.5 pl-3.5 flex items-center gap-2.5">
+            <div className="bg-slate-50 rounded-xl p-3">
               <button
                 onClick={() => sortedToday.length > 1 && setPicking(p => !p)}
-                className="flex-1 min-w-0 text-left"
+                className="w-full min-w-0 text-left"
                 aria-expanded={picking}
               >
                 <div className="text-[11px] font-medium text-slate-500 flex items-center gap-1">
                   Sugestão para focar
                   {sortedToday.length > 1 && <ChevronDown size={12} className={`transition-transform ${picking ? 'rotate-180' : ''}`} />}
                 </div>
-                <div className="font-semibold truncate text-[15px] text-slate-800 mt-0.5">{chosen.title}</div>
+                <div className="font-semibold text-[15px] text-slate-800 mt-0.5 leading-snug line-clamp-2">{chosen.title}</div>
               </button>
               <button
                 onClick={() => onStartFocusTask(chosen.id)}
-                className="shrink-0 bg-teal-800 text-white font-semibold text-sm px-3.5 py-2.5 rounded-xl flex items-center gap-1.5 active:scale-95 transition"
+                className="mt-2.5 w-full bg-teal-800 text-white font-semibold text-sm px-3.5 py-2.5 rounded-xl flex items-center justify-center gap-1.5 active:scale-95 transition"
               >
                 <Play size={15} /> Focar {focusMinutes} min
               </button>

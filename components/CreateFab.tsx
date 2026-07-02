@@ -34,7 +34,7 @@ export const CreateFab: React.FC<CreateFabProps> = ({ onTask, onHabit, onBlock, 
                 onClick={() => { a.run(); setOpen(false); }}
                 className="w-full flex items-center gap-3 px-2.5 py-2.5 rounded-xl text-left hover:bg-slate-50 active:bg-slate-100 transition-colors"
               >
-                <span className="w-8 h-8 rounded-lg bg-teal-800 text-white flex items-center justify-center shrink-0">
+                <span className="w-8 h-8 rounded-lg bg-teal-50 text-teal-700 flex items-center justify-center shrink-0">
                   {a.icon}
                 </span>
                 <span className="text-[15px] font-medium text-slate-800">{a.label}</span>

@@ -430,16 +430,16 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
     const reopen = () => setTasks(prev => prev.map(x => x.id === target.id ? { ...x, completed: false, completedAt: undefined } : x));
     if (target.recurrence && !target.recurrenceSpawned) {
       const nextDue = nextRecurrenceISO(target.recurrence, target.dueDate ?? todayISO());
-      toast(`🔁 Próxima criada para ${formatShortDate(nextDue)}`);
+      toast(`Próxima criada para ${formatShortDate(nextDue)}`);
     }
     const t = todayISO();
     const openToday = tasks.filter(x => !x.completed && !!x.dueDate && x.dueDate <= t);
     const lastOfDay = !!target.dueDate && target.dueDate <= t && openToday.length === 1 && openToday[0].id === target.id;
     if (lastOfDay) {
       celebrateComplete();
-      toast('🎉 Tudo de hoje concluído!', { action: { label: 'Desfazer', onClick: reopen } });
+      toast('Tudo de hoje concluído!', { action: { label: 'Desfazer', onClick: reopen } });
     } else {
-      toast('✅ Tarefa concluída', { action: { label: 'Desfazer', onClick: reopen } });
+      toast('Tarefa concluída', { action: { label: 'Desfazer', onClick: reopen } });
     }
   };
 
@@ -538,7 +538,7 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
       const doneCount = todays.filter(h => h.id === habitId || h.completions.includes(isoDate)).length;
       if (todays.length > 0 && doneCount === todays.length) {
         celebrateComplete();
-        toast('🎉 Hábitos do dia completos!');
+        toast('Hábitos do dia completos!');
       }
     }
   };
@@ -1032,7 +1032,7 @@ const TempoApp: React.FC<TempoAppProps> = ({ userEmail, initial, onSnapshotChang
             <div className="w-12 h-12 rounded-2xl bg-teal-800 text-white flex items-center justify-center mb-4">
               <Sparkles size={24} />
             </div>
-            <h2 className="text-xl font-bold text-slate-800">Bem-vindo ao Foco GeriClass 👋</h2>
+            <h2 className="text-xl font-bold text-slate-800">Bem-vindo ao Foco GeriClass</h2>
             <p className="text-sm text-slate-500 mt-1">Organize tarefas, foque com pomodoro e construa hábitos — tudo num lugar só.</p>
             <div className="mt-4 space-y-2.5">
               {[
